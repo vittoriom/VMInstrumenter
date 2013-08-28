@@ -74,4 +74,40 @@
     [testsMock verify];
 }
 
+- (void)testRestoreSelectorTwice
+{
+    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+    
+    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+    
+    EXP_expect(^{
+        [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+    }).toNot.raiseAny();
+}
+
+- (void)testRestoreNotSuppressedMethod
+{
+    EXP_expect(^{
+        [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+    }).toNot.raiseAny();
+}
+
+- (void)testReplaceMethods
+{
+    VMTestsHelper *helper = [VMTestsHelper new];
+    VMTestsHelper *helper2 = [VMTestsHelper new];
+    
+    helper.forwardCalls = helper2;
+    
+    [_instrumenter replaceSelector:@selector(dontCallMe) ofClass:[VMTestsHelper class] withSelector:@selector(ifReplacedCalled) ofClass:[VMTestsHelper class]];
+    
+    id testsMock = [OCMockObject partialMockForObject:helper2];
+    
+    [[testsMock expect] canSafelyCallMe];
+    
+    [helper dontCallMe];
+    
+    [testsMock verify];
+}
+
 @end

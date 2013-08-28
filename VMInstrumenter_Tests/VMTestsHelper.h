@@ -16,4 +16,6 @@
 
 - (void) canSafelyCallMe;
 
+- (void) ifReplacedCalled;
+
 @end

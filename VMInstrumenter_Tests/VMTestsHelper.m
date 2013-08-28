@@ -20,4 +20,9 @@
     [self.forwardCalls dontCallMe];
 }
 
+- (void) ifReplacedCalled
+{
+    [self.forwardCalls canSafelyCallMe];
+}
+
 @end
