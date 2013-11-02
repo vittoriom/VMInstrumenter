@@ -92,7 +92,12 @@
     
     if(![self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
-        NSLog(@"VMDInstrumenter - Warning: The SEL %@ is not suppressed", selectorName);
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"VMDInstrumenter - Warning: The SEL %@ is not suppressed"
+                                     userInfo:@{
+                                                @"error" : @"selector is not suppressed",
+                                                @"info" : selectorName
+                                                }];
         return;
     }
     
