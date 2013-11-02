@@ -6,108 +6,104 @@
 //  Copyright (c) 2013 Vittorio Monaco. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
-#import <OCMock/OCMock.h>
-#import <Expecta/Expecta.h>
-#import "VMInstrumenter.h"
+#import <Kiwi/Kiwi.h>
+#import <XCTest/XCTest.h>
+#import "VMDInstrumenter.h"
 #import "VMTestsHelper.h"
 
-@interface VMInstrumenter_Tests : SenTestCase {
-    VMInstrumenter *_instrumenter;
-}
+SPEC_BEGIN(VMDInstrumenterTests)
 
-@end
+    __block VMDInstrumenter *_instrumenter;
 
-@implementation VMInstrumenter_Tests
+    describe(@"VMDInstrumenter", ^{
+        beforeEach(^{
+            _instrumenter = [VMDInstrumenter sharedInstance];
+        });
+    
+        context(@"when suppressing a method", ^{
+            __block VMTestsHelper *helper;
+            __block VMTestsHelper *check;
+            
+            beforeEach(^{
+                helper = [VMTestsHelper new];
+                check = [VMTestsHelper new];
+                
+                helper.forwardCalls = check;
+                
+                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+            });
+            
+            afterEach(^{
+                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+            });
+            
+            it(@"should suppress method once", ^{
+                [[check shouldNot] receive:@selector(dontCallMe)];
+                
+                [helper canSafelyCallMe];
+            });
+            
+            it(@"should not suppress method twice", ^{
+                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                
+                [[theBlock(^{
+                    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                }) shouldNot] raise];
+            });
+            
+            it(@"should restore suppressed selectors", ^{
+                [[check should] receive:@selector(dontCallMe)];
+                
+                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                
+                [helper canSafelyCallMe];
+            });
+            
+            it(@"should not restore a selector twice", ^{
+                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                
+                [[theBlock(^{
+                    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                }) shouldNot] raise];
+                
+            });
+        });
+        
+        context(@"when in stable state", ^{
+            it(@"should not restore methods not suppressed", ^{
+                [[theBlock(^{
+                    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                }) shouldNot] raise];
+            });
+        });
+        
+        context(@"when replacing method implementations", ^{
+            __block VMTestsHelper *helper;
+            __block VMTestsHelper *helper2;
+            
+            beforeEach(^{
+                helper = [VMTestsHelper new];
+                helper2 = [VMTestsHelper new];
+            
+                helper.forwardCalls = helper2;
+            });
+            
+            it(@"should replace implementations once", ^{
+                [_instrumenter replaceSelector:@selector(dontCallMe) ofClass:[VMTestsHelper class] withSelector:@selector(ifReplacedCalled) ofClass:[VMTestsHelper class]];
+                
+                [[helper2 should] receive:@selector(canSafelyCallMe)];
+                
+                [helper dontCallMe];
+            });
+            
+            it(@"should restore the original implementation if called twice", ^{
+                [_instrumenter replaceSelector:@selector(dontCallMe) ofClass:[VMTestsHelper class] withSelector:@selector(ifReplacedCalled) ofClass:[VMTestsHelper class]];
+                
+                [[helper2 shouldNot] receive:@selector(canSafelyCallMe)];
+                
+                [helper dontCallMe];
+            });
+        });
+    });
 
-- (void)setUp
-{
-    [super setUp];
-    
-    _instrumenter = [VMInstrumenter sharedInstance];
-}
-
-- (void)testSuppressMethodOnce
-{
-    VMTestsHelper *helper = [VMTestsHelper new];
-    VMTestsHelper *check = [VMTestsHelper new];
-    
-    helper.forwardCalls = check;
-    
-    id testsMock = [OCMockObject partialMockForObject:check];
-    
-    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    
-    [[testsMock reject] dontCallMe];
-    
-    [helper canSafelyCallMe];
-    
-    [testsMock verify];
-}
-
-- (void)testSuppressMethodTwice
-{
-    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    
-    EXP_expect(^{
-        [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    }).toNot.raiseAny();
-}
-
-- (void)testRestoreSelector
-{
-    VMTestsHelper *helper = [VMTestsHelper new];
-    VMTestsHelper *check = [VMTestsHelper new];
-    
-    helper.forwardCalls = check;
-    
-    id testsMock = [OCMockObject partialMockForObject:check];
-    
-    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    
-    [[testsMock expect] dontCallMe];
-    
-    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    
-    [helper canSafelyCallMe];
-    
-    [testsMock verify];
-}
-
-- (void)testRestoreSelectorTwice
-{
-    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    
-    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    
-    EXP_expect(^{
-        [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    }).toNot.raiseAny();
-}
-
-- (void)testRestoreNotSuppressedMethod
-{
-    EXP_expect(^{
-        [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-    }).toNot.raiseAny();
-}
-
-- (void)testReplaceMethods
-{
-    VMTestsHelper *helper = [VMTestsHelper new];
-    VMTestsHelper *helper2 = [VMTestsHelper new];
-    
-    helper.forwardCalls = helper2;
-    
-    [_instrumenter replaceSelector:@selector(dontCallMe) ofClass:[VMTestsHelper class] withSelector:@selector(ifReplacedCalled) ofClass:[VMTestsHelper class]];
-    
-    id testsMock = [OCMockObject partialMockForObject:helper2];
-    
-    [[testsMock expect] canSafelyCallMe];
-    
-    [helper dontCallMe];
-    
-    [testsMock verify];
-}
-
-@end
+SPEC_END

@@ -1,6 +1,6 @@
 //
-//  VMInstrumenter.h
-//  VMInstrumenter_Sample
+//  VMDInstrumenter.h
+//  VMDInstrumenter_Sample
 //
 //  Created by Vittorio Monaco on 28/08/13.
 //  Copyright (c) 2013 Vittorio Monaco. All rights reserved.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface VMInstrumenter : NSObject
+@interface VMDInstrumenter : NSObject
 
 /**
  Of course this is a singleton, no point in doing some other alloc init stuff
@@ -72,7 +72,7 @@
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz;
 
 /** 
- TO BE DETERMINED (FEASIBLE?)
+ TO BE DETERMINED
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingSelfObject:(BOOL)dumpInfo dumpingStackTrace:(BOOL)dumpStack;
 

@@ -7,7 +7,7 @@
 //
 
 #import "VMViewController.h"
-#import "VMInstrumenter.h"
+#import "VMDInstrumenter.h"
 
 @interface VMViewController ()
 
@@ -20,7 +20,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
 
-    VMInstrumenter *instrumenter = [VMInstrumenter sharedInstance];
+    VMDInstrumenter *instrumenter = [VMDInstrumenter sharedInstance];
     
     [self doFoo];
     
@@ -52,11 +52,24 @@
     
     NSLog(@"RESULT: %@",result);
     
+    [instrumenter restoreSelector:@selector(doFoo) forInstancesOfClass:[self class]];
+    [instrumenter replaceSelector:@selector(doFoo) ofClass:[self class] withSelector:@selector(doBar) ofClass:[self class]];
+    [self doFoo];
+    [self doBar];
+    
+    [instrumenter replaceSelector:@selector(doFoo) ofClass:[self class] withSelector:@selector(doBar) ofClass:[self class]];
+    [self doFoo];
+    [self doBar];
 }
 
 - (void) doFoo
 {
     NSLog(@"DOING FOO!");
+}
+
+- (void) doFooWithMoreParameters:(NSNumber *)number andDate:(NSDate *)date
+{
+    NSLog(@"DO A LOT OF STUFF");
 }
 
 - (void) doBar

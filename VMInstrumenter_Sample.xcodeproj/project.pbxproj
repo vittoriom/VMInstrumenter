@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		08364C551F0549018F1D1477 /* libPods-test.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDA245DC239248DFBB78F3E3 /* libPods-test.a */; };
-		528ABA4817CE640D00133BBC /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD9317CE221200FCFB02 /* SenTestingKit.framework */; };
-		528ABA4917CE640D00133BBC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
-		528ABA4A17CE640D00133BBC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
-		528ABA5017CE640D00133BBC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 528ABA4E17CE640D00133BBC /* InfoPlist.strings */; };
-		528ABA5A17CE647F00133BBC /* VMInstrumenter_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 528ABA5917CE647F00133BBC /* VMInstrumenter_Tests.m */; };
-		52E5264017CE67D6004C5A2B /* VMTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */; };
+		5265FA7A1825075700B09838 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5265FA791825075700B09838 /* XCTest.framework */; };
+		5265FA7B1825075700B09838 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
+		5265FA7C1825075700B09838 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
+		52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */; };
+		52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */; };
+		52D68D321825087A00AD9E35 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 52D68D311825087A00AD9E35 /* InfoPlist.strings */; };
 		6EE26CD10F684C768EDF7B0F /* libPods-debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AA53E771A84A9CADD42A2E /* libPods-debug.a */; };
+		773ABCA6F0634210B035EFCB /* libPods-test.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684048266C0A41C389F29D65 /* libPods-test.a */; };
 		A439FD6D17CE221200FCFB02 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
 		A439FD6F17CE221200FCFB02 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
 		A439FD7117CE221200FCFB02 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD7017CE221200FCFB02 /* CoreGraphics.framework */; };
@@ -26,11 +26,11 @@
 		A439FD8317CE221200FCFB02 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A439FD8217CE221200FCFB02 /* Default-568h@2x.png */; };
 		A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FD8517CE221200FCFB02 /* VMViewController.m */; };
 		A439FD8917CE221200FCFB02 /* VMViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = A439FD8717CE221200FCFB02 /* VMViewController_iPhone.xib */; };
-		A439FDB117CE22A000FCFB02 /* VMInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FDB017CE22A000FCFB02 /* VMInstrumenter.m */; };
+		A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		528ABA5417CE640D00133BBC /* PBXContainerItemProxy */ = {
+		5265FA861825075700B09838 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A439FD6117CE221200FCFB02 /* Project object */;
 			proxyType = 1;
@@ -41,14 +41,16 @@
 
 /* Begin PBXFileReference section */
 		00BD6E467DFF4623B2669826 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		528ABA4717CE640D00133BBC /* VMInstrumenter_Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VMInstrumenter_Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		092F95CED07546949381872C /* Pods-test.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-test.xcconfig"; path = "Pods/Pods-test.xcconfig"; sourceTree = SOURCE_ROOT; };
+		5265FA781825075700B09838 /* VMInstrumenter_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VMInstrumenter_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5265FA791825075700B09838 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		528ABA4D17CE640D00133BBC /* VMInstrumenter_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "VMInstrumenter_Tests-Info.plist"; sourceTree = "<group>"; };
-		528ABA4F17CE640D00133BBC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		528ABA5317CE640D00133BBC /* VMInstrumenter_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VMInstrumenter_Tests-Prefix.pch"; sourceTree = "<group>"; };
-		528ABA5917CE647F00133BBC /* VMInstrumenter_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMInstrumenter_Tests.m; sourceTree = "<group>"; };
+		52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMInstrumenter_Tests.m; sourceTree = "<group>"; };
+		52D68D311825087A00AD9E35 /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
 		52E5263E17CE67D6004C5A2B /* VMTestsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMTestsHelper.h; sourceTree = "<group>"; };
 		52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMTestsHelper.m; sourceTree = "<group>"; };
-		61BA1D62E8A642FD8ED8BD8C /* Pods-debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-debug.xcconfig"; path = "Pods/Pods-debug.xcconfig"; sourceTree = SOURCE_ROOT; };
+		684048266C0A41C389F29D65 /* libPods-test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6989A2E9E6F74F6782E7954F /* libPods-build.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-build.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A439FD6917CE221200FCFB02 /* VMInstrumenter_Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VMInstrumenter_Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A439FD6C17CE221200FCFB02 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -67,22 +69,22 @@
 		A439FD8517CE221200FCFB02 /* VMViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VMViewController.m; sourceTree = "<group>"; };
 		A439FD8817CE221200FCFB02 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/VMViewController_iPhone.xib; sourceTree = "<group>"; };
 		A439FD9317CE221200FCFB02 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		A439FDAF17CE22A000FCFB02 /* VMInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMInstrumenter.h; sourceTree = "<group>"; };
-		A439FDB017CE22A000FCFB02 /* VMInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMInstrumenter.m; sourceTree = "<group>"; };
+		A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDInstrumenter.h; sourceTree = "<group>"; };
+		A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDInstrumenter.m; sourceTree = "<group>"; };
 		E0E3B93C846A40E499AB1EB5 /* Pods-test.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-test.xcconfig"; path = "Pods/Pods-test.xcconfig"; sourceTree = SOURCE_ROOT; };
 		EDA245DC239248DFBB78F3E3 /* libPods-test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9AA53E771A84A9CADD42A2E /* libPods-debug.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-debug.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		528ABA4417CE640D00133BBC /* Frameworks */ = {
+		5265FA751825075700B09838 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				528ABA4817CE640D00133BBC /* SenTestingKit.framework in Frameworks */,
-				528ABA4A17CE640D00133BBC /* UIKit.framework in Frameworks */,
-				528ABA4917CE640D00133BBC /* Foundation.framework in Frameworks */,
-				08364C551F0549018F1D1477 /* libPods-test.a in Frameworks */,
+				5265FA7A1825075700B09838 /* XCTest.framework in Frameworks */,
+				5265FA7C1825075700B09838 /* UIKit.framework in Frameworks */,
+				5265FA7B1825075700B09838 /* Foundation.framework in Frameworks */,
+				773ABCA6F0634210B035EFCB /* libPods-test.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,9 +106,9 @@
 			isa = PBXGroup;
 			children = (
 				528ABA4C17CE640D00133BBC /* Supporting Files */,
-				528ABA5917CE647F00133BBC /* VMInstrumenter_Tests.m */,
 				52E5263E17CE67D6004C5A2B /* VMTestsHelper.h */,
 				52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */,
+				52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */,
 			);
 			path = VMInstrumenter_Tests;
 			sourceTree = "<group>";
@@ -114,8 +116,8 @@
 		528ABA4C17CE640D00133BBC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				52D68D311825087A00AD9E35 /* InfoPlist.strings */,
 				528ABA4D17CE640D00133BBC /* VMInstrumenter_Tests-Info.plist */,
-				528ABA4E17CE640D00133BBC /* InfoPlist.strings */,
 				528ABA5317CE640D00133BBC /* VMInstrumenter_Tests-Prefix.pch */,
 			);
 			name = "Supporting Files";
@@ -130,7 +132,7 @@
 				A439FD6B17CE221200FCFB02 /* Frameworks */,
 				A439FD6A17CE221200FCFB02 /* Products */,
 				E0E3B93C846A40E499AB1EB5 /* Pods-test.xcconfig */,
-				61BA1D62E8A642FD8ED8BD8C /* Pods-debug.xcconfig */,
+				092F95CED07546949381872C /* Pods-test.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -138,7 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				A439FD6917CE221200FCFB02 /* VMInstrumenter_Sample.app */,
-				528ABA4717CE640D00133BBC /* VMInstrumenter_Tests.octest */,
+				5265FA781825075700B09838 /* VMInstrumenter_Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -154,6 +156,8 @@
 				EDA245DC239248DFBB78F3E3 /* libPods-test.a */,
 				6989A2E9E6F74F6782E7954F /* libPods-build.a */,
 				F9AA53E771A84A9CADD42A2E /* libPods-debug.a */,
+				5265FA791825075700B09838 /* XCTest.framework */,
+				684048266C0A41C389F29D65 /* libPods-test.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -188,8 +192,8 @@
 		A439FDAA17CE228600FCFB02 /* VMInstrumenter */ = {
 			isa = PBXGroup;
 			children = (
-				A439FDAF17CE22A000FCFB02 /* VMInstrumenter.h */,
-				A439FDB017CE22A000FCFB02 /* VMInstrumenter.m */,
+				A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */,
+				A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */,
 			);
 			path = VMInstrumenter;
 			sourceTree = "<group>";
@@ -197,35 +201,33 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		528ABA4617CE640D00133BBC /* VMInstrumenter_Tests */ = {
+		5265FA771825075700B09838 /* VMInstrumenter_Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 528ABA5617CE640D00133BBC /* Build configuration list for PBXNativeTarget "VMInstrumenter_Tests" */;
+			buildConfigurationList = 5265FA881825075700B09838 /* Build configuration list for PBXNativeTarget "VMInstrumenter_Tests" */;
 			buildPhases = (
-				2D0A45C633794DADB4F28A5A /* Check Pods Manifest.lock */,
-				528ABA4317CE640D00133BBC /* Sources */,
-				528ABA4417CE640D00133BBC /* Frameworks */,
-				528ABA4517CE640D00133BBC /* Resources */,
-				01406A68C0A9496B82BB9992 /* Copy Pods Resources */,
+				12079A853DDF4D7583237CD8 /* Check Pods Manifest.lock */,
+				5265FA741825075700B09838 /* Sources */,
+				5265FA751825075700B09838 /* Frameworks */,
+				5265FA761825075700B09838 /* Resources */,
+				7D29D5565EAA4D269BD445F6 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				528ABA5517CE640D00133BBC /* PBXTargetDependency */,
+				5265FA871825075700B09838 /* PBXTargetDependency */,
 			);
 			name = VMInstrumenter_Tests;
 			productName = VMInstrumenter_Tests;
-			productReference = 528ABA4717CE640D00133BBC /* VMInstrumenter_Tests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = 5265FA781825075700B09838 /* VMInstrumenter_Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		A439FD6817CE221200FCFB02 /* VMInstrumenter_Sample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A439FDA417CE221200FCFB02 /* Build configuration list for PBXNativeTarget "VMInstrumenter_Sample" */;
 			buildPhases = (
-				572A7680DA6C48C9B0578B83 /* Check Pods Manifest.lock */,
 				A439FD6517CE221200FCFB02 /* Sources */,
 				A439FD6617CE221200FCFB02 /* Frameworks */,
 				A439FD6717CE221200FCFB02 /* Resources */,
-				B9B9703708424115A4105D54 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -246,7 +248,7 @@
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = "Vittorio Monaco";
 				TargetAttributes = {
-					528ABA4617CE640D00133BBC = {
+					5265FA771825075700B09838 = {
 						TestTargetID = A439FD6817CE221200FCFB02;
 					};
 				};
@@ -264,17 +266,17 @@
 			projectRoot = "";
 			targets = (
 				A439FD6817CE221200FCFB02 /* VMInstrumenter_Sample */,
-				528ABA4617CE640D00133BBC /* VMInstrumenter_Tests */,
+				5265FA771825075700B09838 /* VMInstrumenter_Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		528ABA4517CE640D00133BBC /* Resources */ = {
+		5265FA761825075700B09838 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				528ABA5017CE640D00133BBC /* InfoPlist.strings in Resources */,
+				52D68D321825087A00AD9E35 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,7 +295,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		01406A68C0A9496B82BB9992 /* Copy Pods Resources */ = {
+		12079A853DDF4D7583237CD8 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+		};
+		7D29D5565EAA4D269BD445F6 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -307,58 +323,15 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Pods-test-resources.sh\"\n";
 		};
-		2D0A45C633794DADB4F28A5A /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-		};
-		572A7680DA6C48C9B0578B83 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-		};
-		B9B9703708424115A4105D54 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-debug-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		528ABA4317CE640D00133BBC /* Sources */ = {
+		5265FA741825075700B09838 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				528ABA5A17CE647F00133BBC /* VMInstrumenter_Tests.m in Sources */,
-				52E5264017CE67D6004C5A2B /* VMTestsHelper.m in Sources */,
+				52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */,
+				52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,29 +342,21 @@
 				A439FD7917CE221200FCFB02 /* main.m in Sources */,
 				A439FD7D17CE221200FCFB02 /* VMAppDelegate.m in Sources */,
 				A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */,
-				A439FDB117CE22A000FCFB02 /* VMInstrumenter.m in Sources */,
+				A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		528ABA5517CE640D00133BBC /* PBXTargetDependency */ = {
+		5265FA871825075700B09838 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A439FD6817CE221200FCFB02 /* VMInstrumenter_Sample */;
-			targetProxy = 528ABA5417CE640D00133BBC /* PBXContainerItemProxy */;
+			targetProxy = 5265FA861825075700B09838 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		528ABA4E17CE640D00133BBC /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				528ABA4F17CE640D00133BBC /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 		A439FD7517CE221200FCFB02 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -411,10 +376,11 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		528ABA5717CE640D00133BBC /* Debug */ = {
+		5265FA891825075700B09838 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E0E3B93C846A40E499AB1EB5 /* Pods-test.xcconfig */;
+			baseConfigurationReference = 092F95CED07546949381872C /* Pods-test.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/VMInstrumenter_Sample.app/VMInstrumenter_Sample";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -423,7 +389,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
-					"$(SYSTEM_APPS_DIR)/Xcode5-DP2.app/Contents/Developer/Library/Frameworks",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VMInstrumenter_Tests/VMInstrumenter_Tests-Prefix.pch";
@@ -431,26 +397,23 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/Headers\"",
-					"\"${PODS_ROOT}/Headers/Expecta\"",
-					"\"${PODS_ROOT}/Headers/OCMock\"",
-				);
 				INFOPLIST_FILE = "VMInstrumenter_Tests/VMInstrumenter_Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
 		};
-		528ABA5817CE640D00133BBC /* Release */ = {
+		5265FA8A1825075700B09838 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E0E3B93C846A40E499AB1EB5 /* Pods-test.xcconfig */;
+			baseConfigurationReference = 092F95CED07546949381872C /* Pods-test.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/VMInstrumenter_Sample.app/VMInstrumenter_Sample";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -460,23 +423,19 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
-					"$(SYSTEM_APPS_DIR)/Xcode5-DP2.app/Contents/Developer/Library/Frameworks",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VMInstrumenter_Tests/VMInstrumenter_Tests-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				HEADER_SEARCH_PATHS = (
-					"\"${PODS_ROOT}/Headers\"",
-					"\"${PODS_ROOT}/Headers/Expecta\"",
-					"\"${PODS_ROOT}/Headers/OCMock\"",
-				);
 				INFOPLIST_FILE = "VMInstrumenter_Tests/VMInstrumenter_Tests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
+				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -506,7 +465,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "${PODS_HEADERS_SEARCH_PATHS}";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -532,7 +491,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "${PODS_HEADERS_SEARCH_PATHS}";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -542,7 +501,6 @@
 		};
 		A439FDA517CE221200FCFB02 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 61BA1D62E8A642FD8ED8BD8C /* Pods-debug.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VMInstrumenter_Sample/VMInstrumenter_Sample-Prefix.pch";
@@ -561,7 +519,6 @@
 		};
 		A439FDA617CE221200FCFB02 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 61BA1D62E8A642FD8ED8BD8C /* Pods-debug.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VMInstrumenter_Sample/VMInstrumenter_Sample-Prefix.pch";
@@ -581,11 +538,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		528ABA5617CE640D00133BBC /* Build configuration list for PBXNativeTarget "VMInstrumenter_Tests" */ = {
+		5265FA881825075700B09838 /* Build configuration list for PBXNativeTarget "VMInstrumenter_Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				528ABA5717CE640D00133BBC /* Debug */,
-				528ABA5817CE640D00133BBC /* Release */,
+				5265FA891825075700B09838 /* Debug */,
+				5265FA8A1825075700B09838 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
