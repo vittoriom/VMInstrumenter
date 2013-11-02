@@ -60,6 +60,9 @@
     [instrumenter replaceSelector:@selector(doFoo) ofClass:[self class] withSelector:@selector(doBar) ofClass:[self class]];
     [self doFoo];
     [self doBar];
+    
+    [instrumenter traceSelector:@selector(doFoo) forClass:[self class] dumpingSelfObject:YES dumpingStackTrace:YES];
+    [self doFoo];
 }
 
 - (void) doFoo

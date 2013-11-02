@@ -71,9 +71,13 @@
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz;
 
-/** 
- TO BE DETERMINED
+/**
+ This method instruments calls to a specified selector of a specified class and just logs execution as the previous method
+ Moreover, if dumpStack is YES, it prints the stack trace after every execution
+ 
+ @param selectorToTrace the selector that you'd like to trace
+ @clazz the class to take the selector from
  */
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingSelfObject:(BOOL)dumpInfo dumpingStackTrace:(BOOL)dumpStack;
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingStackTrace:(BOOL)dumpStack;
 
 @end

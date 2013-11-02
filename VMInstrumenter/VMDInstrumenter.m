@@ -7,6 +7,7 @@
 //
 
 #import "VMDInstrumenter.h"
+#import "NSObject+Dump.h"
 #import <objc/runtime.h>
 
 @interface VMDInstrumenter ()
@@ -180,16 +181,21 @@
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz
 {
+    [self traceSelector:selectorToTrace forClass:clazz dumpingStackTrace:NO];
+}
+
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingStackTrace:(BOOL)dumpStack
+{
     [self instrumentSelector:selectorToTrace forClass:clazz withBeforeBlock:^{
         NSLog(@"VMDInstrumenter - Called selector %@", NSStringFromSelector(selectorToTrace));
+        
+        if (dumpStack)
+        {
+            NSLog(@"%@",[NSThread callStackSymbols]);
+        }
     } afterBlock:^{
         NSLog(@"VMDInstrumenter - Finished executing selector %@",NSStringFromSelector(selectorToTrace));
     }];
-}
-
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingSelfObject:(BOOL)dumpInfo dumpingStackTrace:(BOOL)dumpStack
-{
-    // -- TO BE DETERMINED --
 }
 
 @end
