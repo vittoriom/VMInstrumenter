@@ -1,27 +1,38 @@
 VMInstrumenter
 ==============
 
-A simple Objective-C singleton to instrument, trace, and suppress selectors at runtime
+An Objective-C singleton to instrument, trace, and suppress selectors at runtime
 
-Simple usage:
+Usage:
+--------------
 
-You can get a <code>VMInstrumenter</code> instance by simply calling
+**Retrieve an instance of the instrumenter**
+
+You can get a <code>VMInstrumenter</code> instance by calling
 
 <code>VMInstrumenter *instrumenter = [VMInstrumenter sharedInstance];</code>
+
+**Suppressing selectors**
 
 Then you can suppress a specific selector of a specific class by calling
 
 <code>[instrumenter suppressSelector:@selector(doFoo) forInstancesOfClass:[self class]];</code>
 
-Any subsequent call to <code>doFoo</code> to <code>[self class]</code> will just be suppressed.
+Any subsequent call to <code>doFoo</code> in <code>[self class]</code> will be ignored.
 
 You can afterwards restore the suppressed method by calling
 
 <code>[instrumenter restoreSelector:@selector(doFoo) forInstancesOfClass:[self class]];</code>
 
+**Replacing implementations**
+
 You can also exchange methods implementation with
 
 <code>[instrumenter replaceSelector:@selector(doFoo) ofClass:[self class] withSelector:@selector(doBar) ofClass:[self class]];</code>
+
+so that every subsequent call to <code>doFoo</code> will in fact execute the code contained in <code>doBar</code>.
+
+**Tracing selectors**
 
 You can trace the execution of a particular selector (this will log start - end of the execution automatically) by calling
 
@@ -34,4 +45,15 @@ And you can instrument execution of a method by passing blocks of code to be exe
     } afterBlock:nil];
 </code>
 
-Everything is at a pre-alpha stage and this is just a 3-hours work so I'm not even sure that everything works. :)
+License:
+--------------
+This product is released under the BSD license.
+
+ToDo:
+--------------
+- Possibility to trace selectors that return primitive values
+- Possibility to trace selectors that take at least one parameter
+
+Disclaimer:
+--------------
+Everything is at a pre-alpha stage and this is just an experiment. I'm not even sure that everything works.
