@@ -12,6 +12,7 @@
 @interface VMDInstrumenter ()
 
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
+@property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress;
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument;
@@ -41,6 +42,7 @@
     if(self)
     {
         self.suppressedMethods = [@[] mutableCopy];
+        self.instrumentedMethods = [@[] mutableCopy];
     }
     
     return self;
@@ -116,6 +118,18 @@
 
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void (^)(void))beforeBlock afterBlock:(void (^)(void))afterBlock
 {
+    NSString *selectorName = NSStringFromSelector(selectorToInstrument);
+    if([self.instrumentedMethods containsObject:selectorName])
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"VMDInstrumenter - Selector is already instrumented"
+                                     userInfo:@{
+                                                @"error" : @"Selector already instrumented",
+                                                @"info" : selectorName
+                                                }];
+        return;
+    }
+    
     Method methodToInstrument = class_getInstanceMethod(clazz, selectorToInstrument);
     SEL instrumentedSelector = NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]);
     
@@ -153,6 +167,8 @@
     Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]));
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
+    
+    [self.instrumentedMethods addObject:selectorName];
 }
 
 #pragma clang diagnostic pop

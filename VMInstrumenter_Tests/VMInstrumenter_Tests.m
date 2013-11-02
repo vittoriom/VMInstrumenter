@@ -104,6 +104,16 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [helper dontCallMe];
             });
         });
+        
+        context(@"when instrumenting selectors", ^{
+            it(@"should not instrument a selector twice", ^{
+                [_instrumenter traceSelector:@selector(dontCallMe) forClass:[VMTestsHelper class]];
+                
+                [[theBlock(^{
+                    [_instrumenter traceSelector:@selector(dontCallMe) forClass:[VMTestsHelper class]];
+                }) should] raise];
+            });
+        });
     });
 
 SPEC_END
