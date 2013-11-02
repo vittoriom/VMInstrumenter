@@ -86,7 +86,7 @@
 
 - (NSNumber *) doCalculations:(NSNumber *)dummy
 {
-    return @1;
+    return dummy;
 }
 
 @end
