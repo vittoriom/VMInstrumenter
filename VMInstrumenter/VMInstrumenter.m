@@ -16,6 +16,8 @@
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress;
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument;
 
+- (const char *) signatureForReturnValue:(char *)returnValueType;
+
 @end
 
 @implementation VMInstrumenter
@@ -121,42 +123,296 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void (^)(void))beforeBlock afterBlock:(void (^)(void))afterBlock
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void (^)())beforeBlock afterBlock:(void (^)())afterBlock
 {
     Method methodToInstrument = class_getInstanceMethod(clazz, selectorToInstrument);
     SEL instrumentedSelector = NSSelectorFromString([VMInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]);
     
-    char returnType[3];
-    method_getReturnType(methodToInstrument, returnType, 3);
+    char returnType[1];
+    method_getReturnType(methodToInstrument, returnType, 1);
     
-    if(returnType[0] == 'v')
-    {
-        class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(){
-            if(beforeBlock)
-                beforeBlock();
-            
-            [self performSelector:instrumentedSelector];
-            
-            if(afterBlock)
-                afterBlock();
-        }), "v@:");
-    } else {
-        class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(){
-            if(beforeBlock)
-                beforeBlock();
-            
-            id result = [self performSelector:instrumentedSelector];
-            
-            if(afterBlock)
-                afterBlock();
-            
-            return result;
-        }), "@@:");
+    switch (returnType[0]) {
+        case 'v':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                [self performSelector:instrumentedSelector];
+                
+                if(afterBlock)
+                    afterBlock();
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case '@':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                id result = [self performSelector:instrumentedSelector];
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'c':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^char(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                    
+                char result = *(char *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'C':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned char(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                unsigned char result = *(unsigned char *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'i':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^int(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                int result = *(int *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 's':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^short(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                short result = *(short *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'l':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                long result = *(long *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'q':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long long(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                long long result = *(long long *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'I':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned int(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                unsigned int result = *(unsigned int *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'S':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned short(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                unsigned short result = *(unsigned short *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'L':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                unsigned long result = *(unsigned long *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'Q':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long long(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                unsigned long long result = *(unsigned long long *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'f':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^float(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                float result = *(float *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'd':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^double(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                double result = *(double *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case ':':
+            break;
+        case '#':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^Class(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                Class result = *(Class *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        case 'B':
+        {
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^BOOL(){
+                if(beforeBlock)
+                    beforeBlock();
+                
+                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                
+                BOOL result = *(BOOL *)fakeR;
+                
+                if(afterBlock)
+                    afterBlock();
+                
+                return result;
+            }), [self signatureForReturnValue:returnType]);
+        }
+            break;
+        default:
+            raise(11);
+            break;
     }
     
     Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]));
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
+}
+
+- (const char *) signatureForReturnValue:(char *)returnValueType
+{
+    return strcat(returnValueType, "@:");
 }
 
 #pragma clang diagnostic pop
