@@ -48,17 +48,8 @@
 - (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
 {
     NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-    [invocation setTarget:realSelf];
-    [invocation setSelector:realSelector];
     
-    @synchronized (self)
-    {
-        //This is the easiest way
-        //@TODO : retrieve the function pointer to the realSelector of realClass and call that instead, passing the correct arguments depending on the case (how?)
-        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
-        [invocation invoke];
-        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
-    }
+    [invocation invoke];
     
     return invocation;
 }
@@ -314,7 +305,7 @@
     switch (returnType[0]) {
         case 'v':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -336,7 +327,7 @@
             break;
         case '@':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -364,7 +355,7 @@
             break;
         case 'c':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -393,7 +384,7 @@
             break;
         case 'C':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -422,7 +413,7 @@
             break;
         case 'i':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -451,7 +442,7 @@
             break;
         case 's':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -480,7 +471,7 @@
             break;
         case 'l':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -509,7 +500,7 @@
             break;
         case 'q':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -538,7 +529,7 @@
             break;
         case 'I':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -567,7 +558,7 @@
             break;
         case 'S':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -596,7 +587,7 @@
             break;
         case 'L':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -625,7 +616,7 @@
             break;
         case 'Q':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -654,7 +645,7 @@
             break;
         case 'f':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -683,7 +674,7 @@
             break;
         case 'd':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -714,7 +705,7 @@
             break;
         case '#':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
@@ -743,7 +734,7 @@
             break;
         case 'B':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
+            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
