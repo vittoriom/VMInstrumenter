@@ -20,6 +20,16 @@
     [self.forwardCalls dontCallMe];
 }
 
+- (NSInteger) alwaysReturn3
+{
+    return 3;
+}
+
+- (NSString *) alwaysReturnTest
+{
+    return @"Test";
+}
+
 - (void) ifReplacedCalled
 {
     [self.forwardCalls canSafelyCallMe];

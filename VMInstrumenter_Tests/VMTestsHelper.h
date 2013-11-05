@@ -22,6 +22,10 @@
 
 - (NSInteger) doAndReturnPrimitiveValue:(NSInteger)pValue;
 
+- (NSString *) alwaysReturnTest;
+
+- (NSInteger) alwaysReturn3;
+
 - (void) doFoo:(NSString *)foo withMoreThanOneParameter:(NSObject *)second;
 
 @end
