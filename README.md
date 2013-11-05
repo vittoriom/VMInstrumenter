@@ -51,7 +51,6 @@ This product is released under the BSD license.
 
 ToDo:
 --------------
-- Possibility to trace selectors that return primitive values
 - Possibility to trace selectors that take at least one parameter
 
 Disclaimer:

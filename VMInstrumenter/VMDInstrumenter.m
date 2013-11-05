@@ -9,6 +9,7 @@
 #import "VMDInstrumenter.h"
 #import "NSObject+Dump.h"
 #import <objc/runtime.h>
+#import <objc/message.h>
 
 @interface VMDInstrumenter ()
 
@@ -151,7 +152,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                [self performSelector:instrumentedSelector];
+                objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -329,9 +330,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                //NSNumber *placeholder = [NSNumber numberWithFloat:(float)[self performSelector:instrumentedSelector]];
-                
-                float result = 3.0f; //[placeholder floatValue];
+                float result = objc_msgSend_fpret(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -346,7 +345,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                double result = 3.0; //*((double *)[self performSelector:instrumentedSelector]);
+                double result = objc_msgSend_fpret(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();

@@ -76,6 +76,15 @@
     [instrumenter traceSelector:@selector(booleanTest) forClass:[self class]];
     NSLog([self booleanTest] ? @"BOOLEAN TEST OK " : @"BOOLEAN TEST FAILED");
     
+    //This is for float/double values!
+    [instrumenter traceSelector:@selector(floatTest) forClass:[self class]];
+    float fResult = [self floatTest];
+    NSLog(@"FLOAT VALUE: %f",fResult);
+    
+    [instrumenter traceSelector:@selector(doubleTest) forClass:[self class]];
+    double dResult = [self doubleTest];
+    NSLog(@"DOUBLE VALUE: %f",dResult);
+    
     //This shows another object method
     [instrumenter instrumentSelector:@selector(objectTest) forClass:[self class] withBeforeBlock:^{
         NSLog(@"Whoopy do");
@@ -97,6 +106,16 @@
 - (void) doBar
 {
     NSLog(@"DOING BAR!");
+}
+
+- (float) floatTest
+{
+    return 1.5f;
+}
+
+- (double) doubleTest
+{
+    return 2.0;
 }
 
 - (NSInteger) primitiveTest
