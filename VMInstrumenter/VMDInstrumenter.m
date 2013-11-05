@@ -24,6 +24,9 @@
 + (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 + (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index;
 
+- (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count;
+- (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector;
+
 @end
 
 @implementation VMDInstrumenter
@@ -161,8 +164,7 @@
                 {
                     va_list args;
                     va_start(args, realSelf);
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     va_end(args);
                 }
@@ -189,8 +191,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -220,8 +221,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -251,8 +251,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -283,8 +282,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -314,8 +312,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -345,8 +342,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -376,8 +372,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -407,8 +402,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -438,8 +432,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -469,8 +462,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -500,8 +492,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -531,8 +522,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -562,8 +552,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -595,8 +584,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -626,8 +614,7 @@
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-                    [invocation invoke];
+                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -680,6 +667,22 @@
     
     const char * encoding = method_getTypeEncoding(method);
     return [NSMethodSignature signatureWithObjCTypes:encoding];
+}
+
+- (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
+{
+    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+    [invocation setTarget:realSelf];
+    [invocation setSelector:realSelector];
+    
+    @synchronized (self)
+    {
+        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
+        [invocation invoke];
+        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
+    }
+    
+    return invocation;
 }
 
 - (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count

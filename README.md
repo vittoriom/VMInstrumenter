@@ -51,7 +51,10 @@ This product is released under the BSD license.
 
 ToDo:
 --------------
-- Possibility to trace selectors that take at least one parameter
+- Check what happens with class methods
+- Create ObjC wrappers for class_, method_ and so on
+- Write tests for all the cases
+- Clean up the code
 
 Disclaimer:
 --------------
