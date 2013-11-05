@@ -96,7 +96,7 @@
     [self doFooWithMoreParameters:@2 andDate:[NSDate date]];
     
     [instrumenter traceSelector:@selector(doSomethingNewWithThisString:) forClass:[self class]];
-    [self doSomethingNewWithThisString:@"Test"];
+    NSLog(@"Final string: %@",[self doSomethingNewWithThisString:@"Test"]);
 }
 
 - (void) doFoo

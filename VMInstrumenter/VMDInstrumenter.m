@@ -150,19 +150,15 @@
     switch (returnType[0]) {
         case 'v':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                va_list args;
                 NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
                 
                 if(count > 0)
-                {
-                    va_start(args, realSelf);
                     objc_msgSend(self, instrumentedSelector, args);
-                    va_end(args);
-                } else
+                else
                     objc_msgSend(self, instrumentedSelector);                
                 
                 if(afterBlock)
@@ -172,22 +168,17 @@
             break;
         case '@':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
                 id result = nil;
                 
-                va_list args;
                 NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
                 
                 if(count > 0)
-                {
-                    va_start(args, realSelf);
                     result = objc_msgSend(self, instrumentedSelector, args);
-                    va_end(args);
-                    
-                } else
+                else
                     result = objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
@@ -199,11 +190,18 @@
             break;
         case 'c':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^char(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                char result = (char)objc_msgSend(self, instrumentedSelector);
+                char result = 0;
+                
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (char)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (char)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -214,11 +212,17 @@
             break;
         case 'C':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned char(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned char result = (unsigned char)objc_msgSend(self, instrumentedSelector);
+                unsigned char result = 0;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (unsigned char)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (unsigned char)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -229,11 +233,18 @@
             break;
         case 'i':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^int(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                int result = (int)objc_msgSend(self, instrumentedSelector);
+                int result = 0;
+                
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (int)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (int)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -244,11 +255,17 @@
             break;
         case 's':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^short(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                short result = (short)objc_msgSend(self, instrumentedSelector);
+                short result = 0;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (short)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (short)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -259,11 +276,17 @@
             break;
         case 'l':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                long result = (long)objc_msgSend(self, instrumentedSelector);
+                long result = 0l;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (long)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -274,11 +297,17 @@
             break;
         case 'q':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long long(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                long long result = (long long)objc_msgSend(self, instrumentedSelector);
+                long long result = 0ll;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (long long)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (long long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -289,11 +318,17 @@
             break;
         case 'I':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned int(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned int result = (unsigned int)objc_msgSend(self, instrumentedSelector);
+                unsigned int result = 0;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (unsigned int)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (unsigned int)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -304,11 +339,17 @@
             break;
         case 'S':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned short(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned short result = (unsigned short)objc_msgSend(self, instrumentedSelector);
+                unsigned short result = 0;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (unsigned short)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (unsigned short)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -319,11 +360,17 @@
             break;
         case 'L':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned long result = (unsigned long)objc_msgSend(self, instrumentedSelector);
+                unsigned long result = 0l;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (unsigned long)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (unsigned long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -334,11 +381,17 @@
             break;
         case 'Q':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long long(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned long long result = (unsigned long long)objc_msgSend(self, instrumentedSelector);
+                unsigned long long result = 0ll;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (unsigned long long)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (unsigned long long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -349,11 +402,17 @@
             break;
         case 'f':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^float(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                float result = objc_msgSend_fpret(self, instrumentedSelector);
+                float result = .0f;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = objc_msgSend_fpret(self, instrumentedSelector, args);
+                else
+                    result = objc_msgSend_fpret(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -364,11 +423,17 @@
             break;
         case 'd':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^double(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                double result = objc_msgSend_fpret(self, instrumentedSelector);
+                double result = .0;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = objc_msgSend_fpret(self, instrumentedSelector, args);
+                else
+                    result = objc_msgSend_fpret(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -381,11 +446,17 @@
             break;
         case '#':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^Class(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                Class result = (Class)objc_msgSend(self, instrumentedSelector);
+                Class result = nil;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (Class)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (Class)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
@@ -396,11 +467,17 @@
             break;
         case 'B':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^BOOL(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, va_list args){
                 if(beforeBlock)
                     beforeBlock();
                 
-                BOOL result = (BOOL)objc_msgSend(self, instrumentedSelector);
+                BOOL result = NO;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                    result = (BOOL)objc_msgSend(self, instrumentedSelector, args);
+                else
+                    result = (BOOL)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
