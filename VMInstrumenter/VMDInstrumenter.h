@@ -59,7 +59,7 @@
  @param beforeBlock the block of code to execute before the call to the selector
  @param afterBlock the block of code to execute after the call to the selector
  */
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void(^)(void))beforeBlock afterBlock:(void(^)(void))afterBlock;
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
 
 /**
  This method instruments calls to a specified selector of a specified class and just logs execution
