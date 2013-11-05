@@ -31,7 +31,7 @@
 
 @implementation VMDInstrumenter
 
-#pragma mark - Private methods
+#pragma mark - Private methods and helpers
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument
 {
@@ -41,6 +41,165 @@
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress
 {
     return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_VMDInstrumenter_SuppressedMethod"];
+}
+
+#pragma mark Invocation related methods
+
+- (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
+{
+    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+    [invocation setTarget:realSelf];
+    [invocation setSelector:realSelector];
+    
+    @synchronized (self)
+    {
+        //This is the easiest way
+        //@TODO : retrieve the function pointer to the realSelector of realClass and call that instead, passing the correct arguments depending on the case (how?)
+        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
+        [invocation invoke];
+        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
+    }
+    
+    return invocation;
+}
+
+- (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count
+{
+    NSMethodSignature *signature = [[self class] NSMethodSignatureForSelector:selector ofClass:[self class]];
+    NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:signature];
+    [invocationObject setTarget:self];
+    [invocationObject setSelector:selector];
+    
+    int index = 2;
+    for (int i=0; i<count;i++)
+    {
+        char type = [[self class] typeOfArgumentInSignature:signature atIndex:index];
+        
+        switch (type) {
+            case '@':
+            {
+                id object = va_arg(args, id);
+                [invocationObject setArgument:&object atIndex:index];
+            }
+                break;
+            //All these types get promoted to int anyway when calling va_arg
+            case 'S':
+            case 'c':
+            case 'i':
+            case 'C':
+            case 'B':
+            case 's':
+            {
+                NSInteger number = va_arg(args, int);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'v': //Can it be?
+                break;
+            case 'l':
+            {
+                long number = va_arg(args, long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'q':
+            {
+                long long number = va_arg(args, long long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'I':
+            {
+                unsigned int number = va_arg(args,unsigned int);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'L':
+            {
+                unsigned long number = va_arg(args, unsigned long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'Q':
+            {
+                unsigned long long number = va_arg(args, unsigned long long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'f':
+            case 'd':
+            {
+                double number = va_arg(args, double);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case ':':
+            {
+                SEL selector = va_arg(args, SEL);
+                [invocationObject setArgument:&selector atIndex:index];
+            }
+                break;
+            case '#':
+            {
+                Class class = va_arg(args, Class);
+                [invocationObject setArgument:&class atIndex:index];
+            }
+                break;
+            default:
+                break;
+        }
+        
+        index++;
+    }
+    return invocationObject;
+}
+
+#pragma mark Signature related methods
+
++ (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index
+{
+    return [signature getArgumentTypeAtIndex:index][0];
+}
+
++ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz
+{
+    Method method = class_getInstanceMethod(clazz, selector);
+    if(!method)
+        method = class_getClassMethod(clazz, selector);
+    
+    if(!method)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"VMDInstrumenter - Trying to get signature for a selector that it's neither instance or class method (?)"
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(selector)
+                                                }];
+    }
+    
+    const char * encoding = method_getTypeEncoding(method);
+    return [NSMethodSignature signatureWithObjCTypes:encoding];
+}
+
++ (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz
+{
+    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
+    
+    return [signature numberOfArguments] - 2;
+}
+
++ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz
+{
+    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
+    NSMutableString *signatureBuilder = [[NSMutableString alloc] initWithCapacity:10];
+    
+    [signatureBuilder appendFormat:@"%s",[signature methodReturnType]];
+    for(int i=0; i<[signature numberOfArguments];i++)
+    {
+        [signatureBuilder appendFormat:@"%s",[signature getArgumentTypeAtIndex:i]];
+    }
+    
+    return [signatureBuilder cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
 #pragma mark - Initialization
@@ -150,6 +309,7 @@
     
     char returnType[3];
     method_getReturnType(methodToInstrument, returnType, 3);
+    NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
     
     switch (returnType[0]) {
         case 'v':
@@ -157,8 +317,6 @@
             class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
-                
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -183,8 +341,6 @@
                     beforeBlock();
                 
                 id result = nil;
-                
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -214,8 +370,6 @@
                 
                 char result = 0;
                 
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
-                
                 if(count > 0)
                 {
                     va_list args;
@@ -244,7 +398,6 @@
                     beforeBlock();
                 
                 unsigned char result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -275,8 +428,6 @@
                 
                 int result = 0;
                 
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
-                
                 if(count > 0)
                 {
                     va_list args;
@@ -305,7 +456,6 @@
                     beforeBlock();
                 
                 short result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -335,7 +485,6 @@
                     beforeBlock();
                 
                 long result = 0l;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -365,7 +514,6 @@
                     beforeBlock();
                 
                 long long result = 0ll;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -395,7 +543,6 @@
                     beforeBlock();
                 
                 unsigned int result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -425,7 +572,6 @@
                     beforeBlock();
                 
                 unsigned short result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -455,7 +601,6 @@
                     beforeBlock();
                 
                 unsigned long result = 0l;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -485,7 +630,6 @@
                     beforeBlock();
                 
                 unsigned long long result = 0ll;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -515,7 +659,6 @@
                     beforeBlock();
                 
                 float result = .0f;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -545,7 +688,6 @@
                     beforeBlock();
                 
                 double result = .0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -577,7 +719,6 @@
                     beforeBlock();
                 
                 Class result = nil;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -607,7 +748,6 @@
                     beforeBlock();
                 
                 BOOL result = NO;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
                 {
@@ -643,158 +783,6 @@
 }
 
 #pragma clang diagnostic pop
-
-+ (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index
-{
-    return [signature getArgumentTypeAtIndex:index][0];
-}
-
-+ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz
-{
-    Method method = class_getInstanceMethod(clazz, selector);
-    if(!method)
-        method = class_getClassMethod(clazz, selector);
-    
-    if(!method)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:@"VMDInstrumenter - Trying to get signature for a selector that it's neither instance or class method (?)"
-                                     userInfo:@{
-                                                @"error" : @"Unknown type of selector",
-                                                @"info" : NSStringFromSelector(selector)
-                                                }];
-    }
-    
-    const char * encoding = method_getTypeEncoding(method);
-    return [NSMethodSignature signatureWithObjCTypes:encoding];
-}
-
-- (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
-{
-    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-    [invocation setTarget:realSelf];
-    [invocation setSelector:realSelector];
-    
-    @synchronized (self)
-    {
-        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
-        [invocation invoke];
-        [self replaceSelector:realSelector ofClass:[realSelf class] withSelector:instrumentedSelector ofClass:[self class]];
-    }
-    
-    return invocation;
-}
-
-- (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count
-{
-    NSMethodSignature *signature = [[self class] NSMethodSignatureForSelector:selector ofClass:[self class]];
-    NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:signature];
-    [invocationObject setTarget:self];
-    [invocationObject setSelector:selector];
-    
-    int index = 2;
-    for (int i=0; i<count;i++)
-    {
-        char type = [[self class] typeOfArgumentInSignature:signature atIndex:index];
-        
-        switch (type) {
-            case '@':
-            {
-                id object = va_arg(args, id);
-                [invocationObject setArgument:&object atIndex:index];
-            }
-                break;
-            case 'S':
-            case 'c':
-            case 'i':
-            case 'C':
-            case 'B':
-            case 's':
-            {
-                NSInteger number = va_arg(args, int);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case 'v': //Can it be?
-                break;
-            case 'l':
-            {
-                long number = va_arg(args, long);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case 'q':
-            {
-                long long number = va_arg(args, long long);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case 'I':
-            {
-                unsigned int number = va_arg(args,unsigned int);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case 'L':
-            {
-                unsigned long number = va_arg(args, unsigned long);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case 'Q':
-            {
-                unsigned long long number = va_arg(args, unsigned long long);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case 'f':
-            case 'd':
-            {
-                double number = va_arg(args, double);
-                [invocationObject setArgument:&number atIndex:index];
-            }
-                break;
-            case ':':
-            {
-                SEL selector = va_arg(args, SEL);
-                [invocationObject setArgument:&selector atIndex:index];
-            }
-                break;
-            case '#':
-            {
-                Class class = va_arg(args, Class);
-                [invocationObject setArgument:&class atIndex:index];
-            }
-                break;
-            default:
-                break;
-        }
-        
-        index++;
-    }
-    return invocationObject;
-}
-
-+ (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz
-{
-    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
-    
-    return [signature numberOfArguments] - 2;
-}
-
-+ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz
-{
-    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
-    NSMutableString *signatureBuilder = [[NSMutableString alloc] initWithCapacity:10];
-    
-    [signatureBuilder appendFormat:@"%s",[signature methodReturnType]];
-    for(int i=0; i<[signature numberOfArguments];i++)
-    {
-        [signatureBuilder appendFormat:@"%s",[signature getArgumentTypeAtIndex:i]];
-    }
-    
-    return [signatureBuilder cStringUsingEncoding:NSUTF8StringEncoding];
-}
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz
 {
