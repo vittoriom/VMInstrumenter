@@ -92,12 +92,15 @@
     NSString *strResult = [self objectTest];
     NSLog(@"STRING RESULT: %@",strResult);
     
+    //Methods with more than one parameter
     [instrumenter traceSelector:@selector(doFooWithMoreParameters:andDate:) forClass:[self class]];
     [self doFooWithMoreParameters:@2 andDate:[NSDate date]];
     
+    //Also when they return values
     [instrumenter traceSelector:@selector(doSomethingNewWithThisString:) forClass:[self class]];
     NSLog(@"Final string: %@",[self doSomethingNewWithThisString:@"Test"]);
     
+    //Three parameters and so on
     [instrumenter traceSelector:@selector(threeParameters:test:foo:) forClass:[self class]];
     [self threeParameters:@"one" test:2 foo:@3];
 }

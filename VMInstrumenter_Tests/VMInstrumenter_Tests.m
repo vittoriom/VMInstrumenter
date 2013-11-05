@@ -13,7 +13,7 @@
 
 @interface VMDInstrumenter (publicise)
 
-- (const char *) signatureForSelector:(SEL)selector ofClass:(Class)clazz;
++ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 
 @end
 
@@ -133,21 +133,21 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [[theValue([helper alwaysReturn3]) should] equal:@3];
             });
             
-            pending(@"should not impact return values", ^{
+            it(@"should not impact return values for methods that take more than one parameter", ^{
                 [_instrumenter traceSelector:@selector(doAndReturnValue:) forClass:[VMTestsHelper class]];
                 
                 NSString *returnValue = [helper doAndReturnValue:@"Test"];
                 [[returnValue should] equal:@"Test"];
             });
             
-            pending(@"should instrument selectors that return primitive values", ^{
+            it(@"should instrument selectors that return primitive values", ^{
                 [_instrumenter traceSelector:@selector(doAndReturnPrimitiveValue:) forClass:[VMTestsHelper class]];
                 
                 NSInteger returnValue = [helper doAndReturnPrimitiveValue:3];
                 [[theValue(returnValue) should] equal:theValue(3)];
             });
             
-            pending(@"should instrument selectors that take more than one parameter", ^{
+            it(@"should instrument selectors that take more than one parameter", ^{
                 [_instrumenter traceSelector:@selector(doFoo:withMoreThanOneParameter:) forClass:[VMTestsHelper class]];
             
                 VMTestsHelper *helper2 = [VMTestsHelper new];
@@ -160,15 +160,15 @@ SPEC_BEGIN(VMDInstrumenterTests)
         
         context(@"internal methods", ^{
             it(@"should correctly return method signatures", ^{
-                const char * signature = [_instrumenter signatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
+                const char * signature = [VMDInstrumenter constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
                 [[[signatureAsObject substringToIndex:1] should] equal:@"i"];
                 
-                const char * signature2 = [_instrumenter signatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
+                const char * signature2 = [VMDInstrumenter constCharSignatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject2 = [NSString stringWithUTF8String:signature2];
                 [[[signatureAsObject2 substringToIndex:1] should] equal:@"@"];
                 
-                const char * signature3 = [_instrumenter signatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+                const char * signature3 = [VMDInstrumenter constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
                 [[[signatureAsObject3 substringToIndex:1] should] equal:@"v"];
             });
