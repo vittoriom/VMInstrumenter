@@ -1,17 +1,19 @@
 //
-//  VMInstrumenter.m
-//  VMInstrumenter_Sample
+//  VMDInstrumenter.m
+//  VMDInstrumenter_Sample
 //
 //  Created by Vittorio Monaco on 28/08/13.
 //  Copyright (c) 2013 Vittorio Monaco. All rights reserved.
 //
 
-#import "VMInstrumenter.h"
+#import "VMDInstrumenter.h"
+#import "NSObject+Dump.h"
 #import <objc/runtime.h>
 
-@interface VMInstrumenter ()
+@interface VMDInstrumenter ()
 
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
+@property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress;
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument;
@@ -20,7 +22,7 @@
 
 @end
 
-@implementation VMInstrumenter
+@implementation VMDInstrumenter
 
 #pragma mark - Private methods
 
@@ -42,8 +44,8 @@
     
     if(self)
     {
-        //Private properties etc.
         self.suppressedMethods = [@[] mutableCopy];
+        self.instrumentedMethods = [@[] mutableCopy];
     }
     
     return self;
@@ -51,10 +53,10 @@
 
 + (instancetype) sharedInstance
 {
-    static VMInstrumenter *sharedInstance;
+    static VMDInstrumenter *sharedInstance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[VMInstrumenter alloc] init];
+        sharedInstance = [VMDInstrumenter new];
     });
     
     return sharedInstance;
@@ -65,14 +67,11 @@
 - (void) suppressSelector:(SEL)selectorToSuppress forInstancesOfClass:(Class)clazz
 {
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
-    NSString *plausibleSuppressedSelectorName = [VMInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress];
+    NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress];
     
     if([self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
-        //log or crash
-        NSLog(@"VMInstrumenter - Warning: The SEL %@ is already suppressed", selectorName);
-        //NSAssert(false);
-        
+        NSLog(@"VMDInstrumenter - Warning: The SEL %@ is already suppressed", selectorName);
         return;
     }
     
@@ -92,14 +91,16 @@
 - (void) restoreSelector:(SEL)selectorToRestore forInstancesOfClass:(Class)clazz
 {
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
-    NSString *plausibleSuppressedSelectorName = [VMInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore];
+    NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore];
     
     if(![self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
-        //log or crash
-        NSLog(@"VMInstrumenter - Warning: The SEL %@ is not suppressed", selectorName);
-        //NSAssert(false);
-        
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"VMDInstrumenter - Warning: The SEL %@ is not suppressed"
+                                     userInfo:@{
+                                                @"error" : @"selector is not suppressed",
+                                                @"info" : selectorName
+                                                }];
         return;
     }
     
@@ -125,11 +126,23 @@
 
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void (^)())beforeBlock afterBlock:(void (^)())afterBlock
 {
-    Method methodToInstrument = class_getInstanceMethod(clazz, selectorToInstrument);
-    SEL instrumentedSelector = NSSelectorFromString([VMInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]);
+    NSString *selectorName = NSStringFromSelector(selectorToInstrument);
+    if([self.instrumentedMethods containsObject:selectorName])
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"VMDInstrumenter - Selector is already instrumented"
+                                     userInfo:@{
+                                                @"error" : @"Selector already instrumented",
+                                                @"info" : selectorName
+                                                }];
+        return;
+    }
     
-    char returnType[1];
-    method_getReturnType(methodToInstrument, returnType, 1);
+    Method methodToInstrument = class_getInstanceMethod(clazz, selectorToInstrument);
+    SEL instrumentedSelector = NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]);
+    
+    char returnType[3];
+    method_getReturnType(methodToInstrument, returnType, 3);
     
     switch (returnType[0]) {
         case 'v':
@@ -405,9 +418,11 @@
             break;
     }
     
-    Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]));
+    Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]));
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
+    
+    [self.instrumentedMethods addObject:selectorName];
 }
 
 - (const char *) signatureForReturnValue:(char *)returnValueType
@@ -419,16 +434,21 @@
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz
 {
-    [self instrumentSelector:selectorToTrace forClass:clazz withBeforeBlock:^{
-        NSLog(@"VMInstrumenter - Called selector %@", NSStringFromSelector(selectorToTrace));
-    } afterBlock:^{
-        NSLog(@"VMInstrumenter - Finished executing selector %@",NSStringFromSelector(selectorToTrace));
-    }];
+    [self traceSelector:selectorToTrace forClass:clazz dumpingStackTrace:NO];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingSelfObject:(BOOL)dumpInfo dumpingStackTrace:(BOOL)dumpStack
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingStackTrace:(BOOL)dumpStack
 {
-    // -- TO BE DETERMINED --
+    [self instrumentSelector:selectorToTrace forClass:clazz withBeforeBlock:^{
+        NSLog(@"VMDInstrumenter - Called selector %@", NSStringFromSelector(selectorToTrace));
+        
+        if (dumpStack)
+        {
+            NSLog(@"%@",[NSThread callStackSymbols]);
+        }
+    } afterBlock:^{
+        NSLog(@"VMDInstrumenter - Finished executing selector %@",NSStringFromSelector(selectorToTrace));
+    }];
 }
 
 @end

@@ -1,6 +1,6 @@
 //
-//  VMInstrumenter.h
-//  VMInstrumenter_Sample
+//  VMDInstrumenter.h
+//  VMDInstrumenter_Sample
 //
 //  Created by Vittorio Monaco on 28/08/13.
 //  Copyright (c) 2013 Vittorio Monaco. All rights reserved.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface VMInstrumenter : NSObject
+@interface VMDInstrumenter : NSObject
 
 /**
  Of course this is a singleton, no point in doing some other alloc init stuff
@@ -71,9 +71,13 @@
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz;
 
-/** 
- TO BE DETERMINED (FEASIBLE?)
+/**
+ This method instruments calls to a specified selector of a specified class and just logs execution as the previous method
+ Moreover, if dumpStack is YES, it prints the stack trace after every execution
+ 
+ @param selectorToTrace the selector that you'd like to trace
+ @clazz the class to take the selector from
  */
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingSelfObject:(BOOL)dumpInfo dumpingStackTrace:(BOOL)dumpStack;
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingStackTrace:(BOOL)dumpStack;
 
 @end

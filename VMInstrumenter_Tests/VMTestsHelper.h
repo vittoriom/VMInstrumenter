@@ -18,4 +18,10 @@
 
 - (void) ifReplacedCalled;
 
+- (NSString *) doAndReturnValue:(NSString *)value;
+
+- (NSInteger) doAndReturnPrimitiveValue:(NSInteger)pValue;
+
+- (void) doFoo:(NSString *)foo withMoreThanOneParameter:(NSObject *)second;
+
 @end

@@ -25,4 +25,19 @@
     [self.forwardCalls canSafelyCallMe];
 }
 
+- (NSString *) doAndReturnValue:(NSString *)value
+{
+    return value;
+}
+
+- (NSInteger) doAndReturnPrimitiveValue:(NSInteger)pValue
+{
+    return pValue;
+}
+
+- (void) doFoo:(NSString *)foo withMoreThanOneParameter:(NSObject *)second
+{
+    [self.forwardCalls dontCallMe];
+}
+
 @end

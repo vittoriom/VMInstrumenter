@@ -2,8 +2,7 @@ platform :ios, :deployment_target => "5.1"
 
 target :test, :exclusive => true do
     link_with 'VMInstrumenter_Tests'
-    pod 'OCMock', '~> 2.2.1'
-    pod 'Expecta', '~> 0.2.2'
+    pod 'Kiwi/XCTest'
 end
 
 target :debug, :exclusive => true do
