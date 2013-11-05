@@ -97,11 +97,19 @@
     
     [instrumenter traceSelector:@selector(doSomethingNewWithThisString:) forClass:[self class]];
     NSLog(@"Final string: %@",[self doSomethingNewWithThisString:@"Test"]);
+    
+    [instrumenter traceSelector:@selector(threeParameters:test:foo:) forClass:[self class]];
+    [self threeParameters:@"one" test:2 foo:@3];
 }
 
 - (void) doFoo
 {
     NSLog(@"DOING FOO!");
+}
+
+- (void) threeParameters:(NSString *)one test:(NSInteger)two foo:(NSNumber *)three
+{
+    NSLog(@"Three parameters FTW");
 }
 
 - (void) doFooWithMoreParameters:(NSNumber *)number andDate:(NSDate *)date

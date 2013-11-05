@@ -22,6 +22,7 @@
 + (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 + (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz;
 + (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
++ (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index;
 
 @end
 
@@ -150,14 +151,21 @@
     switch (returnType[0]) {
         case 'v':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    va_end(args);
+                }
                 else
                     objc_msgSend(self, instrumentedSelector);                
                 
@@ -168,17 +176,26 @@
             break;
         case '@':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 id result = nil;
                 
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = objc_msgSend(self, instrumentedSelector, args);
-                else
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                } else
                     result = objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
@@ -190,16 +207,26 @@
             break;
         case 'c':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 char result = 0;
                 
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (char)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (char)objc_msgSend(self, instrumentedSelector);
                 
@@ -212,15 +239,25 @@
             break;
         case 'C':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 unsigned char result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (unsigned char)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (unsigned char)objc_msgSend(self, instrumentedSelector);
                 
@@ -233,16 +270,26 @@
             break;
         case 'i':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 int result = 0;
                 
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (int)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (int)objc_msgSend(self, instrumentedSelector);
                 
@@ -255,15 +302,25 @@
             break;
         case 's':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 short result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (short)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (short)objc_msgSend(self, instrumentedSelector);
                 
@@ -276,15 +333,25 @@
             break;
         case 'l':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 long result = 0l;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (long)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (long)objc_msgSend(self, instrumentedSelector);
                 
@@ -297,15 +364,25 @@
             break;
         case 'q':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 long long result = 0ll;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (long long)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (long long)objc_msgSend(self, instrumentedSelector);
                 
@@ -318,15 +395,25 @@
             break;
         case 'I':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 unsigned int result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (unsigned int)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (unsigned int)objc_msgSend(self, instrumentedSelector);
                 
@@ -339,15 +426,25 @@
             break;
         case 'S':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 unsigned short result = 0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (unsigned short)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (unsigned short)objc_msgSend(self, instrumentedSelector);
                 
@@ -360,15 +457,25 @@
             break;
         case 'L':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 unsigned long result = 0l;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (unsigned long)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (unsigned long)objc_msgSend(self, instrumentedSelector);
                 
@@ -381,15 +488,25 @@
             break;
         case 'Q':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 unsigned long long result = 0ll;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (unsigned long long)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (unsigned long long)objc_msgSend(self, instrumentedSelector);
                 
@@ -402,15 +519,25 @@
             break;
         case 'f':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 float result = .0f;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = objc_msgSend_fpret(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = objc_msgSend_fpret(self, instrumentedSelector);
                 
@@ -423,15 +550,25 @@
             break;
         case 'd':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 double result = .0;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = objc_msgSend_fpret(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = objc_msgSend_fpret(self, instrumentedSelector);
                 
@@ -446,15 +583,25 @@
             break;
         case '#':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 Class result = nil;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (Class)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (Class)objc_msgSend(self, instrumentedSelector);
                 
@@ -467,15 +614,25 @@
             break;
         case 'B':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, va_list args){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
                 BOOL result = NO;
-                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
                 
                 if(count > 0)
-                    result = (BOOL)objc_msgSend(self, instrumentedSelector, args);
+                {
+                    va_list args;
+                    va_start(args, realSelf);
+                    
+                    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
+                    [invocation invoke];
+                    
+                    [invocation getReturnValue:&result];
+                    
+                    va_end(args);
+                }
                 else
                     result = (BOOL)objc_msgSend(self, instrumentedSelector);
                 
@@ -500,6 +657,11 @@
 
 #pragma clang diagnostic pop
 
++ (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index
+{
+    return [signature getArgumentTypeAtIndex:index][0];
+}
+
 + (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz
 {
     Method method = class_getInstanceMethod(clazz, selector);
@@ -520,11 +682,101 @@
     return [NSMethodSignature signatureWithObjCTypes:encoding];
 }
 
+- (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count
+{
+    NSMethodSignature *signature = [[self class] NSMethodSignatureForSelector:selector ofClass:[self class]];
+    NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:signature];
+    [invocationObject setTarget:self];
+    [invocationObject setSelector:selector];
+    
+    int index = 2;
+    for (int i=0; i<count;i++)
+    {
+        char type = [[self class] typeOfArgumentInSignature:signature atIndex:index];
+        
+        switch (type) {
+            case '@':
+            {
+                id object = va_arg(args, id);
+                [invocationObject setArgument:&object atIndex:index];
+            }
+                break;
+            case 'S':
+            case 'c':
+            case 'i':
+            case 'C':
+            case 'B':
+            case 's':
+            {
+                NSInteger number = va_arg(args, int);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'v': //Can it be?
+                break;
+            case 'l':
+            {
+                long number = va_arg(args, long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'q':
+            {
+                long long number = va_arg(args, long long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'I':
+            {
+                unsigned int number = va_arg(args,unsigned int);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'L':
+            {
+                unsigned long number = va_arg(args, unsigned long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'Q':
+            {
+                unsigned long long number = va_arg(args, unsigned long long);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case 'f':
+            case 'd':
+            {
+                double number = va_arg(args, double);
+                [invocationObject setArgument:&number atIndex:index];
+            }
+                break;
+            case ':':
+            {
+                SEL selector = va_arg(args, SEL);
+                [invocationObject setArgument:&selector atIndex:index];
+            }
+                break;
+            case '#':
+            {
+                Class class = va_arg(args, Class);
+                [invocationObject setArgument:&class atIndex:index];
+            }
+                break;
+            default:
+                break;
+        }
+        
+        index++;
+    }
+    return invocationObject;
+}
+
 + (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz
 {
     NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
     
-    return [signature numberOfArguments];
+    return [signature numberOfArguments] - 2;
 }
 
 + (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz
