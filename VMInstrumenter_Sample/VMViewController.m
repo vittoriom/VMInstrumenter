@@ -67,6 +67,21 @@
     //This shows how to trace a selector dumping the stack trace
     [instrumenter traceSelector:@selector(doFoo) forClass:[self class] dumpingStackTrace:YES];
     [self doFoo];
+    
+    //This shows that you can get primitive values as well
+    [instrumenter traceSelector:@selector(primitiveTest) forClass:[self class]];
+    NSInteger test = [self primitiveTest];
+    NSLog(@"PRIMITIVE TEST: %d",test);
+    
+    [instrumenter traceSelector:@selector(booleanTest) forClass:[self class]];
+    NSLog([self booleanTest] ? @"BOOLEAN TEST OK " : @"BOOLEAN TEST FAILED");
+    
+    //This shows another object method
+    [instrumenter instrumentSelector:@selector(objectTest) forClass:[self class] withBeforeBlock:^{
+        NSLog(@"Whoopy do");
+    } afterBlock:nil];
+    NSString *strResult = [self objectTest];
+    NSLog(@"STRING RESULT: %@",strResult);
 }
 
 - (void) doFoo
@@ -82,6 +97,21 @@
 - (void) doBar
 {
     NSLog(@"DOING BAR!");
+}
+
+- (NSInteger) primitiveTest
+{
+    return 5;
+}
+
+- (BOOL) booleanTest
+{
+    return YES;
+}
+
+- (NSString *) objectTest
+{
+    return @"test";
 }
 
 - (NSNumber *) doCalculations:(NSNumber *)dummy

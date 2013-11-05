@@ -179,9 +179,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                    
-                char result = *(char *)fakeR;
+                char result = (char)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -196,9 +194,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                unsigned char result = *(unsigned char *)fakeR;
+                unsigned char result = (unsigned char)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -213,9 +209,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                int result = *(int *)fakeR;
+                int result = (int)([self performSelector:instrumentedSelector]);
                 
                 if(afterBlock)
                     afterBlock();
@@ -230,9 +224,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                short result = *(short *)fakeR;
+                short result = (short)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -247,9 +239,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                long result = *(long *)fakeR;
+                long result = (long)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -264,9 +254,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                long long result = *(long long *)fakeR;
+                long long result = (long long)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -281,9 +269,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                unsigned int result = *(unsigned int *)fakeR;
+                unsigned int result = (unsigned int)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -298,9 +284,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                unsigned short result = *(unsigned short *)fakeR;
+                unsigned short result = (unsigned short)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -315,9 +299,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                unsigned long result = *(unsigned long *)fakeR;
+                unsigned long result = (unsigned long)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -332,9 +314,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                unsigned long long result = *(unsigned long long *)fakeR;
+                unsigned long long result = (unsigned long long)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -349,9 +329,9 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
+                //NSNumber *placeholder = [NSNumber numberWithFloat:(float)[self performSelector:instrumentedSelector]];
                 
-                float result = *(float *)fakeR;
+                float result = 3.0f; //[placeholder floatValue];
                 
                 if(afterBlock)
                     afterBlock();
@@ -366,9 +346,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                double result = *(double *)fakeR;
+                double result = 3.0; //*((double *)[self performSelector:instrumentedSelector]);
                 
                 if(afterBlock)
                     afterBlock();
@@ -385,9 +363,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                Class result = *(Class *)fakeR;
+                Class result = (Class)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
@@ -402,9 +378,7 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                void * fakeR = (__bridge void *)([self performSelector:instrumentedSelector]);
-                
-                BOOL result = *(BOOL *)fakeR;
+                BOOL result = (BOOL)[self performSelector:instrumentedSelector];
                 
                 if(afterBlock)
                     afterBlock();
