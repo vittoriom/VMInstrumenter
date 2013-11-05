@@ -11,6 +11,12 @@
 #import "VMDInstrumenter.h"
 #import "VMTestsHelper.h"
 
+@interface VMDInstrumenter (publicise)
+
+- (const char *) signatureForSelector:(SEL)selector ofClass:(Class)clazz;
+
+@end
+
 SPEC_BEGIN(VMDInstrumenterTests)
 
     __block VMDInstrumenter *_instrumenter;
@@ -149,6 +155,22 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 helper.forwardCalls = helper2;
                 
                 [helper doFoo:@"Test" withMoreThanOneParameter:@1];
+            });
+        });
+        
+        context(@"internal methods", ^{
+            it(@"should correctly return method signatures", ^{
+                const char * signature = [_instrumenter signatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
+                NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
+                [[[signatureAsObject substringToIndex:1] should] equal:@"i"];
+                
+                const char * signature2 = [_instrumenter signatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
+                NSString * signatureAsObject2 = [NSString stringWithUTF8String:signature2];
+                [[[signatureAsObject2 substringToIndex:1] should] equal:@"@"];
+                
+                const char * signature3 = [_instrumenter signatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+                NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
+                [[[signatureAsObject3 substringToIndex:1] should] equal:@"v"];
             });
         });
     });

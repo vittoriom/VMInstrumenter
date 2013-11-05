@@ -44,10 +44,10 @@
     [self doBar];
     
     //The same as before, but with a method that takes a parameter
-    [instrumenter traceSelector:@selector(doCalculations:) forClass:[self class]];
+    [instrumenter traceSelector:@selector(doCalculations) forClass:[self class]];
     
     //The tracing won't impact the normal return
-    NSNumber *result = [self doCalculations:@2];
+    NSNumber *result = [self doCalculations];
     
     NSLog(@"RESULT: %@",result);
     
@@ -91,6 +91,12 @@
     } afterBlock:nil];
     NSString *strResult = [self objectTest];
     NSLog(@"STRING RESULT: %@",strResult);
+    
+    [instrumenter traceSelector:@selector(doFooWithMoreParameters:andDate:) forClass:[self class]];
+    [self doFooWithMoreParameters:@2 andDate:[NSDate date]];
+    
+    [instrumenter traceSelector:@selector(doSomethingNewWithThisString:) forClass:[self class]];
+    [self doSomethingNewWithThisString:@"Test"];
 }
 
 - (void) doFoo
@@ -128,14 +134,19 @@
     return YES;
 }
 
+- (NSString *)doSomethingNewWithThisString:(NSString *)thisStr
+{
+    return [thisStr stringByAppendingString:@"___"];
+}
+
 - (NSString *) objectTest
 {
     return @"test";
 }
 
-- (NSNumber *) doCalculations:(NSNumber *)dummy
+- (NSNumber *) doCalculations
 {
-    return dummy;
+    return @3;
 }
 
 @end

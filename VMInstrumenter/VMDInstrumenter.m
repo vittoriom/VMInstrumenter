@@ -19,7 +19,9 @@
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress;
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument;
 
-- (const char *) signatureForReturnValue:(char *)returnValueType;
++ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
++ (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz;
++ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 
 @end
 
@@ -29,12 +31,12 @@
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument
 {
-    return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_VMInstrumenter_InstrumentedMethod"];
+    return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_VMDInstrumenter_InstrumentedMethod"];
 }
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress
 {
-    return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_VMInstrumenter_SuppressedMethod"];
+    return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_VMDInstrumenter_SuppressedMethod"];
 }
 
 #pragma mark - Initialization
@@ -148,30 +150,51 @@
     switch (returnType[0]) {
         case 'v':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
                 if(beforeBlock)
                     beforeBlock();
                 
-                objc_msgSend(self, instrumentedSelector);
+                va_list args;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                {
+                    va_start(args, realSelf);
+                    objc_msgSend(self, instrumentedSelector, args);
+                    va_end(args);
+                } else
+                    objc_msgSend(self, instrumentedSelector);                
                 
                 if(afterBlock)
                     afterBlock();
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case '@':
         {
-            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(){
+            class_addMethod([self class], instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
                 if(beforeBlock)
                     beforeBlock();
                 
-                id result = [self performSelector:instrumentedSelector];
+                id result = nil;
+                
+                va_list args;
+                NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz] - 2;
+                
+                if(count > 0)
+                {
+                    va_start(args, realSelf);
+                    result = objc_msgSend(self, instrumentedSelector, args);
+                    va_end(args);
+                    
+                } else
+                    result = objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'c':
@@ -180,13 +203,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                char result = (char)[self performSelector:instrumentedSelector];
+                char result = (char)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'C':
@@ -195,13 +218,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned char result = (unsigned char)[self performSelector:instrumentedSelector];
+                unsigned char result = (unsigned char)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'i':
@@ -210,13 +233,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                int result = (int)([self performSelector:instrumentedSelector]);
+                int result = (int)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 's':
@@ -225,13 +248,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                short result = (short)[self performSelector:instrumentedSelector];
+                short result = (short)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'l':
@@ -240,13 +263,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                long result = (long)[self performSelector:instrumentedSelector];
+                long result = (long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'q':
@@ -255,13 +278,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                long long result = (long long)[self performSelector:instrumentedSelector];
+                long long result = (long long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'I':
@@ -270,13 +293,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned int result = (unsigned int)[self performSelector:instrumentedSelector];
+                unsigned int result = (unsigned int)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'S':
@@ -285,13 +308,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned short result = (unsigned short)[self performSelector:instrumentedSelector];
+                unsigned short result = (unsigned short)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'L':
@@ -300,13 +323,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned long result = (unsigned long)[self performSelector:instrumentedSelector];
+                unsigned long result = (unsigned long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'Q':
@@ -315,13 +338,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                unsigned long long result = (unsigned long long)[self performSelector:instrumentedSelector];
+                unsigned long long result = (unsigned long long)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'f':
@@ -336,7 +359,7 @@
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'd':
@@ -351,7 +374,7 @@
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case ':':
@@ -362,13 +385,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                Class result = (Class)[self performSelector:instrumentedSelector];
+                Class result = (Class)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         case 'B':
@@ -377,13 +400,13 @@
                 if(beforeBlock)
                     beforeBlock();
                 
-                BOOL result = (BOOL)[self performSelector:instrumentedSelector];
+                BOOL result = (BOOL)objc_msgSend(self, instrumentedSelector);
                 
                 if(afterBlock)
                     afterBlock();
                 
                 return result;
-            }), [self signatureForReturnValue:returnType]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
         }
             break;
         default:
@@ -398,12 +421,48 @@
     [self.instrumentedMethods addObject:selectorName];
 }
 
-- (const char *) signatureForReturnValue:(char *)returnValueType
+#pragma clang diagnostic pop
+
++ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz
 {
-    return strcat(returnValueType, "@:");
+    Method method = class_getInstanceMethod(clazz, selector);
+    if(!method)
+        method = class_getClassMethod(clazz, selector);
+    
+    if(!method)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"VMDInstrumenter - Trying to get signature for a selector that it's neither instance or class method (?)"
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(selector)
+                                                }];
+    }
+    
+    const char * encoding = method_getTypeEncoding(method);
+    return [NSMethodSignature signatureWithObjCTypes:encoding];
 }
 
-#pragma clang diagnostic pop
++ (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz
+{
+    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
+    
+    return [signature numberOfArguments];
+}
+
++ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz
+{
+    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
+    NSMutableString *signatureBuilder = [[NSMutableString alloc] initWithCapacity:10];
+    
+    [signatureBuilder appendFormat:@"%s",[signature methodReturnType]];
+    for(int i=0; i<[signature numberOfArguments];i++)
+    {
+        [signatureBuilder appendFormat:@"%s",[signature getArgumentTypeAtIndex:i]];
+    }
+    
+    return [signatureBuilder cStringUsingEncoding:NSUTF8StringEncoding];
+}
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz
 {
