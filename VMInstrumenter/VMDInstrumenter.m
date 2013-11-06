@@ -23,7 +23,7 @@
 + (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 + (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index;
 
-+ (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count;
++ (NSInvocation *)invocationForSelector:(SEL)selector ofClass:(Class)classToInspect onRealSelf:(id)realSelf withArgsList:(va_list)args argsCount:(NSInteger)count;
 + (NSInvocation *)createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector;
 
 @end
@@ -46,17 +46,17 @@
 
 + (NSInvocation *) createAndInvokeSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
 {
-    NSInvocation *invocation = [self invocationForSelector:selector withArgsList:args argsCount:count];
+    NSInvocation *invocation = [self invocationForSelector:selector ofClass:[realSelf class] onRealSelf:realSelf withArgsList:args argsCount:count];
     [invocation invoke];
     
     return invocation;
 }
 
-+ (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)argsCount
++ (NSInvocation *)invocationForSelector:(SEL)selector ofClass:(Class)classToInspect onRealSelf:(id)realSelf withArgsList:(va_list)args argsCount:(NSInteger)argsCount
 {
-    NSMethodSignature *methodSignature = [[self class] NSMethodSignatureForSelector:selector ofClass:[self class]];
+    NSMethodSignature *methodSignature = [[self class] NSMethodSignatureForSelector:selector ofClass:classToInspect];
     NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:methodSignature];
-    [invocationObject setTarget:self];
+    [invocationObject setTarget:realSelf];
     [invocationObject setSelector:selector];
     
     int argumentIndex = 2;
@@ -200,6 +200,11 @@
     
     if(self)
     {
+#ifndef DEBUG
+        NSLog(@"-- Warning: %@ is still enabled and you're not in Debug configuration! --", NSStringFromClass([VMDInstrumenter class]));#warning -- Warning:
+#warning -- Warning: VMDInstrumenter is still enabled and you're not in Debug configuration! --
+#endif
+        
         self.suppressedMethods = [@[] mutableCopy];
         self.instrumentedMethods = [@[] mutableCopy];
     }
@@ -317,7 +322,7 @@
                     va_end(args);
                 }
                 else
-                    objc_msgSend(self, instrumentedSelector);                
+                    objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -343,7 +348,7 @@
                     
                     va_end(args);
                 } else
-                    result = objc_msgSend(self, instrumentedSelector);
+                    result = objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -372,7 +377,7 @@
                     va_end(args);
                 }
                 else
-                    result = (char)objc_msgSend(self, instrumentedSelector);
+                    result = (char)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -401,7 +406,7 @@
                     va_end(args);
                 }
                 else
-                    result = (unsigned char)objc_msgSend(self, instrumentedSelector);
+                    result = (unsigned char)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -430,7 +435,7 @@
                     va_end(args);
                 }
                 else
-                    result = (int)objc_msgSend(self, instrumentedSelector);
+                    result = (int)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -459,7 +464,7 @@
                     va_end(args);
                 }
                 else
-                    result = (short)objc_msgSend(self, instrumentedSelector);
+                    result = (short)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -488,7 +493,7 @@
                     va_end(args);
                 }
                 else
-                    result = (long)objc_msgSend(self, instrumentedSelector);
+                    result = (long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -517,7 +522,7 @@
                     va_end(args);
                 }
                 else
-                    result = (long long)objc_msgSend(self, instrumentedSelector);
+                    result = (long long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -546,7 +551,7 @@
                     va_end(args);
                 }
                 else
-                    result = (unsigned int)objc_msgSend(self, instrumentedSelector);
+                    result = (unsigned int)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -575,7 +580,7 @@
                     va_end(args);
                 }
                 else
-                    result = (unsigned short)objc_msgSend(self, instrumentedSelector);
+                    result = (unsigned short)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -604,7 +609,7 @@
                     va_end(args);
                 }
                 else
-                    result = (unsigned long)objc_msgSend(self, instrumentedSelector);
+                    result = (unsigned long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -633,7 +638,7 @@
                     va_end(args);
                 }
                 else
-                    result = (unsigned long long)objc_msgSend(self, instrumentedSelector);
+                    result = (unsigned long long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -662,7 +667,7 @@
                     va_end(args);
                 }
                 else
-                    result = objc_msgSend_fpret(self, instrumentedSelector);
+                    result = objc_msgSend_fpret(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -691,7 +696,7 @@
                     va_end(args);
                 }
                 else
-                    result = objc_msgSend_fpret(self, instrumentedSelector);
+                    result = objc_msgSend_fpret(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -722,7 +727,7 @@
                     va_end(args);
                 }
                 else
-                    result = (Class)objc_msgSend(self, instrumentedSelector);
+                    result = (Class)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -751,7 +756,7 @@
                     va_end(args);
                 }
                 else
-                    result = (BOOL)objc_msgSend(self, instrumentedSelector);
+                    result = (BOOL)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(executeAfter)
                     executeAfter();
@@ -765,7 +770,7 @@
             break;
     }
     
-    Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
+    Method instrumentedMethod = class_getInstanceMethod(classToInspect, NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
     
