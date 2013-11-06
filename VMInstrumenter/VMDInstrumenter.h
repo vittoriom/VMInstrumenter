@@ -67,7 +67,7 @@
  You can use more specific methods if you want particular tracing to be done
  
  @param selectorToTrace the selector that you'd like to trace
- @classToInspect the class to take the selector from
+ @param classToInspect the class to take the selector from
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect;
 
@@ -76,8 +76,10 @@
  Moreover, if dumpStack is YES, it prints the stack trace after every execution
  
  @param selectorToTrace the selector that you'd like to trace
- @classToInspect the class to take the selector from
+ @param classToInspect the class to take the selector from
+ @param dumpStack if you want to dump the stacktrace
+ @param dumpObject if you want to dump the internal of the object
  */
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack;
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
 
 @end

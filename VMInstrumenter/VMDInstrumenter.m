@@ -9,6 +9,7 @@
 #import "VMDInstrumenter.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
+#import "NSObject+DumpInfo.h"
 #import <execinfo.h>
 
 typedef enum {
@@ -39,6 +40,8 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
 + (VMDMethodType) typeOfMethodForSelector:(SEL)selector ofClass:(Class)classToInspect;
 
 - (NSString *) stacktraceForSelector:(SEL)selector ofClass:(Class)classToInspect;
+
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock dumpingRealSelf:(BOOL)dumpObject;
 
 @end
 
@@ -347,6 +350,11 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
 
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)())executeBefore afterBlock:(void (^)())executeAfter
 {
+    [self instrumentSelector:selectorToInstrument forClass:classToInspect withBeforeBlock:executeBefore afterBlock:executeAfter dumpingRealSelf:NO];
+}
+
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)())executeBefore afterBlock:(void (^)())executeAfter dumpingRealSelf:(BOOL)dumpObject
+{
     NSString *selectorName = NSStringFromSelector(selectorToInstrument);
     if([self.instrumentedMethods containsObject:selectorName])
     {
@@ -391,6 +399,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 if(executeBefore)
                     executeBefore();
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -414,6 +425,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 id result = nil;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -442,6 +456,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 char result = 0;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -472,6 +489,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 unsigned char result = 0;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -500,6 +520,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 int result = 0;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -530,6 +553,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 short result = 0;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -558,6 +584,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 long result = 0l;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -588,6 +617,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 long long result = 0ll;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -616,6 +648,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 unsigned int result = 0;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -646,6 +681,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 unsigned short result = 0;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -674,6 +712,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 unsigned long result = 0l;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -704,6 +745,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 unsigned long long result = 0ll;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -733,6 +777,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 float result = .0f;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -761,6 +808,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 double result = .0;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -793,6 +843,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                 
                 Class result = nil;
                 
+                if(dumpObject)
+                    [realSelf dumpInfo];
+                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -821,6 +874,9 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
                     executeBefore();
                 
                 BOOL result = NO;
+                
+                if(dumpObject)
+                    [realSelf dumpInfo];
                 
                 if(argsCount > 0)
                 {
@@ -861,10 +917,10 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect
 {
-    [self traceSelector:selectorToTrace forClass:classToInspect dumpingStackTrace:NO];
+    [self traceSelector:selectorToTrace forClass:classToInspect dumpingStackTrace:NO dumpingObject:NO];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
 {
     [self instrumentSelector:selectorToTrace forClass:classToInspect withBeforeBlock:^{
         NSLog(@"%@ - Called selector %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
@@ -875,7 +931,7 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
         }
     } afterBlock:^{
         NSLog(@"%@ - Finished executing selector %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
-    }];
+    } dumpingRealSelf:dumpObject];
 }
 
 @end
