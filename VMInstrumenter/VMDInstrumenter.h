@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
+
 @interface VMDInstrumenter : NSObject
 
 /**

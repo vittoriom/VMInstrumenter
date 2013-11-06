@@ -9,6 +9,7 @@
 #import <Kiwi/Kiwi.h>
 #import <XCTest/XCTest.h>
 #import "VMDInstrumenter.h"
+#import "VMDHelper.h"
 #import "VMTestsHelper.h"
 
 @interface VMDInstrumenter (publicise)
@@ -190,15 +191,15 @@ SPEC_BEGIN(VMDInstrumenterTests)
         
         context(@"internal methods", ^{
             it(@"should correctly return method signatures", ^{
-                const char * signature = [VMDInstrumenter constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
+                const char * signature = [VMDHelper constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
                 [[[signatureAsObject substringToIndex:1] should] equal:@"i"];
                 
-                const char * signature2 = [VMDInstrumenter constCharSignatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
+                const char * signature2 = [VMDHelper constCharSignatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject2 = [NSString stringWithUTF8String:signature2];
                 [[[signatureAsObject2 substringToIndex:1] should] equal:@"@"];
                 
-                const char * signature3 = [VMDInstrumenter constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+                const char * signature3 = [VMDHelper constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
                 [[[signatureAsObject3 substringToIndex:1] should] equal:@"v"];
             });
