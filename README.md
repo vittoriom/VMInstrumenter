@@ -1,4 +1,4 @@
-VMInstrumenter
+VMDInstrumenter
 ==============
 
 An Objective-C singleton to instrument, trace, and suppress selectors at runtime
@@ -8,9 +8,9 @@ Usage:
 
 **Retrieve an instance of the instrumenter**
 
-You can get a <code>VMInstrumenter</code> instance by calling
+You can get a <code>VMDInstrumenter</code> instance by calling
 
-<code>VMInstrumenter *instrumenter = [VMInstrumenter sharedInstance];</code>
+<code>VMDInstrumenter *instrumenter = [VMDInstrumenter sharedInstance];</code>
 
 **Suppressing selectors**
 
@@ -51,11 +51,11 @@ This product is released under the BSD license.
 
 ToDo:
 --------------
-- Better stack trace printing
+- Dump self object
 - Create ObjC wrappers for class_, method_ and so on
-- Write tests for all the cases and move VMViewController "tests" to Unit Tests
+- Write tests for all the cases
 - Create podspec
 
 Disclaimer:
 --------------
-Everything is at a pre-alpha stage and this is just an experiment. I'm not even sure that everything works.
+This is mainly an experiment. Don't ever ship this into production code.

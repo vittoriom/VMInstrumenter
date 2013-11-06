@@ -9,6 +9,13 @@
 #import "VMDInstrumenter.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
+#import <execinfo.h>
+
+typedef enum {
+    VMDClassMethodType,
+    VMDInstanceMethodType,
+    VMDUnknownMethodType
+} VMDMethodType;
 
 static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get signature for a selector that it's neither instance or class method (?)";
 
@@ -29,12 +36,40 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
 
 + (NSInvocation *)invocationForSelector:(SEL)selector ofClass:(Class)classToInspect onRealSelf:(id)realSelf withArgsList:(va_list)args argsCount:(NSInteger)count;
 + (NSInvocation *)createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector;
++ (VMDMethodType) typeOfMethodForSelector:(SEL)selector ofClass:(Class)classToInspect;
+
+- (NSString *) stacktraceForSelector:(SEL)selector ofClass:(Class)classToInspect;
 
 @end
 
 @implementation VMDInstrumenter
 
 #pragma mark - Private methods and helpers
+
++ (VMDMethodType) typeOfMethodForSelector:(SEL)selector ofClass:(Class)classToInspect
+{
+    if(class_getInstanceMethod(classToInspect, selector))
+        return VMDInstanceMethodType;
+    else if(class_getClassMethod(classToInspect, selector))
+        return VMDClassMethodType;
+    else
+        return VMDUnknownMethodType;
+}
+
+- (NSString *) stacktraceForSelector:(SEL)selector ofClass:(Class)classToInspect
+{
+    NSMutableString * backtraceStr = [NSMutableString string];
+    
+    void *_callstack[128];
+    int _frames = backtrace(_callstack, sizeof(_callstack)/sizeof(*_callstack));
+    char** strs = backtrace_symbols(_callstack, _frames);
+    for (int i = 0; i < _frames; ++i) {
+        [backtraceStr appendFormat:@"%s\n", strs[i]];
+    }
+    free(strs);
+
+    return backtraceStr;
+}
 
 + (Method) getMethodFromSelector:(SEL)selector ofClass:(Class)classToInspect orThrowExceptionWithReason:(const NSString *)reason
 {
@@ -836,7 +871,7 @@ static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying t
         
         if (dumpStack)
         {
-            NSLog(@"%@",[NSThread callStackSymbols]); //@TODO change this
+            NSLog(@"%@",[self stacktraceForSelector:selectorToTrace ofClass:classToInspect]);
         }
     } afterBlock:^{
         NSLog(@"%@ - Finished executing selector %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
