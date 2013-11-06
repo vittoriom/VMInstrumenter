@@ -15,8 +15,8 @@
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
 @property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
-+ (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress;
-+ (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument;
++ (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect;
++ (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
 
 + (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 + (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz;
@@ -32,14 +32,14 @@
 
 #pragma mark - Private methods and helpers
 
-+ (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument
++ (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect
 {
-    return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_VMDInstrumenter_InstrumentedMethod"];
+    return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_%@_InstrumentedMethod",NSStringFromClass(classToInspect)];
 }
 
-+ (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress
++ (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect
 {
-    return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_VMDInstrumenter_SuppressedMethod"];
+    return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_%@_SuppressedMethod",NSStringFromClass(classToInspect)];
 }
 
 #pragma mark Invocation related methods
@@ -223,7 +223,7 @@
 - (void) suppressSelector:(SEL)selectorToSuppress forInstancesOfClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
-    NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress];
+    NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress ofClass:classToInspect];
     
     if([self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
@@ -247,7 +247,7 @@
 - (void) restoreSelector:(SEL)selectorToRestore forInstancesOfClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
-    NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore];
+    NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore ofClass:classToInspect];
     
     if(![self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
@@ -295,7 +295,7 @@
     }
     
     Method methodToInstrument = class_getInstanceMethod(classToInspect, selectorToInstrument);
-    SEL instrumentedSelector = NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]);
+    SEL instrumentedSelector = NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]);
     
     char returnType[3];
     method_getReturnType(methodToInstrument, returnType, 3);
@@ -765,7 +765,7 @@
             break;
     }
     
-    Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]));
+    Method instrumentedMethod = class_getInstanceMethod([self class], NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
     
