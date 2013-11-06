@@ -10,6 +10,8 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 
+static const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get signature for a selector that it's neither instance or class method (?)";
+
 @interface VMDInstrumenter ()
 
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
@@ -17,6 +19,8 @@
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect;
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
+
++ (Method) getMethodFromSelector:(SEL)selector ofClass:(Class)classToInspect orThrowExceptionWithReason:(const NSString *)reason;
 
 + (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 + (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz;
@@ -31,6 +35,28 @@
 @implementation VMDInstrumenter
 
 #pragma mark - Private methods and helpers
+
++ (Method) getMethodFromSelector:(SEL)selector ofClass:(Class)classToInspect orThrowExceptionWithReason:(const NSString *)reason
+{
+    Method method = class_getInstanceMethod(classToInspect, selector);
+    
+    if(!method)
+    {
+        method = class_getClassMethod(classToInspect, selector);
+    
+        if(!method)
+        {
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:[NSString stringWithFormat:@"%@ - %@",NSStringFromClass([VMDInstrumenter class]), reason]
+                                         userInfo:@{
+                                                    @"error" : @"Unknown type of selector",
+                                                    @"info" : NSStringFromSelector(selector)
+                                                    }];
+        }
+    }
+    
+    return method;
+}
 
 + (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect
 {
@@ -153,19 +179,9 @@
 
 + (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    Method method = class_getInstanceMethod(classToInspect, selector);
-    if(!method)
-        method = class_getClassMethod(classToInspect, selector);
-    
-    if(!method)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Trying to get signature for a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
-                                     userInfo:@{
-                                                @"error" : @"Unknown type of selector",
-                                                @"info" : NSStringFromSelector(selector)
-                                                }];
-    }
+    Method method = [self getMethodFromSelector:selector
+                                        ofClass:classToInspect
+                     orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
     
     const char * encoding = method_getTypeEncoding(method);
     return [NSMethodSignature signatureWithObjCTypes:encoding];
@@ -201,7 +217,7 @@
     if(self)
     {
 #ifndef DEBUG
-        NSLog(@"-- Warning: %@ is still enabled and you're not in Debug configuration! --", NSStringFromClass([VMDInstrumenter class]));#warning -- Warning:
+        NSLog(@"-- Warning: %@ is still enabled and you're not in Debug configuration! --", NSStringFromClass([VMDInstrumenter class]));
 #warning -- Warning: VMDInstrumenter is still enabled and you're not in Debug configuration! --
 #endif
         
@@ -236,19 +252,9 @@
         return;
     }
     
-    Method originalMethod = class_getInstanceMethod(classToInspect, selectorToSuppress);
-    if(!originalMethod)
-        originalMethod = class_getClassMethod(classToInspect, selectorToSuppress);
-    
-    if(!originalMethod)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Trying to suppress a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
-                                     userInfo:@{
-                                                @"error" : @"Unknown type of selector",
-                                                @"info" : NSStringFromSelector(selectorToSuppress)
-                                                }];
-    }
+    Method originalMethod = [VMDInstrumenter getMethodFromSelector:selectorToSuppress
+                                                           ofClass:classToInspect
+                                        orThrowExceptionWithReason:@"Trying to suppress a selector that it's neither instance or class method (?)"];
     
     SEL newSelector = NSSelectorFromString(plausibleSuppressedSelectorName);
    
@@ -279,19 +285,9 @@
     
     Method originalMethod = class_getInstanceMethod([self class], NSSelectorFromString(plausibleSuppressedSelectorName));
     
-    Method replacedMethod = class_getInstanceMethod(classToInspect, selectorToRestore);
-    if(!replacedMethod)
-        replacedMethod = class_getClassMethod(classToInspect, selectorToRestore);
-    
-    if(!replacedMethod)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Trying to restore a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
-                                     userInfo:@{
-                                                @"error" : @"Unknown type of selector",
-                                                @"info" : NSStringFromSelector(selectorToRestore)
-                                                }];
-    }
+    Method replacedMethod = [VMDInstrumenter getMethodFromSelector:selectorToRestore
+                                                           ofClass:classToInspect
+                                        orThrowExceptionWithReason:@"Trying to restore a selector that it's neither instance or class method (?)"];
     
     method_exchangeImplementations(originalMethod, replacedMethod);
     
@@ -300,31 +296,13 @@
 
 - (void) replaceSelector:(SEL)sel1 ofClass:(Class)class1 withSelector:(SEL)sel2 ofClass:(Class)class2
 {
-    Method originalMethod = class_getInstanceMethod(class1, sel1);
-    if(!originalMethod)
-        originalMethod = class_getClassMethod(class1, sel1);
-    if(!originalMethod)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Trying to replace selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
-                                     userInfo:@{
-                                                @"error" : @"Unknown type of selector",
-                                                @"info" : NSStringFromSelector(sel1)
-                                                }];
-    }
+    Method originalMethod = [VMDInstrumenter getMethodFromSelector:sel1
+                                                           ofClass:class1
+                                        orThrowExceptionWithReason:@"Trying to replace selector that it's neither instance or class method (?)"];
     
-    Method replacedMethod = class_getInstanceMethod(class2, sel2);
-    if(!replacedMethod)
-        replacedMethod = class_getClassMethod(class2, sel2);
-    if(!replacedMethod)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Trying to replace selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
-                                     userInfo:@{
-                                                @"error" : @"Unknown type of selector",
-                                                @"info" : NSStringFromSelector(sel2)
-                                                }];
-    }
+    Method replacedMethod = [VMDInstrumenter getMethodFromSelector:sel2
+                                                           ofClass:class2
+                                        orThrowExceptionWithReason:@"Trying to replace selector that it's neither instance or class method (?)"];
     
     method_exchangeImplementations(originalMethod, replacedMethod);
 }
@@ -835,19 +813,9 @@
             break;
     }
     
-    Method instrumentedMethod = class_getInstanceMethod(classToInspect, NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
-    
-    if(!instrumentedMethod)
-        instrumentedMethod = class_getClassMethod(classToInspect, NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
-    
-    if(!instrumentedMethod)
-    {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Something weird happened during the instrumentation",NSStringFromClass([VMDInstrumenter class])]
-                                     userInfo:@{
-                                                @"error" : @"Fatal error",
-                                                }];
-    }
+    Method instrumentedMethod = [VMDInstrumenter getMethodFromSelector:NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect])
+                                                               ofClass:classToInspect
+                                            orThrowExceptionWithReason:@"Something weird happened during the instrumentation"];
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
     
