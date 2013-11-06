@@ -30,7 +30,12 @@
     for (int i = 0; i < count ; i++)
     {
         const char* propertyName = property_getName(properties[i]);
-        [propertyArray addObject:[NSString  stringWithCString:propertyName encoding:NSUTF8StringEncoding]];
+        id value = [self valueForKey:[NSString stringWithUTF8String:propertyName]];
+        [propertyArray addObject:@{
+                                   [NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]
+                                   : value
+                                   }];
+        
     }
     free(properties);
     
@@ -44,11 +49,9 @@
     }
     free(methods);
     
-    NSDictionary* classDump = [NSDictionary dictionaryWithObjectsAndKeys:
-                               ivarArray, @"ivars",
-                               propertyArray, @"properties",
-                               methodArray, @"methods",
-                               nil];
+    NSDictionary* classDump = @{ @"ivars" : ivarArray,
+                                 @"properties" : propertyArray,
+                                 @"methods" : methodArray };
     
     NSLog(@"%@", classDump);
 }
