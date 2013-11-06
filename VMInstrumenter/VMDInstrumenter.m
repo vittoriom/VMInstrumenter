@@ -7,7 +7,6 @@
 //
 
 #import "VMDInstrumenter.h"
-#import "NSObject+Dump.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 
@@ -24,8 +23,8 @@
 + (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
 + (char) typeOfArgumentInSignature:(NSMethodSignature *)signature atIndex:(NSUInteger)index;
 
-- (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count;
-- (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector;
++ (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count;
++ (NSInvocation *)createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector;
 
 @end
 
@@ -45,32 +44,31 @@
 
 #pragma mark Invocation related methods
 
-- (NSInvocation *) createAndInvokeSelector:(SEL)instrumentedSelector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
++ (NSInvocation *) createAndInvokeSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count onRealSelf:(id)realSelf withRealSelector:(SEL)realSelector
 {
-    NSInvocation *invocation = [self invocationForSelector:instrumentedSelector withArgsList:args argsCount:count];
-    
+    NSInvocation *invocation = [self invocationForSelector:selector withArgsList:args argsCount:count];
     [invocation invoke];
     
     return invocation;
 }
 
-- (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)count
++ (NSInvocation *)invocationForSelector:(SEL)selector withArgsList:(va_list)args argsCount:(NSInteger)argsCount
 {
-    NSMethodSignature *signature = [[self class] NSMethodSignatureForSelector:selector ofClass:[self class]];
-    NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:signature];
+    NSMethodSignature *methodSignature = [[self class] NSMethodSignatureForSelector:selector ofClass:[self class]];
+    NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:methodSignature];
     [invocationObject setTarget:self];
     [invocationObject setSelector:selector];
     
-    int index = 2;
-    for (int i=0; i<count;i++)
+    int argumentIndex = 2;
+    for (int i=0; i<argsCount; i++)
     {
-        char type = [[self class] typeOfArgumentInSignature:signature atIndex:index];
+        char argumentType = [[self class] typeOfArgumentInSignature:methodSignature atIndex:argumentIndex];
         
-        switch (type) {
+        switch (argumentType) {
             case '@':
             {
                 id object = va_arg(args, id);
-                [invocationObject setArgument:&object atIndex:index];
+                [invocationObject setArgument:&object atIndex:argumentIndex];
             }
                 break;
             //All these types get promoted to int anyway when calling va_arg
@@ -82,7 +80,7 @@
             case 's':
             {
                 NSInteger number = va_arg(args, int);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case 'v': //Can it be?
@@ -90,58 +88,59 @@
             case 'l':
             {
                 long number = va_arg(args, long);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case 'q':
             {
                 long long number = va_arg(args, long long);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case 'I':
             {
                 unsigned int number = va_arg(args,unsigned int);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case 'L':
             {
                 unsigned long number = va_arg(args, unsigned long);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case 'Q':
             {
                 unsigned long long number = va_arg(args, unsigned long long);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case 'f':
             case 'd':
             {
                 double number = va_arg(args, double);
-                [invocationObject setArgument:&number atIndex:index];
+                [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
             case ':':
             {
                 SEL selector = va_arg(args, SEL);
-                [invocationObject setArgument:&selector atIndex:index];
+                [invocationObject setArgument:&selector atIndex:argumentIndex];
             }
                 break;
             case '#':
             {
                 Class class = va_arg(args, Class);
-                [invocationObject setArgument:&class atIndex:index];
+                [invocationObject setArgument:&class atIndex:argumentIndex];
             }
                 break;
             default:
                 break;
         }
         
-        index++;
+        argumentIndex++;
     }
+    
     return invocationObject;
 }
 
@@ -152,16 +151,16 @@
     return [signature getArgumentTypeAtIndex:index][0];
 }
 
-+ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)clazz
++ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    Method method = class_getInstanceMethod(clazz, selector);
+    Method method = class_getInstanceMethod(classToInspect, selector);
     if(!method)
-        method = class_getClassMethod(clazz, selector);
+        method = class_getClassMethod(classToInspect, selector);
     
     if(!method)
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:@"VMDInstrumenter - Trying to get signature for a selector that it's neither instance or class method (?)"
+                                       reason:[NSString stringWithFormat:@"%@ - Trying to get signature for a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
                                      userInfo:@{
                                                 @"error" : @"Unknown type of selector",
                                                 @"info" : NSStringFromSelector(selector)
@@ -172,16 +171,16 @@
     return [NSMethodSignature signatureWithObjCTypes:encoding];
 }
 
-+ (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)clazz
++ (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
+    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:classToInspect];
     
-    return [signature numberOfArguments] - 2;
+    return [signature numberOfArguments] - 2; //0 is self, 1 is _cmd, we only care about real arguments here
 }
 
-+ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz
++ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:clazz];
+    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:classToInspect];
     NSMutableString *signatureBuilder = [[NSMutableString alloc] initWithCapacity:10];
     
     [signatureBuilder appendFormat:@"%s",[signature methodReturnType]];
@@ -221,18 +220,18 @@
 
 #pragma mark - Public API
 
-- (void) suppressSelector:(SEL)selectorToSuppress forInstancesOfClass:(Class)clazz
+- (void) suppressSelector:(SEL)selectorToSuppress forInstancesOfClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
     NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress];
     
     if([self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
-        NSLog(@"VMDInstrumenter - Warning: The SEL %@ is already suppressed", selectorName);
+        NSLog(@"%@ - Warning: The SEL %@ is already suppressed", NSStringFromClass([VMDInstrumenter class]), selectorName);
         return;
     }
     
-    Method originalMethod = class_getInstanceMethod(clazz, selectorToSuppress);
+    Method originalMethod = class_getInstanceMethod(classToInspect, selectorToSuppress);
     
     SEL newSelector = NSSelectorFromString(plausibleSuppressedSelectorName);
     
@@ -245,7 +244,7 @@
     [self.suppressedMethods addObject:plausibleSuppressedSelectorName];
 }
 
-- (void) restoreSelector:(SEL)selectorToRestore forInstancesOfClass:(Class)clazz
+- (void) restoreSelector:(SEL)selectorToRestore forInstancesOfClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
     NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore];
@@ -253,7 +252,7 @@
     if(![self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:@"VMDInstrumenter - Warning: The SEL %@ is not suppressed"
+                                       reason:[NSString stringWithFormat:@"%@ - Warning: The SEL %@ is not suppressed", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToRestore)]
                                      userInfo:@{
                                                 @"error" : @"selector is not suppressed",
                                                 @"info" : selectorName
@@ -263,7 +262,7 @@
     
     Method originalMethod = class_getInstanceMethod([self class], NSSelectorFromString(plausibleSuppressedSelectorName));
     
-    Method replacedMethod = class_getInstanceMethod(clazz, selectorToRestore);
+    Method replacedMethod = class_getInstanceMethod(classToInspect, selectorToRestore);
     
     method_exchangeImplementations(originalMethod, replacedMethod);
     
@@ -281,13 +280,13 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void (^)())beforeBlock afterBlock:(void (^)())afterBlock
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)())executeBefore afterBlock:(void (^)())executeAfter
 {
     NSString *selectorName = NSStringFromSelector(selectorToInstrument);
     if([self.instrumentedMethods containsObject:selectorName])
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:@"VMDInstrumenter - Selector is already instrumented"
+                                       reason:[NSString stringWithFormat:@"%@ - Selector is already instrumented", NSStringFromClass([VMDInstrumenter class])]
                                      userInfo:@{
                                                 @"error" : @"Selector already instrumented",
                                                 @"info" : selectorName
@@ -295,50 +294,50 @@
         return;
     }
     
-    Method methodToInstrument = class_getInstanceMethod(clazz, selectorToInstrument);
+    Method methodToInstrument = class_getInstanceMethod(classToInspect, selectorToInstrument);
     SEL instrumentedSelector = NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument]);
     
     char returnType[3];
     method_getReturnType(methodToInstrument, returnType, 3);
-    NSInteger count = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:clazz];
+    NSInteger argsCount = [[self class] numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
     
     switch (returnType[0]) {
         case 'v':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
-                    [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     va_end(args);
                 }
                 else
                     objc_msgSend(self, instrumentedSelector);                
                 
-                if(afterBlock)
-                    afterBlock();
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+                if(executeAfter)
+                    executeAfter();
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case '@':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
+                if(executeBefore)
+                    executeBefore();
                 
                 id result = nil;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -346,27 +345,27 @@
                 } else
                     result = objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'c':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 char result = 0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -375,27 +374,27 @@
                 else
                     result = (char)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'C':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 unsigned char result = 0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -404,27 +403,27 @@
                 else
                     result = (unsigned char)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'i':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 int result = 0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -433,27 +432,27 @@
                 else
                     result = (int)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 's':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 short result = 0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -462,27 +461,27 @@
                 else
                     result = (short)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'l':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 long result = 0l;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -491,27 +490,27 @@
                 else
                     result = (long)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'q':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 long long result = 0ll;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -520,27 +519,27 @@
                 else
                     result = (long long)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'I':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 unsigned int result = 0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -549,27 +548,27 @@
                 else
                     result = (unsigned int)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'S':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 unsigned short result = 0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -578,27 +577,27 @@
                 else
                     result = (unsigned short)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'L':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 unsigned long result = 0l;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -607,27 +606,27 @@
                 else
                     result = (unsigned long)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'Q':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 unsigned long long result = 0ll;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -636,27 +635,27 @@
                 else
                     result = (unsigned long long)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'f':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 float result = .0f;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -665,27 +664,27 @@
                 else
                     result = objc_msgSend_fpret(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'd':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 double result = .0;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -694,29 +693,29 @@
                 else
                     result = objc_msgSend_fpret(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case ':':
             break;
         case '#':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 Class result = nil;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -725,27 +724,27 @@
                 else
                     result = (Class)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'B':
         {
-            class_addMethod(clazz, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
-                if(beforeBlock)
-                    beforeBlock();
+            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
+                if(executeBefore)
+                    executeBefore();
                 
                 BOOL result = NO;
                 
-                if(count > 0)
+                if(argsCount > 0)
                 {
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [self createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:count onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [VMDInstrumenter createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -754,11 +753,11 @@
                 else
                     result = (BOOL)objc_msgSend(self, instrumentedSelector);
                 
-                if(afterBlock)
-                    afterBlock();
+                if(executeAfter)
+                    executeAfter();
                 
                 return result;
-            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:clazz]);
+            }), [[self class] constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         default:
@@ -775,22 +774,22 @@
 
 #pragma clang diagnostic pop
 
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect
 {
-    [self traceSelector:selectorToTrace forClass:clazz dumpingStackTrace:NO];
+    [self traceSelector:selectorToTrace forClass:classToInspect dumpingStackTrace:NO];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingStackTrace:(BOOL)dumpStack
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack
 {
-    [self instrumentSelector:selectorToTrace forClass:clazz withBeforeBlock:^{
-        NSLog(@"VMDInstrumenter - Called selector %@", NSStringFromSelector(selectorToTrace));
+    [self instrumentSelector:selectorToTrace forClass:classToInspect withBeforeBlock:^{
+        NSLog(@"%@ - Called selector %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
         
         if (dumpStack)
         {
-            NSLog(@"%@",[NSThread callStackSymbols]);
+            NSLog(@"%@",[NSThread callStackSymbols]); //@TODO change this
         }
     } afterBlock:^{
-        NSLog(@"VMDInstrumenter - Finished executing selector %@",NSStringFromSelector(selectorToTrace));
+        NSLog(@"%@ - Finished executing selector %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
     }];
 }
 

@@ -51,9 +51,12 @@ This product is released under the BSD license.
 
 ToDo:
 --------------
+- Better stack trace printing
 - Check what happens with class methods
 - Create ObjC wrappers for class_, method_ and so on
-- Write tests for all the cases
+- Write tests for all the cases and move VMViewController "tests" to Unit Tests
+- Warn the user with a Xcode Warning and a NSLog in the console if using the class when not in DEBUG mode
+- Use the name of the classToInspect when creating plausibleNames
 - Clean up the code
 
 Disclaimer:

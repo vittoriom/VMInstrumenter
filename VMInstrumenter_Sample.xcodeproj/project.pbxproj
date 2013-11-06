@@ -13,7 +13,6 @@
 		52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */; };
 		52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */; };
 		52D68D321825087A00AD9E35 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 52D68D311825087A00AD9E35 /* InfoPlist.strings */; };
-		52D68D35182510A300AD9E35 /* NSObject+Dump.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D68D34182510A300AD9E35 /* NSObject+Dump.m */; };
 		6EE26CD10F684C768EDF7B0F /* libPods-debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AA53E771A84A9CADD42A2E /* libPods-debug.a */; };
 		773ABCA6F0634210B035EFCB /* libPods-test.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684048266C0A41C389F29D65 /* libPods-test.a */; };
 		A439FD6D17CE221200FCFB02 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
@@ -49,8 +48,6 @@
 		528ABA5317CE640D00133BBC /* VMInstrumenter_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VMInstrumenter_Tests-Prefix.pch"; sourceTree = "<group>"; };
 		52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMInstrumenter_Tests.m; sourceTree = "<group>"; };
 		52D68D311825087A00AD9E35 /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
-		52D68D33182510A300AD9E35 /* NSObject+Dump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+Dump.h"; sourceTree = "<group>"; };
-		52D68D34182510A300AD9E35 /* NSObject+Dump.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+Dump.m"; sourceTree = "<group>"; };
 		52D68D36182513E300AD9E35 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		52E5263E17CE67D6004C5A2B /* VMTestsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMTestsHelper.h; sourceTree = "<group>"; };
 		52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMTestsHelper.m; sourceTree = "<group>"; };
@@ -199,8 +196,6 @@
 			children = (
 				A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */,
 				A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */,
-				52D68D33182510A300AD9E35 /* NSObject+Dump.h */,
-				52D68D34182510A300AD9E35 /* NSObject+Dump.m */,
 			);
 			path = VMInstrumenter;
 			sourceTree = "<group>";
@@ -338,7 +333,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */,
-				52D68D35182510A300AD9E35 /* NSObject+Dump.m in Sources */,
 				52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
