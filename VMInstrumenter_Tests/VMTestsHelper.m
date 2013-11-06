@@ -10,6 +10,20 @@
 
 @implementation VMTestsHelper
 
++ (void) classMethodToSuppress
+{
+    [self classMethodReturnsObject];
+}
+
++ (NSNumber *) classMethodReturnsObject
+{
+    return @5;
+}
+
++ (NSNumber *) classMethodTakesOneParameter:(NSNumber *)param {
+    return @([param intValue] * 2);
+}
+
 - (void) dontCallMe
 {
     //You did!

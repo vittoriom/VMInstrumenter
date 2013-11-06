@@ -25,17 +25,17 @@
  NOTHING will happen. Be warned
  
  @param selectorToSuppress the selector to suppress
- @param clazz the class on which you want to suppress the selector
+ @param classToInspect the class on which you want to suppress the selector
  */
-- (void) suppressSelector:(SEL)selectorToSuppress forInstancesOfClass:(Class)clazz;
+- (void) suppressSelector:(SEL)selectorToSuppress forClass:(Class)classToInspect;
 
 /**
- This method just reverts what suppressSelector:forInstancesOfClass: does
+ This method just reverts what suppressSelector:forClass: does
  
  @param selectorToRestore the selector you want to restore
- @param clazz the class for which you want to restore the selector
+ @param classToInspect the class for which you want to restore the selector
  */
-- (void) restoreSelector:(SEL)selectorToRestore forInstancesOfClass:(Class)clazz;
+- (void) restoreSelector:(SEL)selectorToRestore forClass:(Class)classToInspect;
 
 /**
  This method replaces the implementation of the two specified selectors from the two specified classes
@@ -55,11 +55,11 @@
  beforeBlock is executed before the selector is, and afterBlock is executed after the selector is.
  
  @param selectorToInstrument the selector that you'd like to instrument
- @param clazz the class to take the selector from
+ @param classToInspect the class to take the selector from
  @param beforeBlock the block of code to execute before the call to the selector
  @param afterBlock the block of code to execute after the call to the selector
  */
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)clazz withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
 
 /**
  This method instruments calls to a specified selector of a specified class and just logs execution
@@ -67,17 +67,17 @@
  You can use more specific methods if you want particular tracing to be done
  
  @param selectorToTrace the selector that you'd like to trace
- @clazz the class to take the selector from
+ @classToInspect the class to take the selector from
  */
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz;
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect;
 
 /**
  This method instruments calls to a specified selector of a specified class and just logs execution as the previous method
  Moreover, if dumpStack is YES, it prints the stack trace after every execution
  
  @param selectorToTrace the selector that you'd like to trace
- @clazz the class to take the selector from
+ @classToInspect the class to take the selector from
  */
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)clazz dumpingStackTrace:(BOOL)dumpStack;
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack;
 
 @end

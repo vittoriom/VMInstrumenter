@@ -12,6 +12,12 @@
 
 @property (nonatomic, strong) VMTestsHelper *forwardCalls;
 
++ (void) classMethodToSuppress;
+
++ (NSNumber *) classMethodReturnsObject;
+
++ (NSNumber *) classMethodTakesOneParameter:(NSNumber *)param;
+
 - (void) dontCallMe;
 
 - (void) canSafelyCallMe;

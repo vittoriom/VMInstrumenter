@@ -16,13 +16,13 @@ You can get a <code>VMInstrumenter</code> instance by calling
 
 Then you can suppress a specific selector of a specific class by calling
 
-<code>[instrumenter suppressSelector:@selector(doFoo) forInstancesOfClass:[self class]];</code>
+<code>[instrumenter suppressSelector:@selector(doFoo) forClass:[self class]];</code>
 
 Any subsequent call to <code>doFoo</code> in <code>[self class]</code> will be ignored.
 
 You can afterwards restore the suppressed method by calling
 
-<code>[instrumenter restoreSelector:@selector(doFoo) forInstancesOfClass:[self class]];</code>
+<code>[instrumenter restoreSelector:@selector(doFoo) forClass:[self class]];</code>
 
 **Replacing implementations**
 
@@ -52,10 +52,9 @@ This product is released under the BSD license.
 ToDo:
 --------------
 - Better stack trace printing
-- Check what happens with class methods
 - Create ObjC wrappers for class_, method_ and so on
 - Write tests for all the cases and move VMViewController "tests" to Unit Tests
-- Clean up the code
+- Create podspec
 
 Disclaimer:
 --------------

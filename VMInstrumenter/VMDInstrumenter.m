@@ -225,7 +225,7 @@
 
 #pragma mark - Public API
 
-- (void) suppressSelector:(SEL)selectorToSuppress forInstancesOfClass:(Class)classToInspect
+- (void) suppressSelector:(SEL)selectorToSuppress forClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
     NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress ofClass:classToInspect];
@@ -237,9 +237,21 @@
     }
     
     Method originalMethod = class_getInstanceMethod(classToInspect, selectorToSuppress);
+    if(!originalMethod)
+        originalMethod = class_getClassMethod(classToInspect, selectorToSuppress);
+    
+    if(!originalMethod)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"%@ - Trying to suppress a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(selectorToSuppress)
+                                                }];
+    }
     
     SEL newSelector = NSSelectorFromString(plausibleSuppressedSelectorName);
-    
+   
     class_addMethod([self class], newSelector, imp_implementationWithBlock(^(){}), "v@:");
     
     Method replacedMethod = class_getInstanceMethod([self class], newSelector);
@@ -249,7 +261,7 @@
     [self.suppressedMethods addObject:plausibleSuppressedSelectorName];
 }
 
-- (void) restoreSelector:(SEL)selectorToRestore forInstancesOfClass:(Class)classToInspect
+- (void) restoreSelector:(SEL)selectorToRestore forClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
     NSString *plausibleSuppressedSelectorName = [VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore ofClass:classToInspect];
@@ -268,6 +280,18 @@
     Method originalMethod = class_getInstanceMethod([self class], NSSelectorFromString(plausibleSuppressedSelectorName));
     
     Method replacedMethod = class_getInstanceMethod(classToInspect, selectorToRestore);
+    if(!replacedMethod)
+        replacedMethod = class_getClassMethod(classToInspect, selectorToRestore);
+    
+    if(!replacedMethod)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"%@ - Trying to restore a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(selectorToRestore)
+                                                }];
+    }
     
     method_exchangeImplementations(originalMethod, replacedMethod);
     
@@ -277,7 +301,30 @@
 - (void) replaceSelector:(SEL)sel1 ofClass:(Class)class1 withSelector:(SEL)sel2 ofClass:(Class)class2
 {
     Method originalMethod = class_getInstanceMethod(class1, sel1);
+    if(!originalMethod)
+        originalMethod = class_getClassMethod(class1, sel1);
+    if(!originalMethod)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"%@ - Trying to replace selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(sel1)
+                                                }];
+    }
+    
     Method replacedMethod = class_getInstanceMethod(class2, sel2);
+    if(!replacedMethod)
+        replacedMethod = class_getClassMethod(class2, sel2);
+    if(!replacedMethod)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"%@ - Trying to replace selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(sel2)
+                                                }];
+    }
     
     method_exchangeImplementations(originalMethod, replacedMethod);
 }
@@ -299,7 +346,25 @@
         return;
     }
     
+    Class classOrMetaclass = classToInspect;
+    
     Method methodToInstrument = class_getInstanceMethod(classToInspect, selectorToInstrument);
+    if(!methodToInstrument)
+    {
+        methodToInstrument = class_getClassMethod(classToInspect, selectorToInstrument);
+        classOrMetaclass = object_getClass(classToInspect);
+    }
+    
+    if(!methodToInstrument)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"%@ - Trying to instrument a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
+                                     userInfo:@{
+                                                @"error" : @"Unknown type of selector",
+                                                @"info" : NSStringFromSelector(selectorToInstrument)
+                                                }];
+    }
+    
     SEL instrumentedSelector = NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]);
     
     char returnType[3];
@@ -309,7 +374,7 @@
     switch (returnType[0]) {
         case 'v':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -331,7 +396,7 @@
             break;
         case '@':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -359,7 +424,7 @@
             break;
         case 'c':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -388,7 +453,7 @@
             break;
         case 'C':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -417,7 +482,7 @@
             break;
         case 'i':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -446,7 +511,7 @@
             break;
         case 's':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -475,7 +540,7 @@
             break;
         case 'l':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -504,7 +569,7 @@
             break;
         case 'q':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -533,7 +598,7 @@
             break;
         case 'I':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -562,7 +627,7 @@
             break;
         case 'S':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -591,7 +656,7 @@
             break;
         case 'L':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -620,7 +685,7 @@
             break;
         case 'Q':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -649,7 +714,7 @@
             break;
         case 'f':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -678,7 +743,7 @@
             break;
         case 'd':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -709,7 +774,7 @@
             break;
         case '#':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -738,7 +803,7 @@
             break;
         case 'B':
         {
-            class_addMethod(classToInspect, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
+            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
                 if(executeBefore)
                     executeBefore();
                 
@@ -771,6 +836,18 @@
     }
     
     Method instrumentedMethod = class_getInstanceMethod(classToInspect, NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
+    
+    if(!instrumentedMethod)
+        instrumentedMethod = class_getClassMethod(classToInspect, NSSelectorFromString([VMDInstrumenter generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]));
+    
+    if(!instrumentedMethod)
+    {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"%@ - Something weird happened during the instrumentation",NSStringFromClass([VMDInstrumenter class])]
+                                     userInfo:@{
+                                                @"error" : @"Fatal error",
+                                                }];
+    }
     
     method_exchangeImplementations(methodToInstrument, instrumentedMethod);
     

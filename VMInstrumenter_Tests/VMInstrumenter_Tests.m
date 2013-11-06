@@ -38,43 +38,49 @@ SPEC_BEGIN(VMDInstrumenterTests)
             });
             
             it(@"should suppress method once", ^{
-                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 [[check shouldNot] receive:@selector(dontCallMe)];
                 
                 [helper canSafelyCallMe];
             });
             
             it(@"should not suppress method twice", ^{
-                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 
                 [[theBlock(^{
-                    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                    [_instrumenter suppressSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 }) shouldNot] raise];
             });
             
             it(@"should restore suppressed selectors", ^{
                 [[check should] receive:@selector(dontCallMe)];
                 
-                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 
                 [helper canSafelyCallMe];
             });
             
             it(@"should not restore a selector twice", ^{
-                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
-                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                [_instrumenter suppressSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
+                [_instrumenter restoreSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 
                 [[theBlock(^{
-                    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 }) should] raise];
+            });
+            
+            it(@"should suppress class methods", ^{
+                [_instrumenter suppressSelector:@selector(classMethodToSuppress) forClass:[VMTestsHelper class]];
+                [[[VMTestsHelper class] shouldNot] receive:@selector(classMethodReturnsObject)];
                 
+                [VMTestsHelper classMethodToSuppress];
             });
         });
         
         context(@"when in stable state", ^{
             it(@"should not restore methods not suppressed", ^{
                 [[theBlock(^{
-                    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forInstancesOfClass:[VMTestsHelper class]];
+                    [_instrumenter restoreSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 }) should] raise];
             });
         });
@@ -174,6 +180,11 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 
                 [_instrumenter traceSelector:@selector(doubleTest) forClass:[VMTestsHelper class]];
                 [[theValue([helper doubleTest]) should] equal:theValue(2.0)];
+            });
+            
+            it(@"should work with class methods", ^{
+                [_instrumenter traceSelector:@selector(classMethodTakesOneParameter:) forClass:[VMTestsHelper class]];
+                [[[VMTestsHelper classMethodTakesOneParameter:@2] should] equal:@4];
             });
         });
         
