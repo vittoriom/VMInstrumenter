@@ -28,4 +28,12 @@
 
 - (void) doFoo:(NSString *)foo withMoreThanOneParameter:(NSObject *)second;
 
+- (float) floatTest;
+
+- (double) doubleTest;
+
+- (BOOL) booleanTest;
+
+- (NSString *)doSomethingNewWithThisString:(NSString *)thisStr;
+
 @end

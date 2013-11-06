@@ -13,7 +13,6 @@
 @interface VMAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-
 @property (strong, nonatomic) VMViewController *viewController;
 
 @end

@@ -156,6 +156,25 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 
                 [helper doFoo:@"Test" withMoreThanOneParameter:@1];
             });
+            
+            it(@"should correctly handle arguments", ^{
+                //Also when they return values
+                [_instrumenter traceSelector:@selector(doSomethingNewWithThisString:) forClass:[VMTestsHelper class]];
+                [[[helper doSomethingNewWithThisString:@"Test"] should] equal:@"Test___"];
+            });
+            
+            it(@"should work with BOOL values", ^{
+                [_instrumenter traceSelector:@selector(booleanTest) forClass:[VMTestsHelper class]];
+                [[theValue([helper booleanTest]) should] beTrue];
+            });
+            
+            it(@"should work with double and float values", ^{
+                [_instrumenter traceSelector:@selector(floatTest) forClass:[VMTestsHelper class]];
+                [[theValue([helper floatTest]) should] equal:theValue(1.5f)];
+                
+                [_instrumenter traceSelector:@selector(doubleTest) forClass:[VMTestsHelper class]];
+                [[theValue([helper doubleTest]) should] equal:theValue(2.0)];
+            });
         });
         
         context(@"internal methods", ^{

@@ -50,4 +50,24 @@
     [self.forwardCalls dontCallMe];
 }
 
+- (float) floatTest
+{
+    return 1.5f;
+}
+
+- (double) doubleTest
+{
+    return 2.0;
+}
+
+- (BOOL) booleanTest
+{
+    return YES;
+}
+
+- (NSString *)doSomethingNewWithThisString:(NSString *)thisStr
+{
+    return [thisStr stringByAppendingString:@"___"];
+}
+
 @end
