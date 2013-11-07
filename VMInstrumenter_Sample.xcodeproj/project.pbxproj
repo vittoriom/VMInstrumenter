@@ -56,6 +56,7 @@
 		5265FA791825075700B09838 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		528ABA4D17CE640D00133BBC /* VMInstrumenter_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "VMInstrumenter_Tests-Info.plist"; sourceTree = "<group>"; };
 		528ABA5317CE640D00133BBC /* VMInstrumenter_Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VMInstrumenter_Tests-Prefix.pch"; sourceTree = "<group>"; };
+		52989690182C3470006312A1 /* VMDInstrumenter.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = VMDInstrumenter.podspec; sourceTree = "<group>"; };
 		52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMInstrumenter_Tests.m; sourceTree = "<group>"; };
 		52D68D311825087A00AD9E35 /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
 		52D68D36182513E300AD9E35 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
@@ -143,6 +144,7 @@
 		A439FD6017CE221200FCFB02 = {
 			isa = PBXGroup;
 			children = (
+				52989690182C3470006312A1 /* VMDInstrumenter.podspec */,
 				52D68D36182513E300AD9E35 /* README.md */,
 				A439FDAA17CE228600FCFB02 /* VMInstrumenter */,
 				A439FD7217CE221200FCFB02 /* VMInstrumenter_Sample */,
