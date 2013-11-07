@@ -7,9 +7,9 @@
 //
 
 #import "VMDInstrumenter.h"
-#import <objc/runtime.h>
 #import <objc/message.h>
-#import <execinfo.h>
+#import <objc/runtime.h>
+#import <Foundation/NSObjCRuntime.h>
 #import "NSObject+VMDInstrumenter.h"
 #import "VMDHelper.h"
 #import "NSInvocation+VMDInstrumenter.h"
@@ -38,7 +38,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     {
 #ifndef DEBUG
         NSLog(@"-- Warning: %@ is still enabled and you're not in Debug configuration! --", NSStringFromClass([VMDInstrumenter class]));
-#warning -- Warning: VMDInstrumenter is still enabled and you're not in Debug configuration! --
+//#warning -- Warning: VMDInstrumenter is still enabled and you're not in Debug configuration! --
 #endif
         
         self.suppressedMethods = [@[] mutableCopy];
@@ -574,8 +574,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_end(args);
                 }
                 else
-                    result = objc_msgSend_fpret(realSelf, instrumentedSelector);
-                
+                {
+                    float (*action)(id, SEL) = (float (*)(id, SEL)) objc_msgSend;
+                    result = action(realSelf, instrumentedSelector);
+                }
                 if(executeAfter)
                     executeAfter();
                 
@@ -605,8 +607,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     
                     va_end(args);
                 }
-                else
-                    result = objc_msgSend_fpret(realSelf, instrumentedSelector);
+                else {
+                    double (*action)(id, SEL) = (double (*)(id, SEL)) objc_msgSend;
+                    result = action(realSelf, instrumentedSelector);
+                }
                 
                 if(executeAfter)
                     executeAfter();
