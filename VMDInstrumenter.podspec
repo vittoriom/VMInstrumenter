@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = 'VMDInstrumenter'
-  s.version      = '0.5.0'                                                                  # 1
+  s.version      = '0.6.0'                                                                  # 1
   s.summary      = 'A simple Objective-C singleton to instrument, trace, and suppress selectors at runtime.' # 2
   s.author       = { 
     'Vittorio Monaco' => 'vittorio.monaco1@gmail.com' 
