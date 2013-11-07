@@ -6,10 +6,11 @@
 //  Copyright (c) 2013 Vittorio Monaco. All rights reserved.
 //
 
-#import "NSObject+DumpInfo.h"
+#import "NSObject+VMDInstrumenter.h"
 #import <objc/runtime.h>
+#import <execinfo.h>
 
-@implementation NSObject (DumpInfo)
+@implementation NSObject (VMDInstrumenter)
 
 -(void) dumpInfo
 {
@@ -54,6 +55,21 @@
                                  @"methods" : methodArray };
     
     NSLog(@"%@", classDump);
+}
+
+- (NSString *) stacktrace
+{
+    NSMutableString * backtraceStr = [NSMutableString string];
+    
+    void *_callstack[128];
+    int _frames = backtrace(_callstack, sizeof(_callstack)/sizeof(*_callstack));
+    char** strs = backtrace_symbols(_callstack, _frames);
+    for (int i = 0; i < _frames; ++i) {
+        [backtraceStr appendFormat:@"%s\n", strs[i]];
+    }
+    free(strs);
+    
+    return backtraceStr;
 }
 
 @end

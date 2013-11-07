@@ -11,6 +11,8 @@
 #import "VMDInstrumenter.h"
 #import "VMDHelper.h"
 #import "VMTestsHelper.h"
+#import "NSMethodSignature+VMDInstrumenter.h"
+#import "NSInvocation+VMDInstrumenter.h"
 
 @interface VMDInstrumenter (publicise)
 
@@ -140,7 +142,7 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [[theValue([helper alwaysReturn3]) should] equal:@3];
             });
             
-            it(@"should not impact return values for methods that take more than one parameter", ^{
+            it(@"should not impact return values for methods that take one parameter", ^{
                 [_instrumenter traceSelector:@selector(doAndReturnValue:) forClass:[VMTestsHelper class]];
                 
                 NSString *returnValue = [helper doAndReturnValue:@"Test"];
@@ -191,15 +193,15 @@ SPEC_BEGIN(VMDInstrumenterTests)
         
         context(@"internal methods", ^{
             it(@"should correctly return method signatures", ^{
-                const char * signature = [VMDHelper constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
+                const char * signature = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
                 [[[signatureAsObject substringToIndex:1] should] equal:@"i"];
                 
-                const char * signature2 = [VMDHelper constCharSignatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
+                const char * signature2 = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject2 = [NSString stringWithUTF8String:signature2];
                 [[[signatureAsObject2 substringToIndex:1] should] equal:@"@"];
                 
-                const char * signature3 = [VMDHelper constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+                const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
                 NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
                 [[[signatureAsObject3 substringToIndex:1] should] equal:@"v"];
             });

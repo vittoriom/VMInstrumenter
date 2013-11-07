@@ -10,8 +10,10 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import <execinfo.h>
-#import "NSObject+DumpInfo.h"
+#import "NSObject+VMDInstrumenter.h"
 #import "VMDHelper.h"
+#import "NSInvocation+VMDInstrumenter.h"
+#import "NSMethodSignature+VMDInstrumenter.h"
 
 const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get signature for a selector that it's neither instance or class method (?)";
 
@@ -170,7 +172,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     
     char returnType[3];
     method_getReturnType(methodToInstrument, returnType, 3);
-    NSInteger argsCount = [VMDHelper numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
+    NSInteger argsCount = [NSMethodSignature numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
     
     switch (returnType[0]) {
         case 'v':
@@ -186,7 +188,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 {
                     va_list args;
                     va_start(args, realSelf);
-                    [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     va_end(args);
                 }
@@ -195,7 +197,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 if(executeAfter)
                     executeAfter();
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case '@':
@@ -214,7 +216,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -226,7 +228,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'c':
@@ -245,7 +247,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -258,7 +260,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'C':
@@ -277,7 +279,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -290,7 +292,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'i':
@@ -309,7 +311,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -322,7 +324,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 's':
@@ -341,7 +343,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -354,7 +356,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'l':
@@ -373,7 +375,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -386,7 +388,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'q':
@@ -405,7 +407,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -418,7 +420,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'I':
@@ -437,7 +439,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -450,7 +452,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'S':
@@ -469,7 +471,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -482,7 +484,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'L':
@@ -501,7 +503,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -514,7 +516,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'Q':
@@ -533,7 +535,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -546,7 +548,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'f':
@@ -565,7 +567,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -578,7 +580,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'd':
@@ -597,7 +599,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -610,7 +612,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case ':':
@@ -631,7 +633,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -644,7 +646,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case 'B':
@@ -663,7 +665,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [VMDHelper createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
                     
                     [invocation getReturnValue:&result];
                     
@@ -676,7 +678,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeAfter();
                 
                 return result;
-            }), [VMDHelper constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
+            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         default:
@@ -707,7 +709,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         
         if (dumpStack)
         {
-            NSLog(@"%@",[VMDHelper stacktraceForSelector:selectorToTrace ofClass:classToInspect]);
+            NSLog(@"%@",[self stacktrace]);
         }
     } afterBlock:^{
         NSLog(@"%@ - Finished executing selector %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));

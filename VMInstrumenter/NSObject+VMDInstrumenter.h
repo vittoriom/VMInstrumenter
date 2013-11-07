@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSObject (DumpInfo)
+@interface NSObject (VMDInstrumenter)
 
 - (void) dumpInfo;
+
+- (NSString *) stacktrace;
 
 @end

@@ -7,14 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		520EA6BD182ADC98005DEE77 /* NSObject+DumpInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+DumpInfo.m */; };
-		520EA6BE182ADC98005DEE77 /* NSObject+DumpInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+DumpInfo.m */; };
+		520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
+		520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
 		5265FA7A1825075700B09838 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5265FA791825075700B09838 /* XCTest.framework */; };
 		5265FA7B1825075700B09838 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
 		5265FA7C1825075700B09838 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
 		52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */; };
 		52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52D68D2F182507EE00AD9E35 /* VMInstrumenter_Tests.m */; };
 		52D68D321825087A00AD9E35 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 52D68D311825087A00AD9E35 /* InfoPlist.strings */; };
+		52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */; };
+		52EBB119182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */; };
+		52EBB11C182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */; };
+		52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */; };
 		52EC2A09182AF4420095AC26 /* VMDHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EC2A08182AF4420095AC26 /* VMDHelper.m */; };
 		52EC2A0A182AF4420095AC26 /* VMDHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EC2A08182AF4420095AC26 /* VMDHelper.m */; };
 		6EE26CD10F684C768EDF7B0F /* libPods-debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AA53E771A84A9CADD42A2E /* libPods-debug.a */; };
@@ -46,8 +50,8 @@
 /* Begin PBXFileReference section */
 		00BD6E467DFF4623B2669826 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		092F95CED07546949381872C /* Pods-test.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-test.xcconfig"; path = "Pods/Pods-test.xcconfig"; sourceTree = SOURCE_ROOT; };
-		520EA6BB182ADC98005DEE77 /* NSObject+DumpInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DumpInfo.h"; sourceTree = "<group>"; };
-		520EA6BC182ADC98005DEE77 /* NSObject+DumpInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DumpInfo.m"; sourceTree = "<group>"; };
+		520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+VMDInstrumenter.h"; sourceTree = "<group>"; };
+		520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+VMDInstrumenter.m"; sourceTree = "<group>"; };
 		5265FA781825075700B09838 /* VMInstrumenter_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VMInstrumenter_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5265FA791825075700B09838 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		528ABA4D17CE640D00133BBC /* VMInstrumenter_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "VMInstrumenter_Tests-Info.plist"; sourceTree = "<group>"; };
@@ -57,6 +61,10 @@
 		52D68D36182513E300AD9E35 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		52E5263E17CE67D6004C5A2B /* VMTestsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMTestsHelper.h; sourceTree = "<group>"; };
 		52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMTestsHelper.m; sourceTree = "<group>"; };
+		52EBB116182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMethodSignature+VMDInstrumenter.h"; sourceTree = "<group>"; };
+		52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMethodSignature+VMDInstrumenter.m"; sourceTree = "<group>"; };
+		52EBB11A182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+VMDInstrumenter.h"; sourceTree = "<group>"; };
+		52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+VMDInstrumenter.m"; sourceTree = "<group>"; };
 		52EC2A07182AF4420095AC26 /* VMDHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDHelper.h; sourceTree = "<group>"; };
 		52EC2A08182AF4420095AC26 /* VMDHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDHelper.m; sourceTree = "<group>"; };
 		684048266C0A41C389F29D65 /* libPods-test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -204,10 +212,14 @@
 			children = (
 				A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */,
 				A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */,
-				520EA6BB182ADC98005DEE77 /* NSObject+DumpInfo.h */,
-				520EA6BC182ADC98005DEE77 /* NSObject+DumpInfo.m */,
+				520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */,
+				520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */,
 				52EC2A07182AF4420095AC26 /* VMDHelper.h */,
 				52EC2A08182AF4420095AC26 /* VMDHelper.m */,
+				52EBB116182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.h */,
+				52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */,
+				52EBB11A182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.h */,
+				52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */,
 			);
 			path = VMInstrumenter;
 			sourceTree = "<group>";
@@ -344,9 +356,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				520EA6BE182ADC98005DEE77 /* NSObject+DumpInfo.m in Sources */,
+				520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
 				52EC2A0A182AF4420095AC26 /* VMDHelper.m in Sources */,
 				52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */,
+				52EBB119182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
+				52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -355,11 +369,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				520EA6BD182ADC98005DEE77 /* NSObject+DumpInfo.m in Sources */,
+				520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
 				A439FD7917CE221200FCFB02 /* main.m in Sources */,
 				A439FD7D17CE221200FCFB02 /* VMAppDelegate.m in Sources */,
+				52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
 				A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */,
 				A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */,
+				52EBB11C182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52EC2A09182AF4420095AC26 /* VMDHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
