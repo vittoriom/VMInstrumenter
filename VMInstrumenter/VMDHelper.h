@@ -12,9 +12,16 @@
 
 @interface VMDHelper : NSObject
 
-+ (NSString *) generateRandomPlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect;
-+ (NSString *) generateRandomPlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
++ (NSString *) generatePlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect;
++ (NSString *) generatePlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
 
+/**
+ @param selector the selector you want to get the Method from
+ @param classToInspect the class associated to the selector
+ @param reason the reason in case the selector doesn't belong to the class
+ 
+ @return Method the Method object associated to the selector specified
+ */
 + (Method) getMethodFromSelector:(SEL)selector ofClass:(Class)classToInspect orThrowExceptionWithReason:(const NSString *)reason;
 
 @end

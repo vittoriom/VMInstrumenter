@@ -13,7 +13,7 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
 @interface VMDInstrumenter : NSObject
 
 /**
- Of course this is a singleton, no point in doing some other alloc init stuff
+ Access the shared VMDInstrumenter instance
  */
 + (instancetype) sharedInstance;
 
@@ -36,6 +36,9 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  
  @param selectorToRestore the selector you want to restore
  @param classToInspect the class for which you want to restore the selector
+ 
+ @discussion if the method is not suppressed, this will throw an exception because it means something went wrong at some point
+ @throws NSInternalInconsistencyException if the selector is not suppressed
  */
 - (void) restoreSelector:(SEL)selectorToRestore forClass:(Class)classToInspect;
 
@@ -60,6 +63,8 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @param classToInspect the class to take the selector from
  @param beforeBlock the block of code to execute before the call to the selector
  @param afterBlock the block of code to execute after the call to the selector
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
 
@@ -70,6 +75,8 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  
  @param selectorToTrace the selector that you'd like to trace
  @param classToInspect the class to take the selector from
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect;
 
@@ -81,6 +88,8 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @param classToInspect the class to take the selector from
  @param dumpStack if you want to dump the stacktrace
  @param dumpObject if you want to dump the internal of the object
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
 

@@ -21,7 +21,7 @@
 
 + (NSInvocation *)invocationForSelector:(SEL)selector ofClass:(Class)classToInspect onRealSelf:(id)realSelf withArgsList:(va_list)args argsCount:(NSInteger)argsCount
 {
-    NSMethodSignature *methodSignature = [NSMethodSignature NSMethodSignatureForSelector:selector ofClass:classToInspect];
+    NSMethodSignature *methodSignature = [NSMethodSignature methodSignatureForSelector:selector ofClass:classToInspect];
     NSInvocation *invocationObject = [NSInvocation invocationWithMethodSignature:methodSignature];
     [invocationObject setTarget:realSelf];
     [invocationObject setSelector:selector];

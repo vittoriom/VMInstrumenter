@@ -64,7 +64,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 - (void) suppressSelector:(SEL)selectorToSuppress forClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
-    NSString *plausibleSuppressedSelectorName = [VMDHelper generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToSuppress ofClass:classToInspect];
+    NSString *plausibleSuppressedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToSuppress:selectorToSuppress ofClass:classToInspect];
     
     if([self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
@@ -90,7 +90,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 - (void) restoreSelector:(SEL)selectorToRestore forClass:(Class)classToInspect
 {
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
-    NSString *plausibleSuppressedSelectorName = [VMDHelper generateRandomPlausibleSelectorNameForSelectorToSuppress:selectorToRestore ofClass:classToInspect];
+    NSString *plausibleSuppressedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToSuppress:selectorToRestore ofClass:classToInspect];
     
     if(![self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
     {
@@ -168,7 +168,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                                                 }];
     }
     
-    SEL instrumentedSelector = NSSelectorFromString([VMDHelper generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]);
+    SEL instrumentedSelector = NSSelectorFromString([VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]);
     
     char returnType[3];
     method_getReturnType(methodToInstrument, returnType, 3);
@@ -686,7 +686,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
             break;
     }
     
-    Method instrumentedMethod = [VMDHelper getMethodFromSelector:NSSelectorFromString([VMDHelper generateRandomPlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect])
+    Method instrumentedMethod = [VMDHelper getMethodFromSelector:NSSelectorFromString([VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect])
                                                                ofClass:classToInspect
                                             orThrowExceptionWithReason:@"Something weird happened during the instrumentation"];
     

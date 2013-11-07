@@ -18,7 +18,7 @@
     return [signature getArgumentTypeAtIndex:index][0];
 }
 
-+ (NSMethodSignature *) NSMethodSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
++ (NSMethodSignature *) methodSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
     Method method = [VMDHelper getMethodFromSelector:selector
                                         ofClass:classToInspect
@@ -30,14 +30,14 @@
 
 + (NSInteger) numberOfArgumentsForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:classToInspect];
+    NSMethodSignature * signature = [self methodSignatureForSelector:selector ofClass:classToInspect];
     
     return [signature numberOfArguments] - 2; //0 is self, 1 is _cmd, we only care about real arguments here
 }
 
 + (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    NSMethodSignature * signature = [self NSMethodSignatureForSelector:selector ofClass:classToInspect];
+    NSMethodSignature * signature = [self methodSignatureForSelector:selector ofClass:classToInspect];
     NSMutableString *signatureBuilder = [[NSMutableString alloc] initWithCapacity:10];
     
     [signatureBuilder appendFormat:@"%s",[signature methodReturnType]];

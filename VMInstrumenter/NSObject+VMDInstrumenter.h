@@ -10,8 +10,14 @@
 
 @interface NSObject (VMDInstrumenter)
 
+/**
+ This method prints all the ivars, selectors and properties (with value) of self
+ */
 - (void) dumpInfo;
 
+/**
+ @return the stacktrace
+ */
 - (NSString *) stacktrace;
 
 @end
