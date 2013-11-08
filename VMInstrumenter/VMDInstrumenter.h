@@ -66,7 +66,7 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)(id instance))beforeBlock afterBlock:(void(^)(id instance))afterBlock;
 
 /**
  This method instruments calls to a specified selector on a specified object
@@ -80,7 +80,22 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
  */
-- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
+- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void(^)(id instance))beforeBlock afterBlock:(void(^)(id instance))afterBlock;
+
+/**
+ This method instruments calls to a specified selector on a specified object
+ with beforeBlock and afterBlock parameters. Specifically, every time the selector is called on the instance,
+ beforeBlock is executed before the selector is, and afterBlock is executed after the selector is.
+ 
+ @param selectorToInstrument the selector that you'd like to instrument
+ @param classToInspect the class to take the selector from
+ @param testBlock the test block that the instances of the class have to pass to be traced
+ @param beforeBlock the block of code to execute before the call to the selector
+ @param afterBlock the block of code to execute after the call to the selector
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
+ */
+- (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(BOOL(^)(id instance))testBlock withBeforeBlock:(void(^)(id instance))beforeBlock afterBlock:(void(^)(id instance))afterBlock;
 
 /**
  This method instruments calls to a specified selector of a specified class and just logs execution
@@ -107,6 +122,18 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
 - (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance;
 
 /**
+ This method instruments calls to a specified selector of a specified class
+ but only for instances of the class that pass the specified testBlock and just logs execution as the previous method
+ 
+ @param selectorToTrace the selector that you'd like to trace
+ @param classToInspect the class to take the selector from
+ @param testBlock the test block that the instances of the class have to pass to be traced
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
+ */
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL(^)(id instance))testBlock;
+
+/**
  This method instruments calls to a specified selector of a specified class and just logs execution as the previous method
  Moreover, if dumpStack is YES, it prints the stack trace after every execution
  
@@ -131,5 +158,19 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
  */
 - (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
+
+/**
+ This method instruments calls to a specified selector of a specified class
+ but only for instances of the class that pass the specified testBlock and just logs execution as the previous method
+ 
+ @param selectorToTrace the selector that you'd like to trace
+ @param classToInspect the class to take the selector from
+ @param testBlock the test block that the instances of the class have to pass to be traced
+ @param dumpStack if you want to dump the stacktrace
+ @param dumpObject if you want to dump the internal of the object
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
+ */
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL(^)(id instance))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
 
 @end

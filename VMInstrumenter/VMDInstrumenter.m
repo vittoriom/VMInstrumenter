@@ -22,9 +22,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
 @property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock dumpingRealSelf:(BOOL)dumpObject;
-
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect onObject:(id)objectInstance withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock dumpingRealSelf:(BOOL)dumpObject;
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect onObjectsPassingTest:(BOOL(^)(id instance))testBlock withBeforeBlock:(void(^)(id instance))beforeBlock afterBlock:(void(^)(id instance))afterBlock dumpingRealSelf:(BOOL)dumpObject;
 
 @end
 
@@ -138,26 +136,28 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)())executeBefore afterBlock:(void (^)())executeAfter
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter
 {
-    [self instrumentSelector:selectorToInstrument forClass:classToInspect withBeforeBlock:executeBefore afterBlock:executeAfter dumpingRealSelf:NO];
+    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObjectsPassingTest:nil withBeforeBlock:executeBefore afterBlock:executeAfter dumpingRealSelf:NO];
 }
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void (^)())beforeBlock afterBlock:(void (^)())afterBlock
+- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void (^)(id instance))beforeBlock afterBlock:(void (^)(id instance))afterBlock
 {
     Class classToInspect = [objectInstance class];
     __weak id objectInstanceWeak = objectInstance;
-    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObject:objectInstanceWeak withBeforeBlock:beforeBlock afterBlock:afterBlock dumpingRealSelf:NO];
+    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObjectsPassingTest:^BOOL(id instance) {
+        return instance == objectInstanceWeak;
+    } withBeforeBlock:beforeBlock afterBlock:afterBlock dumpingRealSelf:NO];
+}
+
+- (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock withBeforeBlock:(void (^)(id))beforeBlock afterBlock:(void (^)(id))afterBlock
+{
+    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObjectsPassingTest:testBlock withBeforeBlock:beforeBlock afterBlock:afterBlock dumpingRealSelf:NO];
 }
 
 #pragma mark --- Private methods
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)())executeBefore afterBlock:(void (^)())executeAfter dumpingRealSelf:(BOOL)dumpObject
-{
-    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObject:nil withBeforeBlock:executeBefore afterBlock:executeAfter dumpingRealSelf:dumpObject];
-}
-
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect onObject:(id)objectInstance withBeforeBlock:(void (^)())executeBefore afterBlock:(void (^)())executeAfter dumpingRealSelf:(BOOL)dumpObject
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect onObjectsPassingTest:(BOOL(^)(id instance))testBlock withBeforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter dumpingRealSelf:(BOOL)dumpObject
 {
     NSString *selectorName = NSStringFromSelector(selectorToInstrument);
     if([self.instrumentedMethods containsObject:selectorName])
@@ -200,10 +200,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'v':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 if(traceCall && dumpObject)
                     NSLog(@"%@",[realSelf dumpInfo]);
@@ -220,17 +220,17 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
         case '@':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 id result = nil;
                 
@@ -251,7 +251,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -260,10 +260,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'c':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 char result = 0;
                 
@@ -285,7 +285,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (char)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -294,10 +294,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'C':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 unsigned char result = 0;
                 
@@ -319,7 +319,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (unsigned char)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -328,10 +328,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'i':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 int result = 0;
                 
@@ -353,7 +353,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (int)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -362,10 +362,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 's':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 short result = 0;
                 
@@ -387,7 +387,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (short)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -396,10 +396,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'l':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 long result = 0l;
                 
@@ -421,7 +421,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -430,10 +430,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'q':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 long long result = 0ll;
                 
@@ -455,7 +455,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (long long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -464,10 +464,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'I':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 unsigned int result = 0;
                 
@@ -489,7 +489,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (unsigned int)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -498,10 +498,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'S':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 unsigned short result = 0;
                 
@@ -523,7 +523,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (unsigned short)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -532,10 +532,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'L':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 unsigned long result = 0l;
                 
@@ -557,7 +557,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (unsigned long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -566,10 +566,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'Q':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 unsigned long long result = 0ll;
                 
@@ -591,7 +591,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (unsigned long long)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -600,10 +600,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'f':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 float result = .0f;
                 
@@ -627,7 +627,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = action(realSelf, instrumentedSelector);
                 }
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -636,10 +636,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'd':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 double result = .0;
                 
@@ -663,7 +663,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 }
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -672,10 +672,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case ':':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^SEL(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 SEL result;
                 
@@ -699,7 +699,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 }
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -708,10 +708,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case '#':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 Class result = nil;
                 
@@ -733,7 +733,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (Class)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -742,10 +742,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         case 'B':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
-                BOOL traceCall = !objectInstance || (realSelf == objectInstance);
+                BOOL traceCall = !testBlock || testBlock(realSelf);
                 
                 if(traceCall && executeBefore)
-                    executeBefore();
+                    executeBefore(realSelf);
                 
                 BOOL result = NO;
                 
@@ -767,7 +767,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     result = (BOOL)objc_msgSend(realSelf, instrumentedSelector);
                 
                 if(traceCall && executeAfter)
-                    executeAfter();
+                    executeAfter(realSelf);
                 
                 return result;
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -798,15 +798,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
 {
-    [self instrumentSelector:selectorToTrace forClass:classToInspect withBeforeBlock:^{
-        NSLog(@"%@ - Called selector %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
+    [self instrumentSelector:selectorToTrace forClass:classToInspect onObjectsPassingTest:nil withBeforeBlock:^(id instance){
+        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
         if (dumpStack)
         {
             NSLog(@"%@",[self stacktrace]);
         }
-    } afterBlock:^{
-        NSLog(@"%@ - Finished executing selector %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace));
+    } afterBlock:^(id instance){
+        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
     } dumpingRealSelf:dumpObject];
 }
 
@@ -819,15 +819,36 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 {
     __weak id objectInstanceWeak = objectInstance;
     Class classToInspect = [objectInstance class];
-    [self instrumentSelector:selectorToTrace forClass:classToInspect onObject:objectInstanceWeak withBeforeBlock:^{
-        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace),objectInstanceWeak);
+    [self instrumentSelector:selectorToTrace forClass:classToInspect onObjectsPassingTest:^BOOL(id instance) {
+        return instance == objectInstanceWeak;
+    } withBeforeBlock:^(id instance){
+        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace),instance);
         
         if (dumpStack)
         {
             NSLog(@"%@",[self stacktrace]);
         }
-    } afterBlock:^{
-        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), objectInstanceWeak);
+    } afterBlock:^(id instance){
+        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+    } dumpingRealSelf:dumpObject];
+}
+
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock
+{
+    [self traceSelector:selectorToTrace forInstancesOfClass:classToInspect passingTest:testBlock dumpingStackTrace:NO dumpingObject:NO];
+}
+
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
+{
+    [self instrumentSelector:selectorToTrace forClass:classToInspect onObjectsPassingTest:testBlock withBeforeBlock:^(id instance){
+        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+        
+        if (dumpStack)
+        {
+            NSLog(@"%@",[self stacktrace]);
+        }
+    } afterBlock:^(id instance){
+        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
     } dumpingRealSelf:dumpObject];
 }
 
