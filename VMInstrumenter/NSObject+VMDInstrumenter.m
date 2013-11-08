@@ -12,7 +12,7 @@
 
 @implementation NSObject (VMDInstrumenter)
 
--(void) dumpInfo
+-(NSString *) dumpInfo
 {
     Class clazz = [self class];
     u_int count;
@@ -54,7 +54,7 @@
                                  @"properties" : propertyArray,
                                  @"methods" : methodArray };
     
-    NSLog(@"%@", classDump);
+    return [classDump description];
 }
 
 - (NSString *) stacktrace

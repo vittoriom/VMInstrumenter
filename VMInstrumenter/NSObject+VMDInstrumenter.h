@@ -13,7 +13,7 @@
 /**
  This method prints all the ivars, selectors and properties (with value) of self
  */
-- (void) dumpInfo;
+- (NSString *) dumpInfo;
 
 /**
  @return the stacktrace

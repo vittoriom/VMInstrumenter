@@ -206,7 +206,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore();
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -235,7 +235,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 id result = nil;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -268,7 +268,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 char result = 0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -302,7 +302,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 unsigned char result = 0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -336,7 +336,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 int result = 0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -370,7 +370,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 short result = 0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -404,7 +404,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 long result = 0l;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -438,7 +438,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 long long result = 0ll;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -472,7 +472,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 unsigned int result = 0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -506,7 +506,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 unsigned short result = 0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -540,7 +540,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 unsigned long result = 0l;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -574,7 +574,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 unsigned long long result = 0ll;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -608,7 +608,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 float result = .0f;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -644,7 +644,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 double result = .0;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -680,7 +680,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 SEL result;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -716,7 +716,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 Class result = nil;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -750,7 +750,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 BOOL result = NO;
                 
                 if(traceCall && dumpObject)
-                    [realSelf dumpInfo];
+                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {

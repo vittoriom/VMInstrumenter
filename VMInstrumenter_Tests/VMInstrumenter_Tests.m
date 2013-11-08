@@ -14,14 +14,7 @@
 #import "NSMethodSignature+VMDInstrumenter.h"
 #import "NSInvocation+VMDInstrumenter.h"
 
-@interface VMDInstrumenter (publicise)
-
-+ (const char *) constCharSignatureForSelector:(SEL)selector ofClass:(Class)clazz;
-
-@end
-
 SPEC_BEGIN(VMDInstrumenterTests)
-
     __block VMDInstrumenter *_instrumenter;
 
     describe(@"VMDInstrumenter", ^{
@@ -47,7 +40,7 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [helper canSafelyCallMe];
             });
             
-            it(@"should not suppress method twice", ^{
+            it(@"suppressing a method twice should not raise an exception", ^{
                 [_instrumenter suppressSelector:@selector(canSafelyCallMe) forClass:[VMTestsHelper class]];
                 
                 [[theBlock(^{
@@ -78,6 +71,12 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 
                 [VMTestsHelper classMethodToSuppress];
             });
+            
+            it(@"should raise an exception if the selector does not exist in the class", ^{
+                [[theBlock(^{
+                    [_instrumenter suppressSelector:@selector(doubleTest) forClass:[self class]];
+                }) should] raise];
+            });
         });
         
         context(@"when in stable state", ^{
@@ -107,6 +106,12 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [helper dontCallMe];
             });
             
+            it(@"should raise an exception if the selector does not exist in the class", ^{
+                [[theBlock(^{
+                    [_instrumenter replaceSelector:@selector(doubleTest) ofClass:[self class] withSelector:@selector(doSomethingNewWithThisString:) ofClass:[VMTestsHelper class]];
+                }) should] raise];
+            });
+            
             it(@"should restore the original implementation if called twice", ^{
                 [_instrumenter replaceSelector:@selector(dontCallMe) ofClass:[VMTestsHelper class] withSelector:@selector(ifReplacedCalled) ofClass:[VMTestsHelper class]];
                 
@@ -119,8 +124,14 @@ SPEC_BEGIN(VMDInstrumenterTests)
         context(@"when instrumenting selectors", ^{
             __block VMTestsHelper *helper;
             
+            //@TODO: add here all kind of tests
+            
             beforeEach(^{
                 helper = [VMTestsHelper new];
+            });
+            
+            afterEach(^{
+                helper = nil;
             });
             
             it(@"should not instrument a selector twice", ^{
@@ -188,22 +199,6 @@ SPEC_BEGIN(VMDInstrumenterTests)
             it(@"should work with class methods", ^{
                 [_instrumenter traceSelector:@selector(classMethodTakesOneParameter:) forClass:[VMTestsHelper class]];
                 [[[VMTestsHelper classMethodTakesOneParameter:@2] should] equal:@4];
-            });
-        });
-        
-        context(@"internal methods", ^{
-            it(@"should correctly return method signatures", ^{
-                const char * signature = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
-                NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
-                [[[signatureAsObject substringToIndex:1] should] equal:@"i"];
-                
-                const char * signature2 = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturnTest) ofClass:[VMTestsHelper class]];
-                NSString * signatureAsObject2 = [NSString stringWithUTF8String:signature2];
-                [[[signatureAsObject2 substringToIndex:1] should] equal:@"@"];
-                
-                const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
-                NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
-                [[[signatureAsObject3 substringToIndex:1] should] equal:@"v"];
             });
         });
     });
