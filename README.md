@@ -49,13 +49,6 @@ License:
 --------------
 This product is released under the BSD license.
 
-ToDo:
---------------
-- Dump self object (ivars left)
-- Create ObjC wrappers for class_ and method_ runtime methods
-- Write tests for all the cases
-- Create podspec
-
 Disclaimer:
 --------------
 This is mainly an experiment. Don't ever ship this into production code.
