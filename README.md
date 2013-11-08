@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/vittoriom/VMInstrumenter.png?branch=master)](https://travis-ci.org/vittoriom/VMInstrumenter)
+
 VMDInstrumenter
 ==============
 
@@ -38,9 +40,20 @@ You can trace the execution of a particular selector (this will log start - end 
 
 <code>[instrumenter traceSelector:@selector(doBar) forClass:[self class]];</code>
 
+You can also trace the execution of a particular selector only if it's called on a specific instance by calling
+
+<code>[instrumenter traceSelector:@selector(doBar) forObject:fooInstance];</code>
+
 And you can instrument execution of a method by passing blocks of code to be executed before and after the execution of a particular selector by calling
 
 <code>[instrumenter instrumentSelector:@selector(doBar) forClass:[self class] withBeforeBlock:^{
+        NSLog(@"Here I am!");
+    } afterBlock:nil];
+</code>
+
+As for tracing, you can instrument a selector called only on a specific instance with
+
+<code>[instrumenter instrumentSelector:@selector(doBar) forObject:fooInstance withBeforeBlock:^{
         NSLog(@"Here I am!");
     } afterBlock:nil];
 </code>

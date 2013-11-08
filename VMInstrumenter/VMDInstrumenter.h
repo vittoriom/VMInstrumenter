@@ -69,6 +69,20 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
 
 /**
+ This method instruments calls to a specified selector on a specified object
+ with beforeBlock and afterBlock parameters. Specifically, every time the selector is called on the instance,
+ beforeBlock is executed before the selector is, and afterBlock is executed after the selector is.
+ 
+ @param selectorToInstrument the selector that you'd like to instrument
+ @param objectInstance the instance that gets the selector called on
+ @param beforeBlock the block of code to execute before the call to the selector
+ @param afterBlock the block of code to execute after the call to the selector
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
+ */
+- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void(^)())beforeBlock afterBlock:(void(^)())afterBlock;
+
+/**
  This method instruments calls to a specified selector of a specified class and just logs execution
  
  You can use more specific methods if you want particular tracing to be done
@@ -79,6 +93,18 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect;
+
+/**
+ This method instruments calls to a specified selector on a specified object
+ 
+ You can use more specific methods if you want particular tracing to be done
+ 
+ @param selectorToTrace the selector that you'd like to trace
+ @param objectInstance the instance that gets the selector called on
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
+ */
+- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance;
 
 /**
  This method instruments calls to a specified selector of a specified class and just logs execution as the previous method
@@ -92,5 +118,18 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
+
+/**
+ This method instruments calls to a specified selector of a specified object and just logs execution as the previous method
+ Moreover, if dumpStack is YES, it prints the stack trace after every execution
+ 
+ @param selectorToTrace the selector that you'd like to trace
+ @param objectInstance the instance that gets the selector called on
+ @param dumpStack if you want to dump the stacktrace
+ @param dumpObject if you want to dump the internal of the object
+ 
+ @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
+ */
+- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
 
 @end
