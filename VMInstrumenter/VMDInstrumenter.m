@@ -455,9 +455,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
          forInstancesOfClass:classToInspect
                  passingTest:nil
              withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
-                  afterBlock:^(id instance){
-                      NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-                  }];
+                  afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance
@@ -475,9 +473,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                      return instance == objectInstanceWeak;
                  }
              withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
-                  afterBlock:^(id instance){
-                      NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-                  }];
+                  afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock
@@ -491,9 +487,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
          forInstancesOfClass:classToInspect
                  passingTest:testBlock
              withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
-                  afterBlock:^(id instance){
-                      NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-                  }];
+                  afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
 }
 
 #pragma mark - Private helpers
@@ -515,4 +509,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
+- (void (^)(id instance)) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace
+{
+    return ^(id instance) {
+        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+    };
+}
 @end
