@@ -1,1 +1,3 @@
 language: objective-c
+before_script: Travis/before_script.sh
+script: Travis/script.sh
