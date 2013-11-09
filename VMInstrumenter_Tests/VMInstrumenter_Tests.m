@@ -126,6 +126,8 @@ SPEC_BEGIN(VMDInstrumenterTests)
             
             //@TODO: add here all kind of tests
             
+            //@TODO: add tests for new API
+            
             beforeEach(^{
                 helper = [VMTestsHelper new];
             });

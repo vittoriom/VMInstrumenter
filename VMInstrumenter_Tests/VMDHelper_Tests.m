@@ -28,7 +28,7 @@ describe(@"VMDHelper", ^{
             
         });
         
-        it(@"should generate different names for same selector on different instances of the same class", ^{
+        it(@"should throw exception when trying to generate names for same selector on different instances of the same class", ^{
             
         });
         

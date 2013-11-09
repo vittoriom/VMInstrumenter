@@ -22,7 +22,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
 @property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect onObjectsPassingTest:(BOOL(^)(id instance))testBlock withBeforeBlock:(void(^)(id instance))beforeBlock afterBlock:(void(^)(id instance))afterBlock dumpingRealSelf:(BOOL)dumpObject;
+- (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
 
 @end
 
@@ -138,28 +138,24 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter
 {
-    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObjectsPassingTest:nil withBeforeBlock:executeBefore afterBlock:executeAfter dumpingRealSelf:NO];
+    [self instrumentSelector:selectorToInstrument forInstancesOfClass:classToInspect passingTest:nil withBeforeBlock:executeBefore afterBlock:executeAfter];
 }
 
 - (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void (^)(id instance))beforeBlock afterBlock:(void (^)(id instance))afterBlock
 {
     Class classToInspect = [objectInstance class];
     __weak id objectInstanceWeak = objectInstance;
-    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObjectsPassingTest:^BOOL(id instance) {
+    [self instrumentSelector:selectorToInstrument forInstancesOfClass:classToInspect passingTest:^BOOL(id instance) {
         return instance == objectInstanceWeak;
-    } withBeforeBlock:beforeBlock afterBlock:afterBlock dumpingRealSelf:NO];
+    } withBeforeBlock:beforeBlock afterBlock:afterBlock];
 }
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock withBeforeBlock:(void (^)(id))beforeBlock afterBlock:(void (^)(id))afterBlock
-{
-    [self instrumentSelector:selectorToInstrument forClass:classToInspect onObjectsPassingTest:testBlock withBeforeBlock:beforeBlock afterBlock:afterBlock dumpingRealSelf:NO];
-}
-
-#pragma mark --- Private methods
-
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect onObjectsPassingTest:(BOOL(^)(id instance))testBlock withBeforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter dumpingRealSelf:(BOOL)dumpObject
+- (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock withBeforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter
 {
     NSString *selectorName = NSStringFromSelector(selectorToInstrument);
+    NSString *instrumentedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect];
+    SEL instrumentedSelector = NSSelectorFromString(instrumentedSelectorName);
+    
     if([self.instrumentedMethods containsObject:selectorName])
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
@@ -190,8 +186,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                                                 }];
     }
     
-    SEL instrumentedSelector = NSSelectorFromString([VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect]);
-    
     char returnType[3];
     method_getReturnType(methodToInstrument, returnType, 3);
     NSInteger argsCount = [NSMethodSignature numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
@@ -204,9 +198,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 if(traceCall && executeBefore)
                     executeBefore(realSelf);
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -233,9 +224,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 id result = nil;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -266,9 +254,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 char result = 0;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -301,9 +286,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 unsigned char result = 0;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -334,9 +316,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 int result = 0;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -369,9 +348,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 short result = 0;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -402,9 +378,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 long result = 0l;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -437,9 +410,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 long long result = 0ll;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -470,9 +440,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 unsigned int result = 0;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -505,9 +472,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 unsigned short result = 0;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -538,9 +502,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 unsigned long result = 0l;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -573,9 +534,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 unsigned long long result = 0ll;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -606,9 +564,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 float result = .0f;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -643,9 +598,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 double result = .0;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -678,9 +630,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     executeBefore(realSelf);
                 
                 SEL result;
-                
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
                 
                 if(argsCount > 0)
                 {
@@ -715,9 +664,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 Class result = nil;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -749,9 +695,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 BOOL result = NO;
                 
-                if(traceCall && dumpObject)
-                    NSLog(@"%@",[realSelf dumpInfo]);
-                
                 if(argsCount > 0)
                 {
                     va_list args;
@@ -778,7 +721,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
             break;
     }
     
-    Method instrumentedMethod = [VMDHelper getMethodFromSelector:NSSelectorFromString([VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect])
+    Method instrumentedMethod = [VMDHelper getMethodFromSelector:instrumentedSelector
                                                                ofClass:classToInspect
                                             orThrowExceptionWithReason:@"Something weird happened during the instrumentation"];
     
@@ -798,16 +741,13 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
 {
-    [self instrumentSelector:selectorToTrace forClass:classToInspect onObjectsPassingTest:nil withBeforeBlock:^(id instance){
-        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-        
-        if (dumpStack)
-        {
-            NSLog(@"%@",[self stacktrace]);
-        }
-    } afterBlock:^(id instance){
-        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-    } dumpingRealSelf:dumpObject];
+    [self instrumentSelector:selectorToTrace
+         forInstancesOfClass:classToInspect
+                 passingTest:nil
+             withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+                  afterBlock:^(id instance){
+                      NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+                  }];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance
@@ -819,18 +759,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 {
     __weak id objectInstanceWeak = objectInstance;
     Class classToInspect = [objectInstance class];
-    [self instrumentSelector:selectorToTrace forClass:classToInspect onObjectsPassingTest:^BOOL(id instance) {
-        return instance == objectInstanceWeak;
-    } withBeforeBlock:^(id instance){
-        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace),instance);
-        
-        if (dumpStack)
-        {
-            NSLog(@"%@",[self stacktrace]);
-        }
-    } afterBlock:^(id instance){
-        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-    } dumpingRealSelf:dumpObject];
+    [self instrumentSelector:selectorToTrace
+         forInstancesOfClass:classToInspect
+                 passingTest:^BOOL(id instance) {
+                     return instance == objectInstanceWeak;
+                 }
+             withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+                  afterBlock:^(id instance){
+                      NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+                  }];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock
@@ -840,16 +777,32 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
 {
-    [self instrumentSelector:selectorToTrace forClass:classToInspect onObjectsPassingTest:testBlock withBeforeBlock:^(id instance){
+    [self instrumentSelector:selectorToTrace
+         forInstancesOfClass:classToInspect
+                 passingTest:testBlock
+             withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+                  afterBlock:^(id instance){
+                      NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+                  }];
+}
+
+#pragma mark - Private helpers
+
+- (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
+{
+    return ^(id instance) {
         NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
         if (dumpStack)
         {
-            NSLog(@"%@",[self stacktrace]);
+            NSLog(@"%@",[instance stacktrace]);
         }
-    } afterBlock:^(id instance){
-        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
-    } dumpingRealSelf:dumpObject];
+        
+        if (dumpObject)
+        {
+            NSLog(@"%@",[instance dumpInfo]);
+        }
+    };
 }
 
 @end
