@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
 		520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
+		52345A8F182E397900344BD9 /* VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */; };
 		5265FA7A1825075700B09838 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5265FA791825075700B09838 /* XCTest.framework */; };
 		5265FA7B1825075700B09838 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
 		5265FA7C1825075700B09838 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
@@ -376,6 +377,7 @@
 				52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52AAB264182D75C9006A3C30 /* NSInvocationVMDInstrumenter_Tests.m in Sources */,
 				52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */,
+				52345A8F182E397900344BD9 /* VMDInstrumenter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +453,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "VMInstrumenter_Tests/VMInstrumenter_Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -550,6 +553,7 @@
 		A439FDA517CE221200FCFB02 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VMInstrumenter_Sample/VMInstrumenter_Sample-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -560,6 +564,7 @@
 				);
 				INFOPLIST_FILE = "VMInstrumenter_Sample/VMInstrumenter_Sample-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
@@ -569,6 +574,7 @@
 		A439FDA617CE221200FCFB02 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VMInstrumenter_Sample/VMInstrumenter_Sample-Prefix.pch";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;

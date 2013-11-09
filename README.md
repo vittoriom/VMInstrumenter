@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/vittoriom/VMInstrumenter.png?branch=master)](https://travis-ci.org/vittoriom/VMInstrumenter)
-
 VMDInstrumenter
 ==============
 
