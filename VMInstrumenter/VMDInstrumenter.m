@@ -203,7 +203,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 {
                     va_list args;
                     va_start(args, realSelf);
-                    [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     va_end(args);
                 }
@@ -230,7 +230,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -245,6 +245,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
+        case 'C':
         case 'c':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
@@ -260,7 +261,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -276,254 +277,13 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
         }
             break;
-        case 'C':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned char(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                unsigned char result = 0;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (unsigned char)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'i':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^int(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                int result = 0;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (int)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 's':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^short(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                short result = 0;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (short)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'l':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^long(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                long result = 0l;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (long)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'q':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^long long(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                long long result = 0ll;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (long long)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'I':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned int(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                unsigned int result = 0;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (unsigned int)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'S':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned short(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                unsigned short result = 0;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (unsigned short)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'L':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                unsigned long result = 0l;
-                
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (unsigned long)objc_msgSend(realSelf, instrumentedSelector);
-                
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
         case 'Q':
         {
             class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
@@ -539,7 +299,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -570,7 +330,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -603,7 +363,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -636,7 +396,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -669,7 +429,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     
@@ -700,7 +460,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     va_list args;
                     va_start(args, realSelf);
                     
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf withRealSelector:selectorToInstrument];
+                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                     
                     [invocation getReturnValue:&result];
                     

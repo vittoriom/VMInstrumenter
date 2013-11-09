@@ -58,7 +58,7 @@ describe(@"NSInvocation categrory", ^{
         
         it(@"should raise an exception if the selector doesn't exist", ^{
             [[theBlock(^{
-                [NSInvocation createAndInvokeSelector:@selector(doFoo) withArgsList:nil argsCount:0 onRealSelf:self withRealSelector:@selector(doFoo)]; }) should] raise];
+                [NSInvocation createAndInvokeSelector:@selector(doFoo) withArgsList:nil argsCount:0 onRealSelf:self]; }) should] raise];
         });
     });
 });

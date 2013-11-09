@@ -3,6 +3,16 @@ VMDInstrumenter
 
 An Objective-C singleton to instrument, trace, and suppress selectors at runtime
 
+Install:
+--------------
+
+If you use CocoaPods, this is as simple as
+
+<code>pod 'VMDInstrumenter'</code>
+
+If you don't use CocoaPods, just download the source and copy the content of the folder VMInstrumenter in your project. 
+You can <code>#import "VMDInstrumenter.h"</code> and this is all you'll need.
+
 Usage:
 --------------
 

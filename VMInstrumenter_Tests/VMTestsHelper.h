@@ -32,6 +32,8 @@
 
 - (NSInteger) alwaysReturn3;
 
+- (unsigned int) doAndReturnUnsignedInteger:(unsigned int)param;
+
 - (void) doFoo:(NSString *)foo withMoreThanOneParameter:(NSObject *)second;
 
 - (float) floatTest;

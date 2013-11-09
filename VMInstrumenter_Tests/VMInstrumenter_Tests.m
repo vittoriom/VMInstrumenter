@@ -136,6 +136,12 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 helper = nil;
             });
             
+            it(@"should work with unsigned integer return type", ^{
+                [_instrumenter traceSelector:@selector(doAndReturnUnsignedInteger:) forClass:[VMTestsHelper class]];
+                
+                [[theValue([helper doAndReturnUnsignedInteger:100]) should] equal:theValue(50)];
+            });
+            
             it(@"should not instrument a selector twice", ^{
                 [_instrumenter traceSelector:@selector(dontCallMe) forClass:[VMTestsHelper class]];
                 

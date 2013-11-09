@@ -64,6 +64,11 @@
     [self.forwardCalls dontCallMe];
 }
 
+- (unsigned int) doAndReturnUnsignedInteger:(unsigned int)param
+{
+    return param / 2;
+}
+
 - (float) floatTest
 {
     return 1.5f;
