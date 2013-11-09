@@ -25,8 +25,6 @@
 		52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */; };
 		52EC2A09182AF4420095AC26 /* VMDHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EC2A08182AF4420095AC26 /* VMDHelper.m */; };
 		52EC2A0A182AF4420095AC26 /* VMDHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EC2A08182AF4420095AC26 /* VMDHelper.m */; };
-		6EE26CD10F684C768EDF7B0F /* libPods-debug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9AA53E771A84A9CADD42A2E /* libPods-debug.a */; };
-		773ABCA6F0634210B035EFCB /* libPods-test.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684048266C0A41C389F29D65 /* libPods-test.a */; };
 		A439FD6D17CE221200FCFB02 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
 		A439FD6F17CE221200FCFB02 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
 		A439FD7117CE221200FCFB02 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD7017CE221200FCFB02 /* CoreGraphics.framework */; };
@@ -39,6 +37,7 @@
 		A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FD8517CE221200FCFB02 /* VMViewController.m */; };
 		A439FD8917CE221200FCFB02 /* VMViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = A439FD8717CE221200FCFB02 /* VMViewController_iPhone.xib */; };
 		A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */; };
+		CF743F8FA0E7445B8C9EA199 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D728759430084CA4A3259CAB /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,7 +52,6 @@
 
 /* Begin PBXFileReference section */
 		00BD6E467DFF4623B2669826 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		092F95CED07546949381872C /* Pods-test.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-test.xcconfig"; path = "Pods/Pods-test.xcconfig"; sourceTree = SOURCE_ROOT; };
 		520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+VMDInstrumenter.h"; sourceTree = "<group>"; };
 		520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+VMDInstrumenter.m"; sourceTree = "<group>"; };
 		5265FA781825075700B09838 /* VMInstrumenter_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VMInstrumenter_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,6 +75,7 @@
 		52EC2A08182AF4420095AC26 /* VMDHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDHelper.m; sourceTree = "<group>"; };
 		684048266C0A41C389F29D65 /* libPods-test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6989A2E9E6F74F6782E7954F /* libPods-build.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-build.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E041DF55C254270B0BB29ED /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
 		A439FD6917CE221200FCFB02 /* VMInstrumenter_Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VMInstrumenter_Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A439FD6C17CE221200FCFB02 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A439FD6E17CE221200FCFB02 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -96,7 +95,7 @@
 		A439FD9317CE221200FCFB02 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDInstrumenter.h; sourceTree = "<group>"; };
 		A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDInstrumenter.m; sourceTree = "<group>"; };
-		E0E3B93C846A40E499AB1EB5 /* Pods-test.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-test.xcconfig"; path = "Pods/Pods-test.xcconfig"; sourceTree = SOURCE_ROOT; };
+		D728759430084CA4A3259CAB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDA245DC239248DFBB78F3E3 /* libPods-test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9AA53E771A84A9CADD42A2E /* libPods-debug.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-debug.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -109,7 +108,6 @@
 				5265FA7A1825075700B09838 /* XCTest.framework in Frameworks */,
 				5265FA7C1825075700B09838 /* UIKit.framework in Frameworks */,
 				5265FA7B1825075700B09838 /* Foundation.framework in Frameworks */,
-				773ABCA6F0634210B035EFCB /* libPods-test.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,7 +118,7 @@
 				A439FD6D17CE221200FCFB02 /* UIKit.framework in Frameworks */,
 				A439FD6F17CE221200FCFB02 /* Foundation.framework in Frameworks */,
 				A439FD7117CE221200FCFB02 /* CoreGraphics.framework in Frameworks */,
-				6EE26CD10F684C768EDF7B0F /* libPods-debug.a in Frameworks */,
+				CF743F8FA0E7445B8C9EA199 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -161,8 +159,7 @@
 				528ABA4B17CE640D00133BBC /* VMInstrumenter_Tests */,
 				A439FD6B17CE221200FCFB02 /* Frameworks */,
 				A439FD6A17CE221200FCFB02 /* Products */,
-				E0E3B93C846A40E499AB1EB5 /* Pods-test.xcconfig */,
-				092F95CED07546949381872C /* Pods-test.xcconfig */,
+				6E041DF55C254270B0BB29ED /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -188,6 +185,7 @@
 				F9AA53E771A84A9CADD42A2E /* libPods-debug.a */,
 				5265FA791825075700B09838 /* XCTest.framework */,
 				684048266C0A41C389F29D65 /* libPods-test.a */,
+				D728759430084CA4A3259CAB /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -263,9 +261,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A439FDA417CE221200FCFB02 /* Build configuration list for PBXNativeTarget "VMInstrumenter_Sample" */;
 			buildPhases = (
+				917DEE4A49814296936879CC /* Check Pods Manifest.lock */,
 				A439FD6517CE221200FCFB02 /* Sources */,
 				A439FD6617CE221200FCFB02 /* Frameworks */,
 				A439FD6717CE221200FCFB02 /* Resources */,
+				8FB8737FD4F2454389A4A8D5 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -359,7 +359,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-test-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+		};
+		8FB8737FD4F2454389A4A8D5 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+		};
+		917DEE4A49814296936879CC /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -428,7 +456,7 @@
 /* Begin XCBuildConfiguration section */
 		5265FA891825075700B09838 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 092F95CED07546949381872C /* Pods-test.xcconfig */;
+			baseConfigurationReference = 6E041DF55C254270B0BB29ED /* Pods.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/VMInstrumenter_Sample.app/VMInstrumenter_Sample";
@@ -462,7 +490,6 @@
 		};
 		5265FA8A1825075700B09838 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 092F95CED07546949381872C /* Pods-test.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/VMInstrumenter_Sample.app/VMInstrumenter_Sample";
@@ -552,6 +579,7 @@
 		};
 		A439FDA517CE221200FCFB02 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6E041DF55C254270B0BB29ED /* Pods.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -573,6 +601,7 @@
 		};
 		A439FDA617CE221200FCFB02 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6E041DF55C254270B0BB29ED /* Pods.xcconfig */;
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;

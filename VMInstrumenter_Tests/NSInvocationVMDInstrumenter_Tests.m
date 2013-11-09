@@ -2,6 +2,18 @@
 #import <XCTest/XCTest.h>
 #import "NSInvocation+VMDInstrumenter.h"
 
+@interface NSInvocationVMDInstrumenterHelper : NSObject
+
+- (void) doFoo;
+
+@end
+
+@implementation NSInvocationVMDInstrumenterHelper
+
+- (void) doFoo {}
+
+@end
+
 SPEC_BEGIN(NSInvocationVMDInstrumenterTests)
 
 describe(@"NSInvocation categrory", ^{
@@ -19,7 +31,9 @@ describe(@"NSInvocation categrory", ^{
         });
         
         it(@"should raise an exception if the selector doesn't exist", ^{
-            
+            [[theBlock(^{
+                [NSInvocation invocationForSelector:@selector(doFoo) ofClass:[self class] onRealSelf:self withArgsList:nil argsCount:0];
+            }) should] raise];
         });
         
         it(@"should work with primitive arguments", ^{
@@ -40,8 +54,11 @@ describe(@"NSInvocation categrory", ^{
             
         });
         
+        //@TODO all primitive types
+        
         it(@"should raise an exception if the selector doesn't exist", ^{
-            
+            [[theBlock(^{
+                [NSInvocation createAndInvokeSelector:@selector(doFoo) withArgsList:nil argsCount:0 onRealSelf:self withRealSelector:@selector(doFoo)]; }) should] raise];
         });
     });
 });
