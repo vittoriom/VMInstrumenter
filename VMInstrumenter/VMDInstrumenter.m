@@ -199,17 +199,12 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 if(traceCall && executeBefore)
                     executeBefore(realSelf);
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    va_end(args);
-                }
-                else
-                    objc_msgSend(realSelf, instrumentedSelector);
+                va_list args;
+                va_start(args, realSelf);
+                [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
                 
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
             }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
@@ -225,19 +220,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 id result = nil;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                } else
-                    result = objc_msgSend(realSelf, instrumentedSelector);
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -256,20 +247,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 char result = 0;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (char)objc_msgSend(realSelf, instrumentedSelector);
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -294,20 +280,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 unsigned long long result = 0ll;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (unsigned long long)objc_msgSend(realSelf, instrumentedSelector);
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -325,22 +306,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 float result = .0f;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                {
-                    float (*action)(id, SEL) = (float (*)(id, SEL)) objc_msgSend;
-                    result = action(realSelf, instrumentedSelector);
-                }
+                va_list args;
+                va_start(args, realSelf);
+                
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -358,22 +332,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 double result = .0;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else {
-                    double (*action)(id, SEL) = (double (*)(id, SEL)) objc_msgSend;
-                    result = action(realSelf, instrumentedSelector);
-                }
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -391,22 +358,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 SEL result;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else {
-                    SEL (*action)(id, SEL) = (SEL (*)(id, SEL)) objc_msgSend;
-                    result = action(realSelf, instrumentedSelector);
-                }
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -424,20 +384,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 Class result = nil;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (Class)objc_msgSend(realSelf, instrumentedSelector);
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 
@@ -455,20 +410,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                 
                 BOOL result = NO;
                 
-                if(argsCount > 0)
-                {
-                    va_list args;
-                    va_start(args, realSelf);
-                    
-                    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                    
-                    [invocation getReturnValue:&result];
-                    
-                    va_end(args);
-                }
-                else
-                    result = (BOOL)objc_msgSend(realSelf, instrumentedSelector);
+                va_list args;
+                va_start(args, realSelf);
                 
+                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+                
+                [invocation getReturnValue:&result];
+                
+                va_end(args);
+            
                 if(traceCall && executeAfter)
                     executeAfter(realSelf);
                 

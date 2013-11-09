@@ -46,7 +46,7 @@
             case 'B':
             case 's':
             {
-                NSInteger number = va_arg(args, int);
+                NSInteger number = va_arg(args, NSInteger);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
