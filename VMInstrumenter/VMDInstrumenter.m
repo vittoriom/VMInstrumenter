@@ -24,6 +24,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
 
+- (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(BOOL (^)(id))testBlock beforeBlock: (void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
+
 @end
 
 @implementation VMDInstrumenter
@@ -38,9 +40,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     {
 #ifndef DEBUG
         NSLog(@"-- Warning: %@ is still enabled and you're not in Debug configuration! --", NSStringFromClass([VMDInstrumenter class]));
-//#warning -- Warning: VMDInstrumenter is still enabled and you're not in Debug configuration! --
 #endif
-        
         self.suppressedMethods = [@[] mutableCopy];
         self.instrumentedMethods = [@[] mutableCopy];
     }
@@ -133,9 +133,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 #pragma mark -- Instrumenting selectors
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-
 - (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter
 {
     [self instrumentSelector:selectorToInstrument forInstancesOfClass:classToInspect passingTest:nil withBeforeBlock:executeBefore afterBlock:executeAfter];
@@ -186,250 +183,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                                                 }];
     }
     
-    char returnType[3];
-    method_getReturnType(methodToInstrument, returnType, 3);
-    NSInteger argsCount = [NSMethodSignature numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
-    
-    switch (returnType[0]) {
-        case 'v':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                va_list args;
-                va_start(args, realSelf);
-                [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case '@':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock((id)^(id realSelf,...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                id result = nil;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case 'C':
-        case 'c':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^char(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                char result = 0;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case 'i':
-        case 's':
-        case 'l':
-        case 'q':
-        case 'I':
-        case 'S':
-        case 'L':
-        case 'Q':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^unsigned long long(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                unsigned long long result = 0ll;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case 'f':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^float(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                float result = .0f;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case 'd':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^double(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                double result = .0;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case ':':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^SEL(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                SEL result;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case '#':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^Class(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                Class result = nil;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        case 'B':
-        {
-            class_addMethod(classOrMetaclass, instrumentedSelector, imp_implementationWithBlock(^BOOL(id realSelf, ...){
-                BOOL traceCall = !testBlock || testBlock(realSelf);
-                
-                if(traceCall && executeBefore)
-                    executeBefore(realSelf);
-                
-                BOOL result = NO;
-                
-                va_list args;
-                va_start(args, realSelf);
-                
-                NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
-                
-                [invocation getReturnValue:&result];
-                
-                va_end(args);
-            
-                if(traceCall && executeAfter)
-                    executeAfter(realSelf);
-                
-                return result;
-            }), [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect]);
-        }
-            break;
-        default:
-            raise(11);
-            break;
-    }
+    [self addMethodToClass:classOrMetaclass forSelector:instrumentedSelector withTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter andOriginalSelector:selectorToInstrument ofClass:classToInspect];
     
     Method instrumentedMethod = [VMDHelper getMethodFromSelector:instrumentedSelector
                                                                ofClass:classToInspect
@@ -439,8 +193,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     
     [self.instrumentedMethods addObject:selectorName];
 }
-
-#pragma clang diagnostic pop
 
 #pragma mark -- Tracing selectors
 
@@ -490,20 +242,17 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                   afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
 }
 
-#pragma mark - Private helpers
+#pragma mark - Default tracing blocks
 
 - (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
 {
     return ^(id instance) {
         NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
-        if (dumpStack)
-        {
+        if (dumpStack) {
             NSLog(@"%@",[instance stacktrace]);
         }
-        
-        if (dumpObject)
-        {
+        if (dumpObject) {
             NSLog(@"%@",[instance dumpInfo]);
         }
     };
@@ -515,4 +264,174 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
     };
 }
+
+#pragma mark - Private helpers
+
+- (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect
+{
+    Method methodToInstrument = [VMDHelper getMethodFromSelector:selectorToInstrument ofClass:classToInspect orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
+    
+    char returnType[3];
+    method_getReturnType(methodToInstrument, returnType, 3);
+    NSInteger argsCount = [NSMethodSignature numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
+    
+    IMP methodImplementation = [self VMDImplementationForReturnType:returnType[0]
+                                                      withTestBlock:testBlock
+                                                        beforeBlock:executeBefore
+                                                         afterBlock:executeAfter
+                                            forInstrumentedSelector:instrumentedSelector
+                                                       andArgsCount:argsCount];
+    const char * methodSignature = [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect];
+    
+    class_addMethod(classOrMetaclass, instrumentedSelector, methodImplementation, methodSignature);
+}
+
+- (IMP) VMDImplementationForReturnType:(char)returnType withTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    id implementationBlock = nil;
+    switch (returnType) {
+        case 'v':
+            implementationBlock = [self VMDImplementationBlockForVoidReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
+        case '@':
+            implementationBlock = [self VMDImplementationBlockForObjectReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
+        case 'B':
+        case 'c':
+        case 'C':
+        case 'i':
+        case 'I':
+        case 'l':
+        case 'L':
+        case 'q':
+        case 'Q':
+        case 's':
+        case 'S':
+            implementationBlock = [self VMDImplementationBlockForIntegerReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
+        case 'f':
+        case 'd':
+            implementationBlock = [self VMDImplementationBlockForDoubleReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
+        case ':':
+            implementationBlock = [self VMDImplementationBlockForSELReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
+        case '#':
+            implementationBlock = [self VMDImplementationBlockForClassReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
+        default:
+            raise(11);
+    }
+    
+    return imp_implementationWithBlock(implementationBlock);
+}
+
+- (NSInvocation *) preprocessAndPostprocessCallWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector withArgs:(va_list)args argsCount:(NSInteger)argsCount onRealSelf:(id)realSelf
+{
+    BOOL traceCall = !testBlock || testBlock(realSelf);
+    
+    if(traceCall && executeBefore)
+        executeBefore(realSelf);
+    
+    NSInvocation *invocation = [NSInvocation createAndInvokeSelector:instrumentedSelector withArgsList:args argsCount:argsCount onRealSelf:realSelf];
+    
+    if(traceCall && executeAfter)
+        executeAfter(realSelf);
+    
+    return invocation;
+}
+
+#pragma mark - IMP Blocks
+
+- (id (^)(id realSelf,...)) VMDImplementationBlockForObjectReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        NSInvocation *invocation = [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+        
+        id result = nil;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    };
+}
+
+- (unsigned long long (^)(id realSelf,...)) VMDImplementationBlockForIntegerReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        NSInvocation *invocation = [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+        
+        unsigned long long result = 0;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    };
+}
+
+- (double (^)(id realSelf,...)) VMDImplementationBlockForDoubleReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        NSInvocation *invocation = [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+        
+        double result = .0;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    };
+}
+
+- (SEL (^)(id realSelf,...)) VMDImplementationBlockForSELReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        NSInvocation *invocation = [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+        
+        SEL result;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    };
+}
+
+- (Class (^)(id realSelf,...)) VMDImplementationBlockForClassReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        NSInvocation *invocation = [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+        
+        Class result = nil;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    };
+}
+
+- (void (^)(id realSelf,...)) VMDImplementationBlockForVoidReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+    };
+}
+
 @end

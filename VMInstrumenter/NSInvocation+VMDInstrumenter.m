@@ -29,6 +29,7 @@
     int argumentIndex = 2;
     for (int i=0; i<argsCount; i++)
     {
+        
         char argumentType = [NSMethodSignature typeOfArgumentInSignature:methodSignature atIndex:argumentIndex];
         
         switch (argumentType) {
