@@ -1,5 +1,6 @@
 #import <Kiwi/Kiwi.h>
 #import <XCTest/XCTest.h>
+#import "VMTestsHelper.h"
 #import "NSInvocation+VMDInstrumenter.h"
 
 @interface NSInvocationVMDInstrumenterHelper : NSObject
@@ -17,7 +18,17 @@
 SPEC_BEGIN(NSInvocationVMDInstrumenterTests)
 
 describe(@"NSInvocation categrory", ^{
+    __block VMTestsHelper *helper;
+    
     context(@"when creating the NSInvocation object", ^{
+        beforeEach(^{
+            helper = [VMTestsHelper new];
+        });
+        
+        afterEach(^{
+            helper = nil;
+        });
+        
         it(@"should correctly work with multiple arguments", ^{
             
         });
@@ -46,15 +57,73 @@ describe(@"NSInvocation categrory", ^{
     });
     
     context(@"when invoking the NSInvocation other than returning it", ^{
-        it(@"it should contain the correct return value", ^{
+        it(@"it should contain the correct return value if void", ^{
             
         });
         
-        it(@"it should contain the correct return value if primitive", ^{
+        it(@"it should contain the correct return value if object", ^{
             
         });
         
-        //@TODO all primitive types
+        it(@"it should contain the correct return value if char", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if unsigned char", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if bool", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if selector", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if Class", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if float", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if double", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if int", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if unsigned int", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if short", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if unsigned short", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if long", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if unsigned long", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if long long", ^{
+            
+        });
+        
+        it(@"it should contain the correct return value if unsigned long long", ^{
+            
+        });
         
         it(@"should raise an exception if the selector doesn't exist", ^{
             [[theBlock(^{

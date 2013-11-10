@@ -8,7 +8,7 @@ SPEC_BEGIN(NSMethodSignatureVMDInstrumenterTests)
 describe(@"NSMethodSignature category",^{
     context(@"when returning const char signature", ^{
         it(@"should correctly return signature 1", ^{
-            const char * signature = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
+            const char * signature = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturnMinus3231) ofClass:[VMTestsHelper class]];
             NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
             [[[signatureAsObject substringToIndex:1] should] equal:@"i"];
         });
@@ -20,32 +20,32 @@ describe(@"NSMethodSignature category",^{
         });
         
         it(@"should correctly return signature 3", ^{
-            const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(voidNoArgs) ofClass:[VMTestsHelper class]];
             NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
             [[[signatureAsObject3 substringToIndex:1] should] equal:@"v"];
         });
         
         it(@"should correctly return signature 4", ^{
-            const char * signature = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn3) ofClass:[VMTestsHelper class]];
+            const char * signature = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturnMinus3231) ofClass:[VMTestsHelper class]];
             NSString * signatureAsObject = [NSString stringWithUTF8String:signature];
             [[signatureAsObject should] equal:@"i@:"];
         });
         
         it(@"should correctly return signature 5", ^{
-            const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn:specifiedLong:) ofClass:[VMTestsHelper class]];
             NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
-            [[signatureAsObject3 should] equal:@"v@:@@"];
+            [[signatureAsObject3 should] equal:@"l@:@l"];
         });
         
         it(@"should correctly return signature 6", ^{
-            const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(floatTest) ofClass:[VMTestsHelper class]];
+            const char * signature3 = [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn5dot2) ofClass:[VMTestsHelper class]];
             NSString * signatureAsObject3 = [NSString stringWithUTF8String:signature3];
             [[signatureAsObject3 should] equal:@"f@:"];
         });
         
         it(@"should raise an exception if the selector doesn't exist", ^{
             [[theBlock(^{
-                [NSMethodSignature constCharSignatureForSelector:@selector(floatTest) ofClass:[self class]];
+                [NSMethodSignature constCharSignatureForSelector:@selector(alwaysReturn5dot2) ofClass:[self class]];
             }) should] raise];
         });
     });
@@ -57,12 +57,12 @@ describe(@"NSMethodSignature category",^{
         });
         
         it(@"should work with 1 argument", ^{
-            NSInteger number = [NSMethodSignature numberOfArgumentsForSelector:@selector(doAndReturnPrimitiveValue:) ofClass:[VMTestsHelper class]];
+            NSInteger number = [NSMethodSignature numberOfArgumentsForSelector:@selector(alwaysReturnSpecifiedClass:) ofClass:[VMTestsHelper class]];
             [[theValue(number) should] equal:theValue(1)];
         });
         
         it(@"should work with more than 1 argument", ^{
-            NSInteger number = [NSMethodSignature numberOfArgumentsForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            NSInteger number = [NSMethodSignature numberOfArgumentsForSelector:@selector(alwaysReturn:specifiedUnsignedChar:) ofClass:[VMTestsHelper class]];
             [[theValue(number) should] equal:theValue(2)];
         });
         
@@ -75,39 +75,39 @@ describe(@"NSMethodSignature category",^{
     
     context(@"when returning the NSMethodSignature of a selector", ^{
         it(@"should work with selector 1", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(floatTest) ofClass:[VMTestsHelper class]];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturn5dot2) ofClass:[VMTestsHelper class]];
             [[theValue([signature numberOfArguments]) should] equal:theValue(2)];
             [[[[NSString stringWithUTF8String:[signature methodReturnType]] substringToIndex:1] should] equal:@"f"];
         });
         
         it(@"should work with selector 2", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
-            [[theValue([signature numberOfArguments]) should] equal:theValue(4)];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(voidNoArgs) ofClass:[VMTestsHelper class]];
+            [[theValue([signature numberOfArguments]) should] equal:theValue(2)];
             [[[[NSString stringWithUTF8String:[signature methodReturnType]] substringToIndex:1] should] equal:@"v"];
         });
         
         it(@"should work with selector 3", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doAndReturnValue:) ofClass:[VMTestsHelper class]];
-            [[theValue([signature numberOfArguments]) should] equal:theValue(3)];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturn:specifiedString:) ofClass:[VMTestsHelper class]];
+            [[theValue([signature numberOfArguments]) should] equal:theValue(4)];
             [[[[NSString stringWithUTF8String:[signature methodReturnType]] substringToIndex:1] should] equal:@"@"];
         });
         
         it(@"should work with selector 4", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doAndReturnPrimitiveValue:) ofClass:[VMTestsHelper class]];
-            [[theValue([signature numberOfArguments]) should] equal:theValue(3)];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturn:specifiedInt:) ofClass:[VMTestsHelper class]];
+            [[theValue([signature numberOfArguments]) should] equal:theValue(4)];
             [[[[NSString stringWithUTF8String:[signature methodReturnType]] substringToIndex:1] should] equal:@"i"];
         });
         
         it(@"should raise an exception if the selector doesn't exist", ^{
             [[theBlock(^{
-                [NSMethodSignature methodSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[self class]];
+                [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturn:specifiedInt:) ofClass:[self class]];
             }) should] raise];
         });
     });
     
     context(@"when returning the type of the argument in a selector", ^{
         it(@"should work with the self implicit argument", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturn:specifiedUnsignedLongLong:) ofClass:[VMTestsHelper class]];
             char type = [NSMethodSignature typeOfArgumentInSignature:signature atIndex:0];
             NSString *typeString = [NSString stringWithFormat:@"%c",type];
             
@@ -115,7 +115,7 @@ describe(@"NSMethodSignature category",^{
         });
         
         it(@"should work with the _cmd implicit argument", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturn:specifiedString:) ofClass:[VMTestsHelper class]];
             char type = [NSMethodSignature typeOfArgumentInSignature:signature atIndex:1];
             NSString *typeString = [NSString stringWithFormat:@"%c",type];
             
@@ -123,7 +123,7 @@ describe(@"NSMethodSignature category",^{
         });
         
         it(@"should work with object arguments", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturnSpecifiedString:) ofClass:[VMTestsHelper class]];
             char type = [NSMethodSignature typeOfArgumentInSignature:signature atIndex:2];
             NSString *typeString = [NSString stringWithFormat:@"%c",type];
             
@@ -131,7 +131,7 @@ describe(@"NSMethodSignature category",^{
         });
         
         it(@"should work with primitive arguments", ^{
-            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(doAndReturnPrimitiveValue:) ofClass:[VMTestsHelper class]];
+            NSMethodSignature *signature = [NSMethodSignature methodSignatureForSelector:@selector(alwaysReturnSpecifiedInt:) ofClass:[VMTestsHelper class]];
             char type = [NSMethodSignature typeOfArgumentInSignature:signature atIndex:2];
             NSString *typeString = [NSString stringWithFormat:@"%c",type];
             
@@ -141,7 +141,7 @@ describe(@"NSMethodSignature category",^{
     
     context(@"when getting Method type", ^{
         it(@"should correctly distinguish between instance and class methods (instance)", ^{
-            VMDMethodType type = [NSMethodSignature typeOfMethodForSelector:@selector(doFoo:withMoreThanOneParameter:) ofClass:[VMTestsHelper class]];
+            VMDMethodType type = [NSMethodSignature typeOfMethodForSelector:@selector(alwaysReturn:specifiedInt:) ofClass:[VMTestsHelper class]];
             [[theValue(type) should] equal:theValue(VMDInstanceMethodType)];
         });
         

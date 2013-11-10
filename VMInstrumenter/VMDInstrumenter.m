@@ -310,6 +310,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
             implementationBlock = [self VMDImplementationBlockForIntegerReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
         case 'f':
+            implementationBlock = [self VMDImplementationBlockForFloatReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
+            break;
         case 'd':
             implementationBlock = [self VMDImplementationBlockForDoubleReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
@@ -385,6 +387,22 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         va_end(args);
         
         double result = .0;
+        [invocation getReturnValue:&result];
+        
+        return result;
+    };
+}
+
+- (float (^)(id realSelf,...)) VMDImplementationBlockForFloatReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+{
+    return (id)^(id realSelf,...)
+    {
+        va_list args;
+        va_start(args, realSelf);
+        NSInvocation *invocation = [self preprocessAndPostprocessCallWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector withArgs:args argsCount:argsCount onRealSelf:realSelf];
+        va_end(args);
+        
+        float result = .0;
         [invocation getReturnValue:&result];
         
         return result;
