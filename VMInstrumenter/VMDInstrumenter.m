@@ -22,10 +22,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 @property (nonatomic, strong) NSMutableArray *suppressedMethods;
 @property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
-- (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
-- (void (^)(id instance)) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace;
+- (VMDExecuteBefore) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace withTracingOptions:(VMDInstrumenterTracingOptions)options;
+- (VMDExecuteAfter) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace;
 
-- (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(BOOL (^)(id))testBlock beforeBlock: (void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
+- (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(VMDTestBlock)testBlock beforeBlock: (VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
 
 @end
 
@@ -134,12 +134,12 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 #pragma mark -- Instrumenting selectors
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter
+- (void) instrumentSelector:(SEL)selectorToInstrument forClass:(Class)classToInspect withBeforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter
 {
     [self instrumentSelector:selectorToInstrument forInstancesOfClass:classToInspect passingTest:nil withBeforeBlock:executeBefore afterBlock:executeAfter];
 }
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(void (^)(id instance))beforeBlock afterBlock:(void (^)(id instance))afterBlock
+- (void) instrumentSelector:(SEL)selectorToInstrument forObject:(id)objectInstance withBeforeBlock:(VMDExecuteBefore)beforeBlock afterBlock:(VMDExecuteAfter)afterBlock
 {
     Class classToInspect = [objectInstance class];
     __weak id objectInstanceWeak = objectInstance;
@@ -148,7 +148,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     } withBeforeBlock:beforeBlock afterBlock:afterBlock];
 }
 
-- (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock withBeforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter
+- (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(VMDTestBlock)testBlock withBeforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter
 {
     NSString *selectorName = NSStringFromSelector(selectorToInstrument);
     NSString *instrumentedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect];
@@ -197,16 +197,18 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 #pragma mark -- Tracing selectors
 
-- (void) _traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock withBeforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceExecution
+- (void) _traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(VMDTestBlock)testBlock withBeforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter withTracingOptions:(VMDInstrumenterTracingOptions)options
 {
+    BOOL traceTime = options & VMDInstrumenterTraceExecutionTime;
+    
     __block NSDate *before = nil;
     [self instrumentSelector:selectorToTrace
          forInstancesOfClass:classToInspect
                  passingTest:testBlock
              withBeforeBlock:^(id instance){
-                        void(^defaultBeforeBlock)(id) = [self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject];
+                        VMDExecuteBefore defaultBeforeBlock = [self VMDDefaultBeforeBlockForSelector:selectorToTrace withTracingOptions:options];
                         defaultBeforeBlock(instance);
-                        if(traceExecution)
+                        if(traceTime)
                             before = [NSDate date];
                   }
                   afterBlock:^(id instance){
@@ -216,34 +218,32 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                           NSLog(@"Execution time for the selector %@ on %@ : %f", NSStringFromSelector(selectorToTrace), instance, elapsed);
                       }
                       
-                      void(^defaultAfterBlock)(id) = [self VMDDefaultAfterBlockForSelector:selectorToTrace];
+                      VMDExecuteAfter defaultAfterBlock = [self VMDDefaultAfterBlockForSelector:selectorToTrace];
                       defaultAfterBlock(instance);
                   }];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect
 {
-    [self traceSelector:selectorToTrace forClass:classToInspect dumpingStackTrace:NO dumpingObject:NO traceExecutionTime:NO];
+    [self traceSelector:selectorToTrace forClass:classToInspect withTracingOptions:VMDInstrumenterTracingOptionsNone];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect withTracingOptions:(VMDInstrumenterTracingOptions)options;
 {
     [self _traceSelector:selectorToTrace
      forInstancesOfClass:classToInspect
              passingTest:nil
-         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace withTracingOptions:options]
               afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]
-       dumpingStackTrace:dumpStack
-           dumpingObject:dumpObject
-      traceExecutionTime:traceTime];
+       withTracingOptions:options];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance
 {
-    [self traceSelector:selectorToTrace forObject:objectInstance dumpingStackTrace:NO dumpingObject:NO traceExecutionTime:NO];
+    [self traceSelector:selectorToTrace forObject:objectInstance withTracingOptions:VMDInstrumenterTracingOptionsNone];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime
+- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance withTracingOptions:(VMDInstrumenterTracingOptions)options;
 {
     __weak id objectInstanceWeak = objectInstance;
     Class classToInspect = [objectInstance class];
@@ -253,34 +253,33 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
              passingTest:^BOOL(id instance) {
                  return instance == objectInstanceWeak;
              }
-         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace withTracingOptions:options]
               afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]
-       dumpingStackTrace:dumpStack
-           dumpingObject:dumpObject
-      traceExecutionTime:traceTime];
+       withTracingOptions:options];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(VMDTestBlock)testBlock
 {
-    [self traceSelector:selectorToTrace forInstancesOfClass:classToInspect passingTest:testBlock dumpingStackTrace:NO dumpingObject:NO traceExecutionTime:NO];
+    [self traceSelector:selectorToTrace forInstancesOfClass:classToInspect passingTest:testBlock withTracingOptions:VMDInstrumenterTracingOptionsNone];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(VMDTestBlock)testBlock withTracingOptions:(VMDInstrumenterTracingOptions)options;
 {
     [self _traceSelector:selectorToTrace
      forInstancesOfClass:classToInspect
              passingTest:testBlock
-         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace withTracingOptions:options]
               afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]
-       dumpingStackTrace:dumpStack
-           dumpingObject:dumpObject
-      traceExecutionTime:traceTime];
+       withTracingOptions:options];
 }
 
 #pragma mark - Default tracing blocks
 
-- (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
+- (VMDExecuteBefore) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace withTracingOptions:(VMDInstrumenterTracingOptions)options
 {
+    BOOL dumpStack = options & VMDInstrumenterDumpStacktrace;
+    BOOL dumpObject = options & VMDInstrumenterDumpObject;
+    
     return ^(id instance) {
         NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
@@ -294,7 +293,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (void (^)(id instance)) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace
+- (VMDExecuteAfter) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace
 {
     return ^(id instance) {
         NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
@@ -303,7 +302,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 #pragma mark - Private helpers
 
-- (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect
+- (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect
 {
     Method methodToInstrument = [VMDHelper getMethodFromSelector:selectorToInstrument ofClass:classToInspect orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
     
@@ -322,7 +321,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     class_addMethod(classOrMetaclass, instrumentedSelector, methodImplementation, methodSignature);
 }
 
-- (IMP) VMDImplementationForReturnType:(char)returnType withTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (IMP) VMDImplementationForReturnType:(char)returnType withTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     id implementationBlock = nil;
     switch (returnType) {
@@ -364,7 +363,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     return imp_implementationWithBlock(implementationBlock);
 }
 
-- (NSInvocation *) preprocessAndPostprocessCallWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector withArgs:(va_list)args argsCount:(NSInteger)argsCount onRealSelf:(id)realSelf
+- (NSInvocation *) preprocessAndPostprocessCallWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector withArgs:(va_list)args argsCount:(NSInteger)argsCount onRealSelf:(id)realSelf
 {
     BOOL traceCall = !testBlock || testBlock(realSelf);
     
@@ -381,7 +380,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 #pragma mark - IMP Blocks
 
-- (id (^)(id realSelf,...)) VMDImplementationBlockForObjectReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (id (^)(id realSelf,...)) VMDImplementationBlockForObjectReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {
@@ -397,7 +396,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (unsigned long long (^)(id realSelf,...)) VMDImplementationBlockForIntegerReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (unsigned long long (^)(id realSelf,...)) VMDImplementationBlockForIntegerReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {
@@ -413,7 +412,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (double (^)(id realSelf,...)) VMDImplementationBlockForDoubleReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (double (^)(id realSelf,...)) VMDImplementationBlockForDoubleReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {
@@ -429,7 +428,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (float (^)(id realSelf,...)) VMDImplementationBlockForFloatReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (float (^)(id realSelf,...)) VMDImplementationBlockForFloatReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {
@@ -445,7 +444,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (SEL (^)(id realSelf,...)) VMDImplementationBlockForSELReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (SEL (^)(id realSelf,...)) VMDImplementationBlockForSELReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {
@@ -461,7 +460,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (Class (^)(id realSelf,...)) VMDImplementationBlockForClassReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (Class (^)(id realSelf,...)) VMDImplementationBlockForClassReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {
@@ -477,7 +476,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     };
 }
 
-- (void (^)(id realSelf,...)) VMDImplementationBlockForVoidReturnTypeWithTestBlock:(BOOL (^)(id))testBlock beforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
+- (void (^)(id realSelf,...)) VMDImplementationBlockForVoidReturnTypeWithTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     return (id)^(id realSelf,...)
     {

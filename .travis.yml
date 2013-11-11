@@ -1,2 +1,3 @@
 language: objective-c
 script: Travis/script.sh
+xcode_sdk : iphonesimulator
