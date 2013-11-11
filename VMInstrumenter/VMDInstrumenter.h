@@ -141,10 +141,11 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @param classToInspect the class to take the selector from
  @param dumpStack if you want to dump the stacktrace
  @param dumpObject if you want to dump the internal of the object
+ @param traceTime if you want to trace the execution time of the selector
  
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime;
 
 /**
  This method instruments calls to a specified selector of a specified object and just logs execution as the previous method
@@ -154,10 +155,11 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @param objectInstance the instance that gets the selector called on
  @param dumpStack if you want to dump the stacktrace
  @param dumpObject if you want to dump the internal of the object
+ @param traceTime if you want to trace the execution time of the selector
  
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the class of the specified object
  */
-- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
+- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime;
 
 /**
  This method instruments calls to a specified selector of a specified class
@@ -168,9 +170,10 @@ extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
  @param testBlock the test block that the instances of the class have to pass to be traced
  @param dumpStack if you want to dump the stacktrace
  @param dumpObject if you want to dump the internal of the object
+ @param traceTime if you want to trace the execution time of the selector
  
  @throws NSInternalInconsistencyException Just in case the selector cannot be found in the specified class
  */
-- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL(^)(id instance))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL(^)(id instance))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime;
 
 @end

@@ -23,6 +23,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 @property (nonatomic, strong) NSMutableArray *instrumentedMethods;
 
 - (void (^)(id instance)) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject;
+- (void (^)(id instance)) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace;
 
 - (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(BOOL (^)(id))testBlock beforeBlock: (void (^)(id instance))executeBefore afterBlock:(void (^)(id instance))executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
 
@@ -196,50 +197,84 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 #pragma mark -- Tracing selectors
 
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect
+- (void) _traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock withBeforeBlock:(void (^)(id))executeBefore afterBlock:(void (^)(id))executeAfter dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceExecution
 {
-    [self traceSelector:selectorToTrace forClass:classToInspect dumpingStackTrace:NO dumpingObject:NO];
-}
-
-- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
-{
+    __block NSDate *before = nil;
     [self instrumentSelector:selectorToTrace
          forInstancesOfClass:classToInspect
-                 passingTest:nil
-             withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
-                  afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
+                 passingTest:testBlock
+             withBeforeBlock:^(id instance){
+                        void(^defaultBeforeBlock)(id) = [self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject];
+                        defaultBeforeBlock(instance);
+                        if(traceExecution)
+                            before = [NSDate date];
+                  }
+                  afterBlock:^(id instance){
+                      if(before)
+                      {
+                          NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:before];
+                          NSLog(@"Execution time for the selector %@ on %@ : %f", NSStringFromSelector(selectorToTrace), instance, elapsed);
+                      }
+                      
+                      void(^defaultAfterBlock)(id) = [self VMDDefaultAfterBlockForSelector:selectorToTrace];
+                      defaultAfterBlock(instance);
+                  }];
+}
+
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect
+{
+    [self traceSelector:selectorToTrace forClass:classToInspect dumpingStackTrace:NO dumpingObject:NO traceExecutionTime:NO];
+}
+
+- (void) traceSelector:(SEL)selectorToTrace forClass:(Class)classToInspect dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime
+{
+    [self _traceSelector:selectorToTrace
+     forInstancesOfClass:classToInspect
+             passingTest:nil
+         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+              afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]
+       dumpingStackTrace:dumpStack
+           dumpingObject:dumpObject
+      traceExecutionTime:traceTime];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance
 {
-    [self traceSelector:selectorToTrace forObject:objectInstance dumpingStackTrace:NO dumpingObject:NO];
+    [self traceSelector:selectorToTrace forObject:objectInstance dumpingStackTrace:NO dumpingObject:NO traceExecutionTime:NO];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
+- (void) traceSelector:(SEL)selectorToTrace forObject:(id)objectInstance dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime
 {
     __weak id objectInstanceWeak = objectInstance;
     Class classToInspect = [objectInstance class];
-    [self instrumentSelector:selectorToTrace
-         forInstancesOfClass:classToInspect
-                 passingTest:^BOOL(id instance) {
-                     return instance == objectInstanceWeak;
-                 }
-             withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
-                  afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
+    
+    [self _traceSelector:selectorToTrace
+     forInstancesOfClass:classToInspect
+             passingTest:^BOOL(id instance) {
+                 return instance == objectInstanceWeak;
+             }
+         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+              afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]
+       dumpingStackTrace:dumpStack
+           dumpingObject:dumpObject
+      traceExecutionTime:traceTime];
 }
 
 - (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock
 {
-    [self traceSelector:selectorToTrace forInstancesOfClass:classToInspect passingTest:testBlock dumpingStackTrace:NO dumpingObject:NO];
+    [self traceSelector:selectorToTrace forInstancesOfClass:classToInspect passingTest:testBlock dumpingStackTrace:NO dumpingObject:NO traceExecutionTime:NO];
 }
 
-- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject
+- (void) traceSelector:(SEL)selectorToTrace forInstancesOfClass:(Class)classToInspect passingTest:(BOOL (^)(id))testBlock dumpingStackTrace:(BOOL)dumpStack dumpingObject:(BOOL)dumpObject traceExecutionTime:(BOOL)traceTime
 {
-    [self instrumentSelector:selectorToTrace
-         forInstancesOfClass:classToInspect
-                 passingTest:testBlock
-             withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
-                  afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]];
+    [self _traceSelector:selectorToTrace
+     forInstancesOfClass:classToInspect
+             passingTest:testBlock
+         withBeforeBlock:[self VMDDefaultBeforeBlockForSelector:selectorToTrace dumpingStackTrace:dumpStack dumpingObject:dumpObject]
+              afterBlock:[self VMDDefaultAfterBlockForSelector:selectorToTrace]
+       dumpingStackTrace:dumpStack
+           dumpingObject:dumpObject
+      traceExecutionTime:traceTime];
 }
 
 #pragma mark - Default tracing blocks
