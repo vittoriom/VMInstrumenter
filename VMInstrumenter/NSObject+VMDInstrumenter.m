@@ -59,7 +59,7 @@
 
 - (NSString *) stacktrace
 {
-    NSMutableString * backtraceStr = [NSMutableString string];
+    NSMutableString * backtraceStr = [NSMutableString stringWithString:@"\n"];
     
     void *_callstack[128];
     int _frames = backtrace(_callstack, sizeof(_callstack)/sizeof(*_callstack));

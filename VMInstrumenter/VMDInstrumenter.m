@@ -250,6 +250,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
         if (dumpStack) {
+            NSLog(@"Executing on thread %@ (%@)",[NSThread currentThread], [NSThread isMainThread] ? @"Main thread" : @"Not main thread");
             NSLog(@"%@",[instance stacktrace]);
         }
         if (dumpObject) {
