@@ -207,7 +207,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                  passingTest:testBlock
              withBeforeBlock:^(id instance){
                         VMDExecuteBefore defaultBeforeBlock = [self VMDDefaultBeforeBlockForSelector:selectorToTrace withTracingOptions:options];
-                        defaultBeforeBlock(instance);
+                        if(defaultBeforeBlock)
+                            defaultBeforeBlock(instance);
                         if(traceTime)
                             before = [NSDate date];
                   }
@@ -219,7 +220,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                       }
                       
                       VMDExecuteAfter defaultAfterBlock = [self VMDDefaultAfterBlockForSelector:selectorToTrace];
-                      defaultAfterBlock(instance);
+                      if(defaultAfterBlock)
+                          defaultAfterBlock(instance);
                   }];
 }
 
