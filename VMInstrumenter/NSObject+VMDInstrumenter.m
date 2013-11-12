@@ -9,46 +9,34 @@
 #import "NSObject+VMDInstrumenter.h"
 #import <objc/runtime.h>
 #import <execinfo.h>
+#import "VMDClass.h"
+#import "VMDIvar.h"
+#import "VMDProperty.h"
+#import "VMDMethod.h"
 
 @implementation NSObject (VMDInstrumenter)
 
 -(NSString *) dumpInfo
 {
-    Class clazz = [self class];
-    u_int count;
+    VMDClass *classToInspect = [VMDClass classWithClass:[self class]];
     
-    Ivar* ivars = class_copyIvarList(clazz, &count);
-    NSMutableArray* ivarArray = [NSMutableArray arrayWithCapacity:count];
-    for (int i = 0; i < count ; i++)
+    NSMutableArray* ivarArray = [NSMutableArray new];
+    for (VMDIvar *ivar in [classToInspect ivars])
     {
-        const char* ivarName = ivar_getName(ivars[i]);
-        [ivarArray addObject:[NSString  stringWithCString:ivarName encoding:NSUTF8StringEncoding]];
+        [ivarArray addObject:ivar.name];
     }
-    free(ivars);
     
-    objc_property_t* properties = class_copyPropertyList(clazz, &count);
-    NSMutableArray* propertyArray = [NSMutableArray arrayWithCapacity:count];
-    for (int i = 0; i < count ; i++)
+    NSMutableArray* propertyArray = [NSMutableArray new];
+    for (VMDProperty *property in [classToInspect properties])
     {
-        const char* propertyName = property_getName(properties[i]);
-        id value = [self valueForKey:[NSString stringWithUTF8String:propertyName]];
-        [propertyArray addObject:@{
-                                   [NSString stringWithCString:propertyName encoding:NSUTF8StringEncoding]
-                                   : value
-                                   }];
-        
+        [propertyArray addObject:@{ property.name : [property valueForObject:self] }];
     }
-    free(properties);
     
-    Method* methods = class_copyMethodList(clazz, &count);
-    NSMutableArray* methodArray = [NSMutableArray arrayWithCapacity:count];
-    for (int i = 0; i < count ; i++)
+    NSMutableArray* methodArray = [NSMutableArray new];
+    for (VMDMethod *method in [classToInspect methods])
     {
-        SEL selector = method_getName(methods[i]);
-        const char* methodName = sel_getName(selector);
-        [methodArray addObject:[NSString  stringWithCString:methodName encoding:NSUTF8StringEncoding]];
+        [methodArray addObject:method.name];
     }
-    free(methods);
     
     NSDictionary* classDump = @{ @"ivars" : ivarArray,
                                  @"properties" : propertyArray,

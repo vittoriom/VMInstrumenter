@@ -9,6 +9,26 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
+    VMDReturnTypeVoid = 'v',
+    VMDReturnTypeInt = 'i',
+    VMDReturnTypeUnsignedInt = 'I',
+    VMDReturnTypeShort = 's',
+    VMDReturnTypeUnsignedShort = 'S',
+    VMDReturnTypeBool = 'B',
+    VMDReturnTypeChar = 'c',
+    VMDReturnTypeUnsignedChar = 'C',
+    VMDReturnTypeLong = 'l',
+    VMDReturnTypeUnsignedLong = 'L',
+    VMDReturnTypeLongLong = 'q',
+    VMDReturnTypeUnsignedLongLong = 'Q',
+    VMDReturnTypeSEL = ':',
+    VMDReturnTypeObject = '@',
+    VMDReturnTypeClass = '#',
+    VMDReturnTypeDouble = 'd',
+    VMDReturnTypeFloat = 'f'
+} VMDReturnType;
+
+typedef enum {
     VMDClassMethodType,
     VMDInstanceMethodType,
     VMDUnknownMethodType

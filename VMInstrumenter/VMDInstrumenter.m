@@ -9,6 +9,8 @@
 #import "VMDInstrumenter.h"
 #import <objc/message.h>
 #import <objc/runtime.h>
+#import "VMDClass.h"
+#import "VMDMethod.h"
 #import <Foundation/NSObjCRuntime.h>
 #import "NSObject+VMDInstrumenter.h"
 #import "VMDHelper.h"
@@ -66,6 +68,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) suppressSelector:(SEL)selectorToSuppress forClass:(Class)classToInspect
 {
+    VMDClass *classToInspectWrapper = [VMDClass classWithClass:classToInspect];
+    VMDClass *selfClassWrapper = [VMDClass classWithClass:[self class]];
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
     NSString *plausibleSuppressedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToSuppress:selectorToSuppress ofClass:classToInspect];
     
@@ -75,23 +79,24 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         return;
     }
     
-    Method originalMethod = [VMDHelper getMethodFromSelector:selectorToSuppress
-                                                           ofClass:classToInspect
-                                        orThrowExceptionWithReason:@"Trying to suppress a selector that it's neither instance or class method (?)"];
+    VMDMethod *originalMethod = [classToInspectWrapper getMethodFromSelector:selectorToSuppress
+                                     orThrowExceptionWithReason:@"Trying to suppress a selector that it's neither instance or class method (?)"];
     
     SEL newSelector = NSSelectorFromString(plausibleSuppressedSelectorName);
    
-    class_addMethod([self class], newSelector, imp_implementationWithBlock(^(){}), "v@:");
+    [selfClassWrapper addMethodWithSelector:newSelector implementation:imp_implementationWithBlock(^(){}) andSignature:"v@:"];
     
-    Method replacedMethod = class_getInstanceMethod([self class], newSelector);
+    VMDMethod *replacedMethod = [selfClassWrapper getMethodFromInstanceSelector:newSelector];
     
-    method_exchangeImplementations(originalMethod, replacedMethod);
+    [originalMethod exchangeImplementationWithMethod:replacedMethod];
     
     [self.suppressedMethods addObject:plausibleSuppressedSelectorName];
 }
 
 - (void) restoreSelector:(SEL)selectorToRestore forClass:(Class)classToInspect
 {
+    VMDClass *selfClassWrapper = [VMDClass classWithClass:[self class]];
+    VMDClass *classToInspectWrapper = [VMDClass classWithClass:classToInspect];
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
     NSString *plausibleSuppressedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToSuppress:selectorToRestore ofClass:classToInspect];
     
@@ -106,13 +111,12 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
         return;
     }
     
-    Method originalMethod = class_getInstanceMethod([self class], NSSelectorFromString(plausibleSuppressedSelectorName));
+    VMDMethod *originalMethod = [selfClassWrapper getMethodFromInstanceSelector:NSSelectorFromString(plausibleSuppressedSelectorName)];
     
-    Method replacedMethod = [VMDHelper getMethodFromSelector:selectorToRestore
-                                                           ofClass:classToInspect
-                                        orThrowExceptionWithReason:@"Trying to restore a selector that it's neither instance or class method (?)"];
+    VMDMethod *replacedMethod = [classToInspectWrapper getMethodFromSelector:selectorToRestore
+                                     orThrowExceptionWithReason:@"Trying to restore a selector that it's neither instance or class method (?)"];
     
-    method_exchangeImplementations(originalMethod, replacedMethod);
+    [originalMethod exchangeImplementationWithMethod:replacedMethod];
     
     [self.suppressedMethods removeObject:plausibleSuppressedSelectorName];
 }
@@ -121,15 +125,15 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) replaceSelector:(SEL)sel1 ofClass:(Class)class1 withSelector:(SEL)sel2 ofClass:(Class)class2
 {
-    Method originalMethod = [VMDHelper getMethodFromSelector:sel1
-                                                           ofClass:class1
-                                        orThrowExceptionWithReason:@"Trying to replace selector that it's neither instance or class method (?)"];
+    VMDClass *class1Wrapper = [VMDClass classWithClass:class1];
+    VMDClass *class2Wrapper = [VMDClass classWithClass:class2];
+    VMDMethod *originalMethod = [class1Wrapper getMethodFromSelector:sel1
+                                      orThrowExceptionWithReason:@"Trying to replace selector that it's neither instance or class method (?)"];
     
-    Method replacedMethod = [VMDHelper getMethodFromSelector:sel2
-                                                           ofClass:class2
-                                        orThrowExceptionWithReason:@"Trying to replace selector that it's neither instance or class method (?)"];
+    VMDMethod *replacedMethod = [class2Wrapper getMethodFromSelector:sel2
+                                      orThrowExceptionWithReason:@"Trying to replace selector that it's neither instance or class method (?)"];
     
-    method_exchangeImplementations(originalMethod, replacedMethod);
+    [originalMethod exchangeImplementationWithMethod:replacedMethod];
 }
 
 #pragma mark -- Instrumenting selectors
@@ -150,6 +154,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) instrumentSelector:(SEL)selectorToInstrument forInstancesOfClass:(Class)classToInspect passingTest:(VMDTestBlock)testBlock withBeforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter
 {
+    VMDClass *classToInspectWrapper = [VMDClass classWithClass:classToInspect];
     NSString *selectorName = NSStringFromSelector(selectorToInstrument);
     NSString *instrumentedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect];
     SEL instrumentedSelector = NSSelectorFromString(instrumentedSelectorName);
@@ -166,13 +171,14 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     }
     
     Class classOrMetaclass = classToInspect;
+    VMDMethod *methodToInstrument;
     
-    Method methodToInstrument = class_getInstanceMethod(classToInspect, selectorToInstrument);
-    if(!methodToInstrument)
+    if([classToInspectWrapper isClassMethod:selectorToInstrument])
     {
-        methodToInstrument = class_getClassMethod(classToInspect, selectorToInstrument);
-        classOrMetaclass = object_getClass(classToInspect);
-    }
+        classOrMetaclass = [classToInspectWrapper metaclass];
+        methodToInstrument = [classToInspectWrapper getMethodFromClassSelector:selectorToInstrument];
+    } else
+        methodToInstrument = [classToInspectWrapper getMethodFromInstanceSelector:selectorToInstrument];
     
     if(!methodToInstrument)
     {
@@ -186,11 +192,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     
     [self addMethodToClass:classOrMetaclass forSelector:instrumentedSelector withTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter andOriginalSelector:selectorToInstrument ofClass:classToInspect];
     
-    Method instrumentedMethod = [VMDHelper getMethodFromSelector:instrumentedSelector
-                                                               ofClass:classToInspect
-                                            orThrowExceptionWithReason:@"Something weird happened during the instrumentation"];
+    VMDMethod *instrumentedMethod = [classToInspectWrapper getMethodFromSelector:instrumentedSelector
+                                         orThrowExceptionWithReason:@"Something weird happened during the instrumentation"];
     
-    method_exchangeImplementations(methodToInstrument, instrumentedMethod);
+    [methodToInstrument exchangeImplementationWithMethod:instrumentedMethod];
     
     [self.instrumentedMethods addObject:selectorName];
 }
@@ -306,13 +311,13 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) addMethodToClass:(Class)classOrMetaclass forSelector:(SEL)instrumentedSelector withTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter andOriginalSelector:(SEL)selectorToInstrument ofClass:(Class)classToInspect
 {
-    Method methodToInstrument = [VMDHelper getMethodFromSelector:selectorToInstrument ofClass:classToInspect orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
+    VMDClass *classWrapper = [VMDClass classWithClass:classToInspect];
+    VMDMethod *methodToInstrument = [classWrapper getMethodFromSelector:selectorToInstrument
+                                         orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
     
-    char returnType[3];
-    method_getReturnType(methodToInstrument, returnType, 3);
     NSInteger argsCount = [NSMethodSignature numberOfArgumentsForSelector:selectorToInstrument ofClass:classToInspect];
     
-    IMP methodImplementation = [self VMDImplementationForReturnType:returnType[0]
+    IMP methodImplementation = [self VMDImplementationForReturnType:methodToInstrument.returnType
                                                       withTestBlock:testBlock
                                                         beforeBlock:executeBefore
                                                          afterBlock:executeAfter
@@ -320,42 +325,43 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                                                        andArgsCount:argsCount];
     const char * methodSignature = [NSMethodSignature constCharSignatureForSelector:selectorToInstrument ofClass:classToInspect];
     
-    class_addMethod(classOrMetaclass, instrumentedSelector, methodImplementation, methodSignature);
+    classWrapper = [VMDClass classWithClass:classOrMetaclass];
+    [classWrapper addMethodWithSelector:instrumentedSelector implementation:methodImplementation andSignature:methodSignature];
 }
 
 - (IMP) VMDImplementationForReturnType:(char)returnType withTestBlock:(VMDTestBlock)testBlock beforeBlock:(VMDExecuteBefore)executeBefore afterBlock:(VMDExecuteAfter)executeAfter forInstrumentedSelector:(SEL)instrumentedSelector andArgsCount:(NSInteger)argsCount
 {
     id implementationBlock = nil;
     switch (returnType) {
-        case 'v':
+        case VMDReturnTypeVoid:
             implementationBlock = [self VMDImplementationBlockForVoidReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case '@':
+        case VMDReturnTypeObject:
             implementationBlock = [self VMDImplementationBlockForObjectReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case 'B':
-        case 'c':
-        case 'C':
-        case 'i':
-        case 'I':
-        case 'l':
-        case 'L':
-        case 'q':
-        case 'Q':
-        case 's':
-        case 'S':
+        case VMDReturnTypeBool:
+        case VMDReturnTypeChar:
+        case VMDReturnTypeUnsignedChar:
+        case VMDReturnTypeInt:
+        case VMDReturnTypeUnsignedInt:
+        case VMDReturnTypeLong:
+        case VMDReturnTypeUnsignedLong:
+        case VMDReturnTypeLongLong:
+        case VMDReturnTypeUnsignedLongLong:
+        case VMDReturnTypeShort:
+        case VMDReturnTypeUnsignedShort:
             implementationBlock = [self VMDImplementationBlockForIntegerReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case 'f':
+        case VMDReturnTypeFloat:
             implementationBlock = [self VMDImplementationBlockForFloatReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case 'd':
+        case VMDReturnTypeDouble:
             implementationBlock = [self VMDImplementationBlockForDoubleReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case ':':
+        case VMDReturnTypeSEL:
             implementationBlock = [self VMDImplementationBlockForSELReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case '#':
+        case VMDReturnTypeClass:
             implementationBlock = [self VMDImplementationBlockForClassReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
         default:

@@ -10,6 +10,14 @@
 		520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
 		520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
 		52345A8F182E397900344BD9 /* VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */; };
+		5264E6771832AC40004AB683 /* VMDClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6701832AC40004AB683 /* VMDClass.m */; };
+		5264E6781832AC40004AB683 /* VMDClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6701832AC40004AB683 /* VMDClass.m */; };
+		5264E6791832AC40004AB683 /* VMDIvar.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6721832AC40004AB683 /* VMDIvar.m */; };
+		5264E67A1832AC40004AB683 /* VMDIvar.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6721832AC40004AB683 /* VMDIvar.m */; };
+		5264E67B1832AC40004AB683 /* VMDMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6741832AC40004AB683 /* VMDMethod.m */; };
+		5264E67C1832AC40004AB683 /* VMDMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6741832AC40004AB683 /* VMDMethod.m */; };
+		5264E67D1832AC40004AB683 /* VMDProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6761832AC40004AB683 /* VMDProperty.m */; };
+		5264E67E1832AC40004AB683 /* VMDProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6761832AC40004AB683 /* VMDProperty.m */; };
 		5265FA7A1825075700B09838 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5265FA791825075700B09838 /* XCTest.framework */; };
 		5265FA7B1825075700B09838 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6E17CE221200FCFB02 /* Foundation.framework */; };
 		5265FA7C1825075700B09838 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
@@ -54,6 +62,14 @@
 		00BD6E467DFF4623B2669826 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+VMDInstrumenter.h"; sourceTree = "<group>"; };
 		520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+VMDInstrumenter.m"; sourceTree = "<group>"; };
+		5264E66F1832AC40004AB683 /* VMDClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDClass.h; sourceTree = "<group>"; };
+		5264E6701832AC40004AB683 /* VMDClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDClass.m; sourceTree = "<group>"; };
+		5264E6711832AC40004AB683 /* VMDIvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDIvar.h; sourceTree = "<group>"; };
+		5264E6721832AC40004AB683 /* VMDIvar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDIvar.m; sourceTree = "<group>"; };
+		5264E6731832AC40004AB683 /* VMDMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDMethod.h; sourceTree = "<group>"; };
+		5264E6741832AC40004AB683 /* VMDMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDMethod.m; sourceTree = "<group>"; };
+		5264E6751832AC40004AB683 /* VMDProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDProperty.h; sourceTree = "<group>"; };
+		5264E6761832AC40004AB683 /* VMDProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDProperty.m; sourceTree = "<group>"; };
 		5265FA781825075700B09838 /* VMInstrumenter_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VMInstrumenter_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5265FA791825075700B09838 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		528ABA4D17CE640D00133BBC /* VMInstrumenter_Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "VMInstrumenter_Tests-Info.plist"; sourceTree = "<group>"; };
@@ -125,6 +141,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5264E66E1832AC40004AB683 /* RuntimeWrappers */ = {
+			isa = PBXGroup;
+			children = (
+				5264E66F1832AC40004AB683 /* VMDClass.h */,
+				5264E6701832AC40004AB683 /* VMDClass.m */,
+				5264E6711832AC40004AB683 /* VMDIvar.h */,
+				5264E6721832AC40004AB683 /* VMDIvar.m */,
+				5264E6731832AC40004AB683 /* VMDMethod.h */,
+				5264E6741832AC40004AB683 /* VMDMethod.m */,
+				5264E6751832AC40004AB683 /* VMDProperty.h */,
+				5264E6761832AC40004AB683 /* VMDProperty.m */,
+			);
+			path = RuntimeWrappers;
+			sourceTree = "<group>";
+		};
 		528ABA4B17CE640D00133BBC /* VMInstrumenter_Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -220,6 +251,7 @@
 		A439FDAA17CE228600FCFB02 /* VMInstrumenter */ = {
 			isa = PBXGroup;
 			children = (
+				5264E66E1832AC40004AB683 /* RuntimeWrappers */,
 				A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */,
 				A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */,
 				520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */,
@@ -396,14 +428,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5264E67C1832AC40004AB683 /* VMDMethod.m in Sources */,
 				520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
 				52EC2A0A182AF4420095AC26 /* VMDHelper.m in Sources */,
 				5274C2BE182D6B8700281BF9 /* VMDHelper_Tests.m in Sources */,
 				52D68D30182507EE00AD9E35 /* VMInstrumenter_Tests.m in Sources */,
 				52AAB262182D7428006A3C30 /* NSMethodSignatureVMDInstrumenter_Tests.m in Sources */,
+				5264E6781832AC40004AB683 /* VMDClass.m in Sources */,
 				52EBB119182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
+				5264E67E1832AC40004AB683 /* VMDProperty.m in Sources */,
 				52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52AAB264182D75C9006A3C30 /* NSInvocationVMDInstrumenter_Tests.m in Sources */,
+				5264E67A1832AC40004AB683 /* VMDIvar.m in Sources */,
 				52D68D2E182507BE00AD9E35 /* VMTestsHelper.m in Sources */,
 				52345A8F182E397900344BD9 /* VMDInstrumenter.m in Sources */,
 			);
@@ -415,12 +451,16 @@
 			files = (
 				520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
 				A439FD7917CE221200FCFB02 /* main.m in Sources */,
+				5264E6771832AC40004AB683 /* VMDClass.m in Sources */,
+				5264E67B1832AC40004AB683 /* VMDMethod.m in Sources */,
 				A439FD7D17CE221200FCFB02 /* VMAppDelegate.m in Sources */,
 				52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
 				A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */,
 				A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */,
+				5264E67D1832AC40004AB683 /* VMDProperty.m in Sources */,
 				52EBB11C182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52EC2A09182AF4420095AC26 /* VMDHelper.m in Sources */,
+				5264E6791832AC40004AB683 /* VMDIvar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

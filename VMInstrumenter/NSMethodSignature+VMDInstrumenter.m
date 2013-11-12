@@ -9,6 +9,8 @@
 #import "NSMethodSignature+VMDInstrumenter.h"
 #import "VMDInstrumenter.h"
 #import "VMDHelper.h"
+#import "VMDMethod.h"
+#import "VMDClass.h"
 #import <objc/runtime.h>
 
 @implementation NSMethodSignature (VMDInstrumenter)
@@ -20,11 +22,11 @@
 
 + (NSMethodSignature *) methodSignatureForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    Method method = [VMDHelper getMethodFromSelector:selector
-                                        ofClass:classToInspect
-                     orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
+    VMDClass *classWrapper = [VMDClass classWithClass:classToInspect];
+    VMDMethod *method = [classWrapper getMethodFromSelector:selector
+                             orThrowExceptionWithReason:VMDInstrumenterDefaultMethodExceptionReason];
     
-    const char * encoding = method_getTypeEncoding(method);
+    const char * encoding = [method typeEncoding];
     return [NSMethodSignature signatureWithObjCTypes:encoding];
 }
 
@@ -51,9 +53,10 @@
 
 + (VMDMethodType) typeOfMethodForSelector:(SEL)selector ofClass:(Class)classToInspect
 {
-    if(class_getInstanceMethod(classToInspect, selector))
+    VMDClass *classWrapper = [VMDClass classWithClass:classToInspect];
+    if([classWrapper isInstanceMethod:selector])
         return VMDInstanceMethodType;
-    else if(class_getClassMethod(classToInspect, selector))
+    else if([classWrapper isClassMethod:selector])
         return VMDClassMethodType;
     else
         return VMDUnknownMethodType;

@@ -11,28 +11,6 @@
 
 @implementation VMDHelper
 
-+ (Method) getMethodFromSelector:(SEL)selector ofClass:(Class)classToInspect orThrowExceptionWithReason:(const NSString *)reason
-{
-    Method method = class_getInstanceMethod(classToInspect, selector);
-    
-    if(!method)
-    {
-        method = class_getClassMethod(classToInspect, selector);
-        
-        if(!method)
-        {
-            @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:[NSString stringWithFormat:@"%@ - %@",NSStringFromClass([VMDInstrumenter class]), reason]
-                                         userInfo:@{
-                                                    @"error" : @"Unknown type of selector",
-                                                    @"info" : NSStringFromSelector(selector)
-                                                    }];
-        }
-    }
-    
-    return method;
-}
-
 + (NSString *) generatePlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect
 {
     return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_%@_InstrumentedMethod",NSStringFromClass(classToInspect)];

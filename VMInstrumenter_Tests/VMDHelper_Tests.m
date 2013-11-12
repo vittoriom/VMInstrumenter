@@ -1,6 +1,8 @@
 #import <Kiwi/Kiwi.h>
 #import <XCTest/XCTest.h>
 #import "VMDHelper.h"
+#import "VMDMethod.h"
+#import "VMDClass.h"
 
 @interface VMDHelperClass1 : NSObject
 
@@ -76,14 +78,14 @@ describe(@"VMDHelper", ^{
     context(@"when getting Method object from a selector", ^{
         it(@"should raise an exception if the selector doesn't exist", ^{
             [[theBlock(^{
-                [VMDHelper getMethodFromSelector:@selector(doBar) ofClass:[self class] orThrowExceptionWithReason:@"Tests reason"];
+                [[VMDClass classWithClass:[self class]] getMethodFromSelector:@selector(doBar) orThrowExceptionWithReason:@"Tests reason"];
             }) should] raise];
         });
         
         it(@"should return a valid Method object otherwise", ^{
             __block Method methodObject;
             [[theBlock(^{
-               methodObject = [VMDHelper getMethodFromSelector:@selector(doFoo) ofClass:[VMDHelperClass1 class] orThrowExceptionWithReason:@"Test reason"];
+               methodObject = [[VMDClass classWithClass:[VMDHelperClass1 class]] getMethodFromSelector:@selector(doFoo) orThrowExceptionWithReason:@"Test reason"].underlyingMethod;
             }) shouldNot] raise];
             [[theValue(methodObject) shouldNot] beNil];
         });
