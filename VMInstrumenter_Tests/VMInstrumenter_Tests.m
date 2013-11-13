@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Vittorio Monaco. All rights reserved.
 //
 
-#import <Kiwi/Kiwi.h>
-#import <XCTest/XCTest.h>
 #import "VMDInstrumenter.h"
 #import "VMDHelper.h"
 #import "VMTestsHelper.h"

@@ -1,5 +1,3 @@
-#import <Kiwi/Kiwi.h>
-#import <XCTest/XCTest.h>
 #import "VMTestsHelper.h"
 #import "NSInvocation+VMDInstrumenter.h"
 

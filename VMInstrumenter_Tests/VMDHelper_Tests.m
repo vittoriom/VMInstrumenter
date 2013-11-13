@@ -1,5 +1,3 @@
-#import <Kiwi/Kiwi.h>
-#import <XCTest/XCTest.h>
 #import "VMDHelper.h"
 #import "VMDMethod.h"
 #import "VMDClass.h"
