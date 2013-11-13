@@ -23,7 +23,36 @@
     NSMutableArray* ivarArray = [NSMutableArray new];
     for (VMDIvar *ivar in [classToInspect ivars])
     {
-        [ivarArray addObject:ivar.name];
+        switch ([ivar type]) {
+            case VMDEncodedTypeBool:
+                [ivarArray addObject:@{ ivar.name : @([ivar boolValueForObject:self]) }];
+                break;
+            case VMDEncodedTypeChar:
+            case VMDEncodedTypeUnsignedChar:
+                [ivarArray addObject:@{ ivar.name : @([ivar charValueForObject:self]) }];
+                break;
+            case VMDEncodedTypeClass:
+                [ivarArray addObject:@{ ivar.name : [ivar classValueForObject:self] }];
+                break;
+            case VMDEncodedTypeShort:
+            case VMDEncodedTypeUnsignedInt:
+            case VMDEncodedTypeUnsignedShort:
+            case VMDEncodedTypeInt:
+                [ivarArray addObject:@{ ivar.name : @([ivar intValueForObject:self]) }];
+                break;
+            case VMDEncodedTypeUnsignedLong:
+            case VMDEncodedTypeLong:
+            case VMDEncodedTypeLongLong:
+            case VMDEncodedTypeUnsignedLongLong:
+                [ivarArray addObject:@{ ivar.name : @([ivar longValueForObject:self]) }];
+                break;
+            case VMDEncodedTypeObject:
+                [ivarArray addObject:@{ ivar.name : [ivar valueForObject:self] }];
+                break;
+            default:
+                [ivarArray addObject:@{ ivar.name : @"N/A (Type not supported)" }];
+                break;
+        }
     }
     
     NSMutableArray* propertyArray = [NSMutableArray new];
