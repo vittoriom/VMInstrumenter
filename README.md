@@ -100,6 +100,23 @@ As for tracing, you can instrument a selector called on selected instances of th
 } afterBlock:nil];
 ```
 
+There is also a variant of each of the <code>traceSelector</code> methods where you can avoid specifying <code>beforeBlock</code> and <code>afterBlock</code> but still get some nice behavior from it. That's by calling
+
+```
+[instr traceSelector:@selector(doFoo) forClass:[self class] withTracingOptions:VMDInstrumenterTracingOptionsAll];
+```
+
+The <code>VMDInstrumenterTracingOptions</code> bit field has the following possible values (that you can bitwise OR as you wish to get your preferred combination):
+
+```
+VMDInstrumenterTracingOptionsNone       It doesn't do any particular tracing. This is equivalent to just call traceSelector:forClass: or your specific variant
+VMDInstrumenterDumpStacktrace           It prints the stacktrace on the console, at the time the traced selector is going to be called
+VMDInstrumenterDumpObject               It prints a dump of the object, with its ivars (and values, when possible), properties (with values) and method list
+VMDInstrumenterTraceExecutionTime       It records the execution time for the traced selector and prints it on the console
+VMDInstrumenterTracingOptionsAll        All of above
+```
+
+
 License:
 --------------
 This product is released under the BSD license.

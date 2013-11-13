@@ -20,6 +20,11 @@
     return propertyToReturn;
 }
 
+- (objc_property_t) underlyingProperty
+{
+    return _property;
+}
+
 - (NSString *) name
 {
     const char* propertyName = property_getName(_property);

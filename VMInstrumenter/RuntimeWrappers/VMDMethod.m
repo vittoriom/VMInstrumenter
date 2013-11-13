@@ -50,7 +50,7 @@
     return method_getTypeEncoding(_method);
 }
 
-- (char) returnType
+- (VMDEncodedType) returnType
 {
     char returnType[3];
     method_getReturnType(_method, returnType, 3);
