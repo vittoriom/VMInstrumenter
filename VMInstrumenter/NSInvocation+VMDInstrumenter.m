@@ -33,70 +33,70 @@
         char argumentType = [NSMethodSignature typeOfArgumentInSignature:methodSignature atIndex:argumentIndex];
         
         switch (argumentType) {
-            case VMDReturnTypeObject:
+            case VMDEncodedTypeObject:
             {
                 id object = va_arg(args, id);
                 [invocationObject setArgument:&object atIndex:argumentIndex];
             }
                 break;
                 //All these types get promoted to int anyway when calling va_arg
-            case VMDReturnTypeShort:
-            case VMDReturnTypeChar:
-            case VMDReturnTypeInt:
-            case VMDReturnTypeUnsignedChar:
-            case VMDReturnTypeBool:
-            case VMDReturnTypeUnsignedShort:
+            case VMDEncodedTypeShort:
+            case VMDEncodedTypeChar:
+            case VMDEncodedTypeInt:
+            case VMDEncodedTypeUnsignedChar:
+            case VMDEncodedTypeBool:
+            case VMDEncodedTypeUnsignedShort:
             {
                 NSInteger number = va_arg(args, NSInteger);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeVoid: //Can it be?
+            case VMDEncodedTypeVoid: //Can it be?
                 break;
-            case VMDReturnTypeLong:
+            case VMDEncodedTypeLong:
             {
                 long number = va_arg(args, long);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeLongLong:
+            case VMDEncodedTypeLongLong:
             {
                 long long number = va_arg(args, long long);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeUnsignedInt:
+            case VMDEncodedTypeUnsignedInt:
             {
                 unsigned int number = va_arg(args,unsigned int);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeUnsignedLong:
+            case VMDEncodedTypeUnsignedLong:
             {
                 unsigned long number = va_arg(args, unsigned long);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeUnsignedLongLong:
+            case VMDEncodedTypeUnsignedLongLong:
             {
                 unsigned long long number = va_arg(args, unsigned long long);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeFloat:
-            case VMDReturnTypeDouble:
+            case VMDEncodedTypeFloat:
+            case VMDEncodedTypeDouble:
             {
                 double number = va_arg(args, double);
                 [invocationObject setArgument:&number atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeSEL:
+            case VMDEncodedTypeSEL:
             {
                 SEL selector = va_arg(args, SEL);
                 [invocationObject setArgument:&selector atIndex:argumentIndex];
             }
                 break;
-            case VMDReturnTypeClass:
+            case VMDEncodedTypeClass:
             {
                 Class class = va_arg(args, Class);
                 [invocationObject setArgument:&class atIndex:argumentIndex];

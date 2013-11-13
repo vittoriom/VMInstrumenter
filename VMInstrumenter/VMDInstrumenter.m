@@ -333,35 +333,35 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 {
     id implementationBlock = nil;
     switch (returnType) {
-        case VMDReturnTypeVoid:
+        case VMDEncodedTypeVoid:
             implementationBlock = [self VMDImplementationBlockForVoidReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case VMDReturnTypeObject:
+        case VMDEncodedTypeObject:
             implementationBlock = [self VMDImplementationBlockForObjectReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case VMDReturnTypeBool:
-        case VMDReturnTypeChar:
-        case VMDReturnTypeUnsignedChar:
-        case VMDReturnTypeInt:
-        case VMDReturnTypeUnsignedInt:
-        case VMDReturnTypeLong:
-        case VMDReturnTypeUnsignedLong:
-        case VMDReturnTypeLongLong:
-        case VMDReturnTypeUnsignedLongLong:
-        case VMDReturnTypeShort:
-        case VMDReturnTypeUnsignedShort:
+        case VMDEncodedTypeBool:
+        case VMDEncodedTypeChar:
+        case VMDEncodedTypeUnsignedChar:
+        case VMDEncodedTypeInt:
+        case VMDEncodedTypeUnsignedInt:
+        case VMDEncodedTypeLong:
+        case VMDEncodedTypeUnsignedLong:
+        case VMDEncodedTypeLongLong:
+        case VMDEncodedTypeUnsignedLongLong:
+        case VMDEncodedTypeShort:
+        case VMDEncodedTypeUnsignedShort:
             implementationBlock = [self VMDImplementationBlockForIntegerReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case VMDReturnTypeFloat:
+        case VMDEncodedTypeFloat:
             implementationBlock = [self VMDImplementationBlockForFloatReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case VMDReturnTypeDouble:
+        case VMDEncodedTypeDouble:
             implementationBlock = [self VMDImplementationBlockForDoubleReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case VMDReturnTypeSEL:
+        case VMDEncodedTypeSEL:
             implementationBlock = [self VMDImplementationBlockForSELReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
-        case VMDReturnTypeClass:
+        case VMDEncodedTypeClass:
             implementationBlock = [self VMDImplementationBlockForClassReturnTypeWithTestBlock:testBlock beforeBlock:executeBefore afterBlock:executeAfter forInstrumentedSelector:instrumentedSelector andArgsCount:argsCount];
             break;
         default:

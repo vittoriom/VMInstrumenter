@@ -9,24 +9,24 @@
 #import <Foundation/Foundation.h>
 
 typedef enum {
-    VMDReturnTypeVoid = 'v',
-    VMDReturnTypeInt = 'i',
-    VMDReturnTypeUnsignedInt = 'I',
-    VMDReturnTypeShort = 's',
-    VMDReturnTypeUnsignedShort = 'S',
-    VMDReturnTypeBool = 'B',
-    VMDReturnTypeChar = 'c',
-    VMDReturnTypeUnsignedChar = 'C',
-    VMDReturnTypeLong = 'l',
-    VMDReturnTypeUnsignedLong = 'L',
-    VMDReturnTypeLongLong = 'q',
-    VMDReturnTypeUnsignedLongLong = 'Q',
-    VMDReturnTypeSEL = ':',
-    VMDReturnTypeObject = '@',
-    VMDReturnTypeClass = '#',
-    VMDReturnTypeDouble = 'd',
-    VMDReturnTypeFloat = 'f'
-} VMDReturnType;
+    VMDEncodedTypeVoid = 'v',
+    VMDEncodedTypeInt = 'i',
+    VMDEncodedTypeUnsignedInt = 'I',
+    VMDEncodedTypeShort = 's',
+    VMDEncodedTypeUnsignedShort = 'S',
+    VMDEncodedTypeBool = 'B',
+    VMDEncodedTypeChar = 'c',
+    VMDEncodedTypeUnsignedChar = 'C',
+    VMDEncodedTypeLong = 'l',
+    VMDEncodedTypeUnsignedLong = 'L',
+    VMDEncodedTypeLongLong = 'q',
+    VMDEncodedTypeUnsignedLongLong = 'Q',
+    VMDEncodedTypeSEL = ':',
+    VMDEncodedTypeObject = '@',
+    VMDEncodedTypeClass = '#',
+    VMDEncodedTypeDouble = 'd',
+    VMDEncodedTypeFloat = 'f'
+} VMDEncodedType;
 
 typedef enum {
     VMDClassMethodType,
