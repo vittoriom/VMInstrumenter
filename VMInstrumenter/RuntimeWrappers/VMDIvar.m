@@ -14,6 +14,9 @@
 
 + (VMDIvar *) ivarWithIvar:(Ivar)ivar
 {
+    if(!ivar)
+        return nil;
+    
     VMDIvar *ivarObject = [VMDIvar new];
     
     ivarObject->_ivar = ivar;

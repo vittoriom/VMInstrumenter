@@ -25,6 +25,11 @@
 
 - (void) exchangeImplementationWithMethod:(VMDMethod *)newMethod
 {
+    if(!newMethod || [newMethod isEqual:self])
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:newMethod ? @"Method specified is the same as self" : @"No valid method provided"
+                                     userInfo:nil];
+    
     method_exchangeImplementations(_method, newMethod.underlyingMethod);
 }
 

@@ -14,6 +14,9 @@
 
 + (VMDProperty *) propertyWithObjectiveCProperty:(objc_property_t)property
 {
+    if(!property)
+        return nil;
+    
     VMDProperty *propertyToReturn = [VMDProperty new];
     propertyToReturn->_property = property;
     

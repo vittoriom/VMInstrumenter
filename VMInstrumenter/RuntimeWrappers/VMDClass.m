@@ -17,6 +17,9 @@
 
 + (VMDClass *) classWithClass:(Class)classToInspect
 {
+    if(!classToInspect)
+        return nil;
+    
     VMDClass *wrapper = [VMDClass new];
     wrapper->_classToInspect = classToInspect;
     return wrapper;
@@ -24,6 +27,13 @@
 
 - (void) addMethodWithSelector:(SEL)selector implementation:(IMP)implementation andSignature:(const char*)signature
 {
+    if(!selector)
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"The selector specified is not valid. Can't add new method"
+                                     userInfo:@{
+                                                @"error" : @"Selector is nil"
+                                                }];
+    
     class_addMethod(_classToInspect, selector, implementation, signature);
 }
 
