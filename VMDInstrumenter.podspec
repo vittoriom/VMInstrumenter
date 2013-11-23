@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = 'VMDInstrumenter'
-  s.version      = '0.8'
+  s.version      = '0.8.1'
   s.summary      = 'A simple Objective-C singleton to instrument, trace, and suppress selectors at runtime.'
   s.author       = { 
     'Vittorio Monaco' => 'vittorio.monaco1@gmail.com' 
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
     :git => 'https://github.com/vittoriom/VMInstrumenter.git', 
     :tag => s.version.to_s 
   }
-  s.source_files = 'Classes', 'VMInstrumenter/*.{h,m}', 'VMInstrumenter/RuntimeClasses/*.{h,m}'
+  s.source_files = 'VMInstrumenter/**/*.{h,m}'
   s.license      = 'BSD'
   s.homepage     = 'https://github.com/vittoriom/VMInstrumenter'
   s.requires_arc = true
