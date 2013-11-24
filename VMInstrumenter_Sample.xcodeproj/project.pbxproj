@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
-		520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */; };
+		5201E6F518429852008E2A14 /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5201E6F018429852008E2A14 /* NSInvocation+VMDInstrumenter.m */; };
+		5201E6F618429852008E2A14 /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5201E6F218429852008E2A14 /* NSMethodSignature+VMDInstrumenter.m */; };
+		5201E6F718429852008E2A14 /* NSObject+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5201E6F418429852008E2A14 /* NSObject+VMDInstrumenter.m */; };
 		52345A8F182E397900344BD9 /* VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */; };
 		5264E6771832AC40004AB683 /* VMDClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6701832AC40004AB683 /* VMDClass.m */; };
 		5264E6781832AC40004AB683 /* VMDClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 5264E6701832AC40004AB683 /* VMDClass.m */; };
@@ -33,10 +34,6 @@
 		52E07C8F1834248F001CF3E3 /* VMDProperty_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E07C8E1834248F001CF3E3 /* VMDProperty_Tests.m */; };
 		52E28F4618420DA100A9D6DE /* VMDStacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E28F4518420DA100A9D6DE /* VMDStacktrace.m */; };
 		52E28F4918420E0B00A9D6DE /* VMDStacktraceFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E28F4818420E0B00A9D6DE /* VMDStacktraceFrame.m */; };
-		52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */; };
-		52EBB119182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */; };
-		52EBB11C182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */; };
-		52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */; };
 		52EC2A09182AF4420095AC26 /* VMDHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EC2A08182AF4420095AC26 /* VMDHelper.m */; };
 		52EC2A0A182AF4420095AC26 /* VMDHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EC2A08182AF4420095AC26 /* VMDHelper.m */; };
 		A439FD6D17CE221200FCFB02 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A439FD6C17CE221200FCFB02 /* UIKit.framework */; };
@@ -66,8 +63,12 @@
 
 /* Begin PBXFileReference section */
 		00BD6E467DFF4623B2669826 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+VMDInstrumenter.h"; sourceTree = "<group>"; };
-		520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+VMDInstrumenter.m"; sourceTree = "<group>"; };
+		5201E6EF18429852008E2A14 /* NSInvocation+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+VMDInstrumenter.h"; sourceTree = "<group>"; };
+		5201E6F018429852008E2A14 /* NSInvocation+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+VMDInstrumenter.m"; sourceTree = "<group>"; };
+		5201E6F118429852008E2A14 /* NSMethodSignature+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMethodSignature+VMDInstrumenter.h"; sourceTree = "<group>"; };
+		5201E6F218429852008E2A14 /* NSMethodSignature+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMethodSignature+VMDInstrumenter.m"; sourceTree = "<group>"; };
+		5201E6F318429852008E2A14 /* NSObject+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+VMDInstrumenter.h"; sourceTree = "<group>"; };
+		5201E6F418429852008E2A14 /* NSObject+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+VMDInstrumenter.m"; sourceTree = "<group>"; };
 		5264E66F1832AC40004AB683 /* VMDClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDClass.h; sourceTree = "<group>"; };
 		5264E6701832AC40004AB683 /* VMDClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDClass.m; sourceTree = "<group>"; };
 		5264E6711832AC40004AB683 /* VMDIvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDIvar.h; sourceTree = "<group>"; };
@@ -97,10 +98,6 @@
 		52E28F4818420E0B00A9D6DE /* VMDStacktraceFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDStacktraceFrame.m; sourceTree = "<group>"; };
 		52E5263E17CE67D6004C5A2B /* VMTestsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMTestsHelper.h; sourceTree = "<group>"; };
 		52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMTestsHelper.m; sourceTree = "<group>"; };
-		52EBB116182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMethodSignature+VMDInstrumenter.h"; sourceTree = "<group>"; };
-		52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMethodSignature+VMDInstrumenter.m"; sourceTree = "<group>"; };
-		52EBB11A182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+VMDInstrumenter.h"; sourceTree = "<group>"; };
-		52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+VMDInstrumenter.m"; sourceTree = "<group>"; };
 		52EC2A07182AF4420095AC26 /* VMDHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDHelper.h; sourceTree = "<group>"; };
 		52EC2A08182AF4420095AC26 /* VMDHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDHelper.m; sourceTree = "<group>"; };
 		684048266C0A41C389F29D65 /* libPods-test.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-test.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +152,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5201E6EE18429852008E2A14 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				5201E6EF18429852008E2A14 /* NSInvocation+VMDInstrumenter.h */,
+				5201E6F018429852008E2A14 /* NSInvocation+VMDInstrumenter.m */,
+				5201E6F118429852008E2A14 /* NSMethodSignature+VMDInstrumenter.h */,
+				5201E6F218429852008E2A14 /* NSMethodSignature+VMDInstrumenter.m */,
+				5201E6F318429852008E2A14 /* NSObject+VMDInstrumenter.h */,
+				5201E6F418429852008E2A14 /* NSObject+VMDInstrumenter.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
 		5264E66E1832AC40004AB683 /* RuntimeWrappers */ = {
 			isa = PBXGroup;
 			children = (
@@ -277,17 +287,12 @@
 		A439FDAA17CE228600FCFB02 /* VMInstrumenter */ = {
 			isa = PBXGroup;
 			children = (
+				5201E6EE18429852008E2A14 /* Categories */,
 				5264E66E1832AC40004AB683 /* RuntimeWrappers */,
 				A439FDAF17CE22A000FCFB02 /* VMDInstrumenter.h */,
 				A439FDB017CE22A000FCFB02 /* VMDInstrumenter.m */,
-				520EA6BB182ADC98005DEE77 /* NSObject+VMDInstrumenter.h */,
-				520EA6BC182ADC98005DEE77 /* NSObject+VMDInstrumenter.m */,
 				52EC2A07182AF4420095AC26 /* VMDHelper.h */,
 				52EC2A08182AF4420095AC26 /* VMDHelper.m */,
-				52EBB116182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.h */,
-				52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */,
-				52EBB11A182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.h */,
-				52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */,
 				52E28F4418420DA100A9D6DE /* VMDStacktrace.h */,
 				52E28F4518420DA100A9D6DE /* VMDStacktrace.m */,
 				52E28F4718420E0B00A9D6DE /* VMDStacktraceFrame.h */,
@@ -459,7 +464,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5264E67C1832AC40004AB683 /* VMDMethod.m in Sources */,
-				520EA6BE182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
 				52EC2A0A182AF4420095AC26 /* VMDHelper.m in Sources */,
 				5274C2BE182D6B8700281BF9 /* VMDHelper_Tests.m in Sources */,
 				52E07C8F1834248F001CF3E3 /* VMDProperty_Tests.m in Sources */,
@@ -468,9 +472,7 @@
 				52E07C8D18342487001CF3E3 /* VMDMethod_Tests.m in Sources */,
 				52AAB262182D7428006A3C30 /* NSMethodSignatureVMDInstrumenter_Tests.m in Sources */,
 				5264E6781832AC40004AB683 /* VMDClass.m in Sources */,
-				52EBB119182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
 				5264E67E1832AC40004AB683 /* VMDProperty.m in Sources */,
-				52EBB11D182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52E07C8918342476001CF3E3 /* VMDClass_Tests.m in Sources */,
 				52AAB264182D75C9006A3C30 /* NSInvocationVMDInstrumenter_Tests.m in Sources */,
 				5264E67A1832AC40004AB683 /* VMDIvar.m in Sources */,
@@ -483,19 +485,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
 				52E28F4618420DA100A9D6DE /* VMDStacktrace.m in Sources */,
+				5201E6F718429852008E2A14 /* NSObject+VMDInstrumenter.m in Sources */,
 				A439FD7917CE221200FCFB02 /* main.m in Sources */,
 				5264E6771832AC40004AB683 /* VMDClass.m in Sources */,
 				5264E67B1832AC40004AB683 /* VMDMethod.m in Sources */,
 				A439FD7D17CE221200FCFB02 /* VMAppDelegate.m in Sources */,
 				52E28F4918420E0B00A9D6DE /* VMDStacktraceFrame.m in Sources */,
-				52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
 				A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */,
+				5201E6F618429852008E2A14 /* NSMethodSignature+VMDInstrumenter.m in Sources */,
 				A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */,
 				5264E67D1832AC40004AB683 /* VMDProperty.m in Sources */,
-				52EBB11C182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */,
 				52EC2A09182AF4420095AC26 /* VMDHelper.m in Sources */,
+				5201E6F518429852008E2A14 /* NSInvocation+VMDInstrumenter.m in Sources */,
 				5264E6791832AC40004AB683 /* VMDIvar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

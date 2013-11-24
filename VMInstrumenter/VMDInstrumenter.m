@@ -380,7 +380,7 @@ fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:^BOOL(VMDStacktra
         NSLog(@"[%@] - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
         if (dumpStack) {
-            NSLog(@"Executing on thread %@ (%@)",[NSThread currentThread], [NSThread isMainThread] ? @"Main thread" : @"Not main thread");
+            NSLog(@"[%@] - Executing on thread %@ (%@)",NSStringFromClass([VMDInstrumenter class]),[NSThread currentThread], [NSThread isMainThread] ? @"Main thread" : @"Not main thread");
             NSLog(@"%@",[instance stacktrace]);
         }
         if (dumpObject) {
