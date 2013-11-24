@@ -16,13 +16,19 @@
 #import "VMDHelper.h"
 #import "NSInvocation+VMDInstrumenter.h"
 #import "NSMethodSignature+VMDInstrumenter.h"
+#import "VMDStacktrace.h"
+#import "VMDStacktraceFrame.h"
 
+typedef BOOL(^VMDFrameTestBlock)(VMDStacktraceFrame *, id);
+
+NSString * VMDInstrumenterSafetyException = @"VMDInstrumenterSafetyException";
 const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get signature for a selector that it's neither instance or class method (?)";
 
 @interface VMDInstrumenter ()
 
-@property (nonatomic, strong) NSMutableArray *suppressedMethods;
-@property (nonatomic, strong) NSMutableArray *instrumentedMethods;
+@property (nonatomic, strong) NSMutableArray *suppressedSelectors;
+@property (nonatomic, strong) NSMutableArray *instrumentedSelectors;
+@property (nonatomic, strong) NSMutableArray *protectedSelectors;
 
 - (VMDExecuteBefore) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace withTracingOptions:(VMDInstrumenterTracingOptions)options;
 - (VMDExecuteAfter) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace;
@@ -44,8 +50,9 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 #ifndef DEBUG
         NSLog(@"-- Warning: %@ is still enabled and you're not in Debug configuration! --", NSStringFromClass([VMDInstrumenter class]));
 #endif
-        self.suppressedMethods = [@[] mutableCopy];
-        self.instrumentedMethods = [@[] mutableCopy];
+        self.suppressedSelectors = [@[] mutableCopy];
+        self.instrumentedSelectors = [@[] mutableCopy];
+        self.protectedSelectors = [@[] mutableCopy];
     }
     
     return self;
@@ -73,9 +80,9 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     NSString *selectorName = NSStringFromSelector(selectorToSuppress);
     NSString *plausibleSuppressedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToSuppress:selectorToSuppress ofClass:classToInspect];
     
-    if([self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
+    if([self.suppressedSelectors containsObject:plausibleSuppressedSelectorName])
     {
-        NSLog(@"%@ - Warning: The SEL %@ is already suppressed", NSStringFromClass([VMDInstrumenter class]), selectorName);
+        NSLog(@"[%@] - Warning: The SEL %@ of the Class %@ is already suppressed", NSStringFromClass([VMDInstrumenter class]), selectorName, NSStringFromClass((classToInspect)));
         return;
     }
     
@@ -90,7 +97,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     
     [originalMethod exchangeImplementationWithMethod:replacedMethod];
     
-    [self.suppressedMethods addObject:plausibleSuppressedSelectorName];
+    [self.suppressedSelectors addObject:plausibleSuppressedSelectorName];
 }
 
 - (void) restoreSelector:(SEL)selectorToRestore forClass:(Class)classToInspect
@@ -100,10 +107,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     NSString *selectorName = NSStringFromSelector(selectorToRestore);
     NSString *plausibleSuppressedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToSuppress:selectorToRestore ofClass:classToInspect];
     
-    if(![self.suppressedMethods containsObject:plausibleSuppressedSelectorName])
+    if(![self.suppressedSelectors containsObject:plausibleSuppressedSelectorName])
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Warning: The SEL %@ is not suppressed", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToRestore)]
+                                       reason:[NSString stringWithFormat:@"[%@] - Warning: The SEL %@ is not suppressed for the Class %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToRestore), NSStringFromClass(classToInspect)]
                                      userInfo:@{
                                                 @"error" : @"selector is not suppressed",
                                                 @"info" : selectorName
@@ -118,7 +125,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     
     [originalMethod exchangeImplementationWithMethod:replacedMethod];
     
-    [self.suppressedMethods removeObject:plausibleSuppressedSelectorName];
+    [self.suppressedSelectors removeObject:plausibleSuppressedSelectorName];
 }
 
 #pragma mark -- Replacing selectors
@@ -159,10 +166,10 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     NSString *instrumentedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToInstrument:selectorToInstrument ofClass:classToInspect];
     SEL instrumentedSelector = NSSelectorFromString(instrumentedSelectorName);
     
-    if([self.instrumentedMethods containsObject:selectorName])
+    if([self.instrumentedSelectors containsObject:selectorName])
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Selector is already instrumented", NSStringFromClass([VMDInstrumenter class])]
+                                       reason:[NSString stringWithFormat:@"[%@] - Selector %@ is already instrumented for the Class %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToInstrument), NSStringFromClass(classToInspect)]
                                      userInfo:@{
                                                 @"error" : @"Selector already instrumented",
                                                 @"info" : selectorName
@@ -183,7 +190,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     if(!methodToInstrument)
     {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"%@ - Trying to instrument a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
+                                       reason:[NSString stringWithFormat:@"[%@] - Trying to instrument a selector that it's neither instance or class method (?)",NSStringFromClass([VMDInstrumenter class])]
                                      userInfo:@{
                                                 @"error" : @"Unknown type of selector",
                                                 @"info" : NSStringFromSelector(selectorToInstrument)
@@ -197,7 +204,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     
     [methodToInstrument exchangeImplementationWithMethod:instrumentedMethod];
     
-    [self.instrumentedMethods addObject:selectorName];
+    [self.instrumentedSelectors addObject:selectorName];
 }
 
 #pragma mark -- Tracing selectors
@@ -280,6 +287,88 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
        withTracingOptions:options];
 }
 
+#pragma mark -- Protecting selectors
+
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:(VMDFrameTestBlock)testBlock
+{
+    NSString *protectedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToProtect:selectorToProtect ofClass:classToInspect];
+    if([self.protectedSelectors containsObject:protectedSelectorName])
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"[%@] - Selector %@ of Class %@ is already protected", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToProtect), NSStringFromClass(classToInspect)]
+                                     userInfo:@{
+                                                @"error" : @"Selector already protected",
+                                                @"info" : NSStringFromSelector(selectorToProtect)
+                                                }];
+    
+    [self instrumentSelector:selectorToProtect
+                    forClass:classToInspect
+             withBeforeBlock:^(id instance) {
+                 VMDStacktrace *stacktrace = [VMDStacktrace new];
+                 VMDStacktraceFrame *frame = [stacktrace frames][6]; //FIXME: Find a more reliable way to find the specific frame
+                 if(!testBlock || !testBlock(frame,instance))
+                     @throw [NSException exceptionWithName:VMDInstrumenterSafetyException
+                                                    reason:[NSString stringWithFormat:@"[%@] - Class %@ is not allowed to call SEL %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromClass([frame callingClass]), NSStringFromSelector(selectorToProtect)]
+                                                  userInfo:nil];
+             }
+                  afterBlock:nil];
+    
+    [self.protectedSelectors addObject:protectedSelectorName];
+}
+
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass
+{
+    [self protectSelector:selectorToProtect onClass:classToInspect fromBeingCalledFromSourcesOtherThanClasses:@[masterClass]];
+}
+
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses
+{
+    //Safety check
+    for(id obj in masterClasses)
+    {
+        if(!(class_isMetaClass(object_getClass(obj))))
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:[NSString stringWithFormat:@"[%@] - Specified allowed class %@ is not a Class", NSStringFromClass([VMDInstrumenter class]), obj]
+                                         userInfo:@{
+                                                    @"error" : @"Please only specify Class objects",
+                                                    @"info" : obj
+                                                    }];
+    }
+    
+    [self protectSelector:selectorToProtect
+                  onClass:classToInspect
+fromBeingCalledFromSourcesOtherThanClassesPassingTest:^BOOL(__unsafe_unretained Class callingClass) {
+        return [masterClasses containsObject:callingClass];
+    }];
+}
+
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock
+{
+    [self protectSelector:selectorToProtect
+                  onClass:classToInspect
+fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:^BOOL(VMDStacktraceFrame *frame, id instance) {
+        return testBlock && testBlock([frame callingClass]);
+    }];
+}
+
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance
+{
+    [self protectSelector:selectorToProtect onClass:classToInspect fromBeingCalledFromSourcesOtherThanInstances:@[masterInstance]];
+}
+
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances
+{
+    NSMutableArray *masterInstancesAsString = [@[] mutableCopy];
+    [masterInstances enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [masterInstancesAsString addObject:[NSString stringWithFormat:@"%p",obj]];
+    }];
+    
+    [self protectSelector:selectorToProtect
+                  onClass:classToInspect
+fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:^BOOL(VMDStacktraceFrame *frame, id instance) {
+        return [masterInstancesAsString containsObject:[NSString stringWithFormat:@"%p",instance]];
+    }];
+}
+
 #pragma mark - Default tracing blocks
 
 - (VMDExecuteBefore) VMDDefaultBeforeBlockForSelector:(SEL)selectorToTrace withTracingOptions:(VMDInstrumenterTracingOptions)options
@@ -288,7 +377,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
     BOOL dumpObject = options & VMDInstrumenterDumpObject;
     
     return ^(id instance) {
-        NSLog(@"%@ - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+        NSLog(@"[%@] - Called selector %@ on %@", NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
         
         if (dumpStack) {
             NSLog(@"Executing on thread %@ (%@)",[NSThread currentThread], [NSThread isMainThread] ? @"Main thread" : @"Not main thread");
@@ -303,7 +392,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 - (VMDExecuteAfter) VMDDefaultAfterBlockForSelector:(SEL)selectorToTrace
 {
     return ^(id instance) {
-        NSLog(@"%@ - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
+        NSLog(@"[%@] - Finished executing selector %@ on %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance);
     };
 }
 

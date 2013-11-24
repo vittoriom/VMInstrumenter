@@ -31,6 +31,8 @@
 		52E07C8B1834247F001CF3E3 /* VMDIvar_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E07C8A1834247F001CF3E3 /* VMDIvar_Tests.m */; };
 		52E07C8D18342487001CF3E3 /* VMDMethod_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E07C8C18342487001CF3E3 /* VMDMethod_Tests.m */; };
 		52E07C8F1834248F001CF3E3 /* VMDProperty_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E07C8E1834248F001CF3E3 /* VMDProperty_Tests.m */; };
+		52E28F4618420DA100A9D6DE /* VMDStacktrace.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E28F4518420DA100A9D6DE /* VMDStacktrace.m */; };
+		52E28F4918420E0B00A9D6DE /* VMDStacktraceFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E28F4818420E0B00A9D6DE /* VMDStacktraceFrame.m */; };
 		52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */; };
 		52EBB119182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */; };
 		52EBB11C182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */; };
@@ -89,6 +91,10 @@
 		52E07C8A1834247F001CF3E3 /* VMDIvar_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDIvar_Tests.m; sourceTree = "<group>"; };
 		52E07C8C18342487001CF3E3 /* VMDMethod_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDMethod_Tests.m; sourceTree = "<group>"; };
 		52E07C8E1834248F001CF3E3 /* VMDProperty_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDProperty_Tests.m; sourceTree = "<group>"; };
+		52E28F4418420DA100A9D6DE /* VMDStacktrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDStacktrace.h; sourceTree = "<group>"; };
+		52E28F4518420DA100A9D6DE /* VMDStacktrace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDStacktrace.m; sourceTree = "<group>"; };
+		52E28F4718420E0B00A9D6DE /* VMDStacktraceFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMDStacktraceFrame.h; sourceTree = "<group>"; };
+		52E28F4818420E0B00A9D6DE /* VMDStacktraceFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMDStacktraceFrame.m; sourceTree = "<group>"; };
 		52E5263E17CE67D6004C5A2B /* VMTestsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMTestsHelper.h; sourceTree = "<group>"; };
 		52E5263F17CE67D6004C5A2B /* VMTestsHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMTestsHelper.m; sourceTree = "<group>"; };
 		52EBB116182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMethodSignature+VMDInstrumenter.h"; sourceTree = "<group>"; };
@@ -282,6 +288,10 @@
 				52EBB117182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m */,
 				52EBB11A182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.h */,
 				52EBB11B182C19A900EBB8ED /* NSInvocation+VMDInstrumenter.m */,
+				52E28F4418420DA100A9D6DE /* VMDStacktrace.h */,
+				52E28F4518420DA100A9D6DE /* VMDStacktrace.m */,
+				52E28F4718420E0B00A9D6DE /* VMDStacktraceFrame.h */,
+				52E28F4818420E0B00A9D6DE /* VMDStacktraceFrame.m */,
 			);
 			path = VMInstrumenter;
 			sourceTree = "<group>";
@@ -474,10 +484,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				520EA6BD182ADC98005DEE77 /* NSObject+VMDInstrumenter.m in Sources */,
+				52E28F4618420DA100A9D6DE /* VMDStacktrace.m in Sources */,
 				A439FD7917CE221200FCFB02 /* main.m in Sources */,
 				5264E6771832AC40004AB683 /* VMDClass.m in Sources */,
 				5264E67B1832AC40004AB683 /* VMDMethod.m in Sources */,
 				A439FD7D17CE221200FCFB02 /* VMAppDelegate.m in Sources */,
+				52E28F4918420E0B00A9D6DE /* VMDStacktraceFrame.m in Sources */,
 				52EBB118182C194C00EBB8ED /* NSMethodSignature+VMDInstrumenter.m in Sources */,
 				A439FD8617CE221200FCFB02 /* VMViewController.m in Sources */,
 				A439FDB117CE22A000FCFB02 /* VMDInstrumenter.m in Sources */,
