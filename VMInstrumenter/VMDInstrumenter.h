@@ -13,10 +13,10 @@ extern const NSString * VMDInstrumenterSafetyException;
 
 extern const NSString * VMDInstrumenterDefaultMethodExceptionReason;
 
-typedef void(^VMDExecuteBefore)(id);
-typedef void(^VMDExecuteAfter)(id);
-typedef BOOL(^VMDTestBlock)(id);
-typedef BOOL(^VMDClassTestBlock)(Class);
+typedef void(^VMDExecuteBefore)(id instance);
+typedef void(^VMDExecuteAfter)(id instance);
+typedef BOOL(^VMDTestBlock)(id instance);
+typedef BOOL(^VMDClassTestBlock)(Class callingClass);
 
 typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 {
@@ -35,7 +35,7 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 + (instancetype) sharedInstance;
 
 /**
- Instance methods
+ Instance methods, public API
  */
 
 /**
@@ -45,6 +45,8 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
  
  @param selectorToSuppress the selector to suppress
  @param classToInspect the class on which you want to suppress the selector
+ 
+ @discussion If the selector is already suppressed, this method will just throw a warning in the console.
  */
 - (void) suppressSelector:(SEL)selectorToSuppress forClass:(Class)classToInspect;
 
@@ -217,13 +219,13 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
  
  @param selectorToProtect the SEL you want to protect
  @param classToInspect the Class to which the SEL belongs
- @param masterInstance the only object allowed to call the SEL from now on
+ @param allowedInstance the only object allowed to call the SEL from now on
  
  @throws NSInternalInconsistencyException If the SEL is already protected, or if the SEL cannot be found in the specified Class.
  
  @discussion this method performs an exact pointer comparison, so copies of the instance won't be able to call the SEL
  */
-- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)allowedInstance;
 
 /**
  This method builds a barrier on the specified selector of the specified class, so that
@@ -231,13 +233,13 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
  
  @param selectorToProtect the SEL you want to protect
  @param classToInspect the Class to which the SEL belongs
- @param masterInstances the only objects allowed to call the SEL from now on
+ @param allowedInstances the only objects allowed to call the SEL from now on
  
  @throws NSInternalInconsistencyException If the SEL is already protected, if the SEL cannot be found in the specified Class, or if the NSArray contains non-object elements.
  
  @discussion this method performs an exact pointer comparison, so copies of the instance won't be able to call the SEL
  */
-- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)allowedInstances;
 
 /**
  This method builds a barrier on the specified selector of the specified class, so that

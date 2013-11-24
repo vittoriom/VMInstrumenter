@@ -251,4 +251,44 @@
     
 }
 
+- (void) testStacktrace
+{
+    
+}
+
+- (void) testDumpinfo
+{
+    
+}
+
+- (void) testExecutionTime
+{
+    
+}
+
+- (void) testTraceExecutionTimeAndDumpInfo
+{
+    
+}
+
+- (void) testTraceExecutionTimeAndDumpStacktrace
+{
+    
+}
+
+- (void) testDumpEverything
+{
+    
+}
+
+- (void) testTraceEverything
+{
+    
+}
+
+- (void) testDontTrace
+{
+    
+}
+
 @end

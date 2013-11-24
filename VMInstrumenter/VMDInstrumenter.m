@@ -228,7 +228,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                       if(before)
                       {
                           NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:before];
-                          NSLog(@"Execution time for the selector %@ on %@ : %f", NSStringFromSelector(selectorToTrace), instance, elapsed);
+                          NSLog(@"[%@] - Execution time for the selector %@ on %@ : %f",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance, elapsed);
                       }
                       
                       VMDExecuteAfter defaultAfterBlock = [self VMDDefaultAfterBlockForSelector:selectorToTrace];

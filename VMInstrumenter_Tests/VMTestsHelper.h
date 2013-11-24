@@ -26,6 +26,22 @@
 
 - (void) testPassingBlocks;
 
+- (void) testStacktrace;
+
+- (void) testDumpinfo;
+
+- (void) testExecutionTime;
+
+- (void) testDontTrace;
+
+- (void) testTraceEverything;
+
+- (void) testTraceExecutionTimeAndDumpInfo;
+
+- (void) testTraceExecutionTimeAndDumpStacktrace;
+
+- (void) testDumpEverything;
+
 // 0 arguments
 
 //void

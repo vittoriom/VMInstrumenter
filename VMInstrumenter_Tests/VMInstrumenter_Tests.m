@@ -11,6 +11,7 @@
 #import "VMTestsHelper.h"
 #import "NSMethodSignature+VMDInstrumenter.h"
 #import "NSInvocation+VMDInstrumenter.h"
+#import "NSObject+VMDInstrumenter.h"
 
 SPEC_BEGIN(VMDInstrumenterTests)
     __block VMDInstrumenter *_instrumenter;
@@ -418,7 +419,6 @@ SPEC_BEGIN(VMDInstrumenterTests)
             });
         });
         
-        
         context(@"when instrumenting selectors for a specific instance", ^{
             beforeAll(^{
                 _instrumenter = [VMDInstrumenter new];
@@ -464,6 +464,94 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [helper testPassingBlocks];
                 [helper2 testPassingBlocks];
                 [notHelper testPassingBlocks];
+            });
+        });
+        
+        context(@"when using advanced tracing options", ^{
+            beforeAll(^{
+                _instrumenter = [VMDInstrumenter new];
+            });
+            
+            it(@"should correctly dump stacktrace", ^{
+                [_instrumenter traceSelector:@selector(testStacktrace) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterDumpStacktrace];
+                
+                VMTestsHelper *helper = [VMTestsHelper new];
+                [[helper should] receive:@selector(stacktrace)];
+                [[helper shouldNot] receive:@selector(dumpInfo)];
+                [[NSDate shouldNot] receive:@selector(date)];
+                [helper testStacktrace];
+            });
+            
+            it(@"should correctly dump object information", ^{
+                [_instrumenter traceSelector:@selector(testDumpinfo) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterDumpObject];
+                
+                VMTestsHelper *helper = [VMTestsHelper new];
+                [[helper should] receive:@selector(dumpInfo)];
+                [[helper shouldNot] receive:@selector(stacktrace)];
+                [[NSDate shouldNot] receive:@selector(date)];
+                [helper testDumpinfo];
+            });
+            
+            it(@"should correctly trace time execution", ^{
+                [_instrumenter traceSelector:@selector(testExecutionTime) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterTraceExecutionTime];
+                
+                VMTestsHelper *helper = [VMTestsHelper new];
+                [[helper shouldNot] receive:@selector(dumpInfo)];
+                [[helper shouldNot] receive:@selector(stacktrace)];
+                [[NSDate should] receive:@selector(date)];
+                [helper testExecutionTime];
+            });
+            
+            context(@"when using two options out of three", ^{
+                it(@"should correctly trace execution time and dump object info", ^{
+                    [_instrumenter traceSelector:@selector(testTraceExecutionTimeAndDumpInfo) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterDumpObject | VMDInstrumenterTraceExecutionTime];
+                    
+                    VMTestsHelper *helper = [VMTestsHelper new];
+                    [[helper should] receive:@selector(dumpInfo)];
+                    [[helper shouldNot] receive:@selector(stacktrace)];
+                    [[NSDate should] receive:@selector(date)];
+                    [helper testTraceExecutionTimeAndDumpInfo];
+                });
+                
+                it(@"should correctly trace execution time and dump the stacktrace", ^{
+                    [_instrumenter traceSelector:@selector(testTraceExecutionTimeAndDumpStacktrace) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterTraceExecutionTime | VMDInstrumenterDumpStacktrace];
+                    
+                    VMTestsHelper *helper = [VMTestsHelper new];
+                    [[helper shouldNot] receive:@selector(dumpInfo)];
+                    [[helper should] receive:@selector(stacktrace)];
+                    [[NSDate should] receive:@selector(date)];
+                    [helper testTraceExecutionTimeAndDumpStacktrace];
+                });
+                
+                it(@"should correctly dump the stacktrace and object info", ^{
+                    [_instrumenter traceSelector:@selector(testDumpEverything) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterDumpStacktrace | VMDInstrumenterDumpObject];
+                    
+                    VMTestsHelper *helper = [VMTestsHelper new];
+                    [[helper should] receive:@selector(dumpInfo)];
+                    [[helper should] receive:@selector(stacktrace)];
+                    [[NSDate shouldNot] receive:@selector(date)];
+                    [helper testDumpEverything];
+                });
+            });
+            
+            it(@"should correctly do everything together", ^{
+                [_instrumenter traceSelector:@selector(testTraceEverything) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterTracingOptionsAll];
+                
+                VMTestsHelper *helper = [VMTestsHelper new];
+                [[helper should] receive:@selector(dumpInfo)];
+                [[helper should] receive:@selector(stacktrace)];
+                [[NSDate should] receive:@selector(date)];
+                [helper testTraceEverything];
+            });
+            
+            it(@"should correctly do nothing if specified", ^{
+                [_instrumenter traceSelector:@selector(testDontTrace) forClass:[VMTestsHelper class] withTracingOptions:VMDInstrumenterTracingOptionsNone];
+                
+                VMTestsHelper *helper = [VMTestsHelper new];
+                [[helper shouldNot] receive:@selector(dumpInfo)];
+                [[helper shouldNot] receive:@selector(stacktrace)];
+                [[NSDate shouldNot] receive:@selector(date)];
+                [helper testDontTrace];
             });
         });
     });
