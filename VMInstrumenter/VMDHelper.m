@@ -13,12 +13,17 @@
 
 + (NSString *) generatePlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect
 {
-    return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_%@_InstrumentedMethod",NSStringFromClass(classToInspect)];
+    return [NSStringFromSelector(selectorToInstrument) stringByAppendingFormat:@"_%@_%@_InstrumentedMethod",NSStringFromClass(classToInspect),NSStringFromClass(classToInspect)];
 }
 
 + (NSString *) generatePlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect
 {
-    return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_%@_SuppressedMethod",NSStringFromClass(classToInspect)];
+    return [NSStringFromSelector(selectorToSuppress) stringByAppendingFormat:@"_%@_%@_SuppressedMethod",NSStringFromClass(classToInspect),NSStringFromClass(classToInspect)];
+}
+
++ (NSString *) generatePlausibleSelectorNameForSelectorToProtect:(SEL)selectorToProtect ofClass:(Class)classToInspect
+{
+    return [NSStringFromSelector(selectorToProtect) stringByAppendingFormat:@"_%@_%@_ProtectedMethod",NSStringFromClass(classToInspect),NSStringFromClass(classToInspect)];
 }
 
 @end

@@ -14,5 +14,6 @@
 
 + (NSString *) generatePlausibleSelectorNameForSelectorToSuppress:(SEL)selectorToSuppress ofClass:(Class)classToInspect;
 + (NSString *) generatePlausibleSelectorNameForSelectorToInstrument:(SEL)selectorToInstrument ofClass:(Class)classToInspect;
++ (NSString *) generatePlausibleSelectorNameForSelectorToProtect:(SEL)selectorToProtect ofClass:(Class)classToInspect;
 
 @end
