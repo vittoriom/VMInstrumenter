@@ -27,6 +27,14 @@
 + (VMDClass *) classWithClass:(Class)classToInspect;
 
 /**
+ @param classNameAsString the name of the class you want to wrap
+ @return VMDClass a wrapper for the specified class
+ 
+ @example VMDClass *classExample = [VMDClass classFromString:@"NSURLConnection"];
+ */
++ (VMDClass *) classFromString:(NSString *)classNameAsString;
+
+/**
  Adds a new selector with specified implementation to the class
  
  @param selector the SEL you want to add to the class

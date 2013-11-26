@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
+@class VMDClass;
+
 @interface VMDProperty : NSObject
 
 ///The name of the property
@@ -30,5 +32,23 @@
  @return VMDProperty a VMDProperty wrapper for the specified property  
  */
 + (VMDProperty *) propertyWithObjectiveCProperty:(objc_property_t)property;
+
+/**
+ @param propertyNameAsString the property name you want to get
+ @param classToInspect the class to load the property from
+ 
+ @return VMDProperty the property wrapper
+ 
+ @example VMDProperty *propertyExample = [VMDProperty propertyWithName:@"delegate" forClass:[NSURLConnection class]];
+ */
++ (VMDProperty *) propertyWithName:(NSString *)propertyNameAsString forClass:(Class)classToInspect;
+
+/**
+ @param propertyNameAsString the property name you want to get
+ @param classToInspect the VMDClass wrapper to load the property from
+ 
+ @return VMDProperty the property wrapper
+ */
++ (VMDProperty *) propertyWithName:(NSString *)propertyNameAsString forVMDClass:(VMDClass *)classToInspect;
 
 @end

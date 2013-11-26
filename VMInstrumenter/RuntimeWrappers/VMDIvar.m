@@ -7,6 +7,7 @@
 //
 
 #import "VMDIvar.h"
+#import "VMDClass.h"
 
 @implementation VMDIvar {
     Ivar _ivar;
@@ -22,6 +23,34 @@
     ivarObject->_ivar = ivar;
     
     return ivarObject;
+}
+
++ (VMDIvar *) ivarWithName:(NSString *)ivarNameAsString fromClass:(Class)classToInspect
+{
+    VMDClass *classWrapper = [VMDClass classWithClass:classToInspect];
+    return [self ivarWithName:ivarNameAsString fromVMDClass:classWrapper];
+}
+
++ (VMDIvar *) ivarWithName:(NSString *)ivarNameAsString fromVMDClass:(VMDClass *)classToInspect
+{
+    if(!ivarNameAsString || !classToInspect)
+        return nil;
+ 
+    NSArray *ivars = [classToInspect ivars];
+    VMDIvar *foundElement = nil;
+    for(VMDIvar *element in ivars)
+    {
+        if([element.name isEqualToString:ivarNameAsString])
+        {
+            foundElement = element;
+            break;
+        }
+    }
+    
+    if(!foundElement)
+        return nil;
+    
+    return [VMDIvar ivarWithIvar:foundElement.underlyingIvar];
 }
 
 - (NSString *) name

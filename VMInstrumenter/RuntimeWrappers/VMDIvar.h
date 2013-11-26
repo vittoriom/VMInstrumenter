@@ -10,6 +10,8 @@
 #import <objc/runtime.h>
 #import "NSMethodSignature+VMDInstrumenter.h"
 
+@class VMDClass;
+
 @interface VMDIvar : NSObject
 
 ///The name of the ivar
@@ -27,6 +29,24 @@
  @return VMDIvar the VMDIvar object containing and representing the specified ivar
  */
 + (VMDIvar *) ivarWithIvar:(Ivar)ivar;
+
+/**
+ @param ivarNameAsString the ivar name you want to create the wrapper for
+ @param classToInspect the Class you want to load the ivar from
+ 
+ @return VMDIvar the VMDIvar object containing and representing the specified ivar
+ 
+ @example VMDIvar *ivarExample = [VMDIvar ivarWithName:@"_internal" fromClass:[NSURLConnection class]];
+ */
++ (VMDIvar *) ivarWithName:(NSString *)ivarNameAsString fromClass:(Class)classToInspect;
+
+/**
+ @param ivarNameAsString the ivar name you want to create the wrapper for
+ @param classToInspect the VMDClass wrapper you want to load the ivar from
+ 
+ @return VMDIvar the VMDIvar object containing and representing the specified ivar
+ */
++ (VMDIvar *) ivarWithName:(NSString *)ivarNameAsString fromVMDClass:(VMDClass *)classToInspect;
 
 /**
  @param object the object you want to get the Ivar value from

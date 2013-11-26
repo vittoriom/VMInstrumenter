@@ -7,6 +7,7 @@
 //
 
 #import "VMDMethod.h"
+#import "VMDClass.h"
 
 @implementation VMDMethod {
     Method _method;
@@ -21,6 +22,31 @@
     methodToReturn->_method = method;
     
     return methodToReturn;
+}
+
++ (VMDMethod *) methodWithName:(NSString *)methodNameAsString forClass:(Class)classToInspect
+{
+    VMDClass *wrapper = [VMDClass classWithClass:classToInspect];
+    return [self methodWithName:methodNameAsString forVMDClass:wrapper];
+}
+
++ (VMDMethod *) methodWithName:(NSString *)methodNameAsString forVMDClass:(VMDClass *)classToInspect
+{
+    if(!methodNameAsString || !classToInspect)
+        return nil;
+
+    NSArray *methods = [classToInspect methods];
+    VMDMethod *foundElement = nil;
+    for(VMDMethod *element in methods)
+    {
+        if([element.name isEqualToString:methodNameAsString])
+        {
+            foundElement = element;
+            break;
+        }
+    }
+    
+    return [self methodWithMethod:foundElement.underlyingMethod];
 }
 
 - (void) exchangeImplementationWithMethod:(VMDMethod *)newMethod

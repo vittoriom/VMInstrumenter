@@ -25,6 +25,15 @@
     return wrapper;
 }
 
++ (VMDClass *) classFromString:(NSString *)classNameAsString
+{
+    if(!classNameAsString)
+        return nil;
+    
+    Class foundClass = NSClassFromString(classNameAsString);
+    return [VMDClass classWithClass:foundClass];
+}
+
 - (void) addMethodWithSelector:(SEL)selector implementation:(IMP)implementation andSignature:(const char*)signature
 {
     if(!selector)
