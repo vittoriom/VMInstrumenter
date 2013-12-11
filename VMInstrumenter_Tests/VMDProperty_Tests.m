@@ -58,14 +58,50 @@ describe(@"VMDProperty",^{
     });
     
     context(@"when creating new instances",^{
-        it(@"should return nil if the instance is not valid",^{
-            [[[VMDProperty propertyWithObjectiveCProperty:nil] should] beNil];
+        context(@"with propertyWithObjectiveCProperty: constructor", ^{
+            it(@"should return nil if the instance is not valid",^{
+                [[[VMDProperty propertyWithObjectiveCProperty:nil] should] beNil];
+            });
+            
+            it(@"should return a valid VMDProperty otherwise",^{
+                VMDProperty *test = [VMDProperty propertyWithObjectiveCProperty:sut.underlyingProperty];
+                [[test shouldNot] beNil];
+                [[test.name should] equal:@"testProperty"];
+            });
         });
         
-        it(@"should return a valid VMDProperty otherwise",^{
-            VMDProperty *test = [VMDProperty propertyWithObjectiveCProperty:sut.underlyingProperty];
-            [[test shouldNot] beNil];
-            [[test.name should] equal:@"testProperty"];
+        context(@"with propertyWithName:forClass: constructor", ^{
+            it(@"should return nil if the name is not valid", ^{
+                [[[VMDProperty propertyWithName:@"notExisting" forClass:[VMDProperty_Helper class]] should] beNil];
+            });
+            
+            it(@"should return a valid VMDProperty otherwise", ^{
+                VMDProperty *test = [VMDProperty propertyWithName:@"testProperty" forClass:[VMDProperty_Helper class]];
+                [[test shouldNot] beNil];
+                [[test.name should] equal:@"testProperty"];
+            });
+            
+            it(@"should return nil if a nil parameter is specified", ^{
+                [[[VMDProperty propertyWithName:nil forClass:[VMDProperty_Helper class]] should] beNil];
+                [[[VMDProperty propertyWithName:@"testProperty" forClass:nil] should] beNil];
+            });
+        });
+        
+        context(@"with propertyWithName:forVMDClass: constructor", ^{
+            it(@"should return nil if the name is not valid", ^{
+                [[[VMDProperty propertyWithName:@"notExisting" forVMDClass:[VMDClass classWithClass:[VMDProperty_Helper class]]] should] beNil];
+            });
+            
+            it(@"should return a valid VMDProperty otherwise", ^{
+                VMDProperty *test = [VMDProperty propertyWithName:@"testProperty" forVMDClass:[VMDClass classWithClass:[VMDProperty_Helper class]]];
+                [[test shouldNot] beNil];
+                [[test.name should] equal:@"testProperty"];
+            });
+            
+            it(@"should return nil if a nil parameter is specified", ^{
+                [[[VMDProperty propertyWithName:nil forVMDClass:[VMDClass classWithClass:[VMDProperty_Helper class]]] should] beNil];
+                [[[VMDProperty propertyWithName:@"testProperty" forClass:nil] should] beNil];
+            });
         });
     });
     

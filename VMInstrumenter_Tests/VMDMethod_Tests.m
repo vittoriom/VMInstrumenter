@@ -70,14 +70,58 @@ describe(@"VMDMethod", ^{
     });
     
     context(@"when creating new instances", ^{
-        it(@"should return nil if the method is not valid", ^{
-            VMDMethod *test = [VMDMethod methodWithMethod:nil];
-            [[test should] beNil];
+        context(@"with methodWithMethod: constructor", ^{
+            it(@"should return nil if the method is not valid", ^{
+                VMDMethod *test = [VMDMethod methodWithMethod:nil];
+                [[test should] beNil];
+            });
+            
+            it(@"should return a valid VMDMethod otherwise", ^{
+                VMDMethod *test = [VMDMethod methodWithMethod:sut.underlyingMethod];
+                [[test shouldNot] beNil];
+            });
         });
         
-        it(@"should return a valid VMDMethod otherwise", ^{
-            VMDMethod *test = [VMDMethod methodWithMethod:sut.underlyingMethod];
-            [[test shouldNot] beNil];
+        context(@"with methodWithName:forClass: constructor", ^{
+            it(@"should return nil if the method name is not valid", ^{
+                VMDMethod *test = [VMDMethod methodWithName:@"Idontexist" forClass:[VMDMethod_Helper class]];
+                [[test should] beNil];
+            });
+            
+            it(@"should return a valid VMDMethod otherwise", ^{
+                VMDMethod *test = [VMDMethod methodWithName:@"voidMethodNoArgs" forClass:[VMDMethod_Helper class]];
+                [[test shouldNot] beNil];
+                [[test.name should] equal:@"voidMethodNoArgs"];
+            });
+            
+            it(@"should return nil if a nil parameter is specified", ^{
+                VMDMethod *test = [VMDMethod methodWithName:nil forClass:[VMDMethod_Helper class]];
+                [[test should] beNil];
+                
+                test = [VMDMethod methodWithName:@"voidMethodNoArgs" forClass:nil];
+                [[test should] beNil];
+            });
+        });
+        
+        context(@"with methodWithName:forVMDClass: constructor", ^{
+            it(@"should return nil if the method name is not valid", ^{
+                VMDMethod *test = [VMDMethod methodWithName:@"Idontexist" forVMDClass:[VMDClass classWithClass:[VMDMethod_Helper class]]];
+                [[test should] beNil];
+            });
+            
+            it(@"should return a valid VMDMethod otherwise", ^{
+                VMDMethod *test = [VMDMethod methodWithName:@"voidMethodNoArgs" forVMDClass:[VMDClass classWithClass:[VMDMethod_Helper class]]];
+                [[test shouldNot] beNil];
+                [[test.name should] equal:@"voidMethodNoArgs"];
+            });
+            
+            it(@"should return nil if a nil parameter is specified", ^{
+                VMDMethod *test = [VMDMethod methodWithName:nil forVMDClass:[VMDClass classWithClass:[VMDMethod_Helper class]]];
+                [[test should] beNil];
+                
+                test = [VMDMethod methodWithName:@"voidMethodNoArgs" forClass:nil];
+                [[test should] beNil];
+            });
         });
     });
     

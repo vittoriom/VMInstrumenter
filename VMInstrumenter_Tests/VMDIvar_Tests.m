@@ -69,15 +69,59 @@ describe(@"VMDIvar", ^{
     });
     
     context(@"when creating new instances", ^{
-        it(@"should return nil if the ivar is not valid or nil", ^{
-            VMDIvar *ivar = [VMDIvar ivarWithIvar:nil];
-            [[ivar should] beNil];
+        context(@"sith ivarWithIvar: constructor", ^{
+            it(@"should return nil if the ivar is not valid or nil", ^{
+                VMDIvar *ivar = [VMDIvar ivarWithIvar:nil];
+                [[ivar should] beNil];
+            });
+            
+            it(@"should return a valid VMDIvar wrapper otherwise", ^{
+                VMDIvar *ivar = [VMDIvar ivarWithIvar:sut.underlyingIvar];
+                [[ivar shouldNot] beNil];
+                [[ivar.name should] equal:@"strIvar"];
+            });
         });
         
-        it(@"should return a valid VMDIvar wrapper otherwise", ^{
-            VMDIvar *ivar = [VMDIvar ivarWithIvar:sut.underlyingIvar];
-            [[ivar shouldNot] beNil];
-            [[ivar.name should] equal:@"strIvar"];
+        context(@"with ivarWithName:fromClass: constructor", ^{
+            it(@"should return a valid VMDIvar if a correct ivar name is specified", ^{
+                VMDIvar *sut = [VMDIvar ivarWithName:@"numIvar" fromClass:[VMDIvar_Helper class]];
+                [[sut shouldNot] beNil];
+                [[[sut name] should] equal:@"numIvar"];
+            });
+            
+            it(@"should return nil if a non-existing ivar name is specified", ^{
+                VMDIvar *sut = [VMDIvar ivarWithName:@"Idontexist" fromClass:[VMDIvar_Helper class]];
+                [[sut should] beNil];
+            });
+            
+            it(@"should return nil if a nil parameter is specified", ^{
+                VMDIvar *sut = [VMDIvar ivarWithName:nil fromClass:[VMDIvar_Helper class]];
+                [[sut should] beNil];
+                
+                sut = [VMDIvar ivarWithName:@"Test" fromClass:nil];
+                [[sut should] beNil];
+            });
+        });
+        
+        context(@"with ivarWithName:fromVMDClass: constructor", ^{
+            it(@"should return a valid VMDIvar if a correct ivar name is specified", ^{
+                VMDIvar *sut = [VMDIvar ivarWithName:@"numIvar" fromVMDClass:[VMDClass classWithClass:[VMDIvar_Helper class]]];
+                [[sut shouldNot] beNil];
+                [[[sut name] should] equal:@"numIvar"];
+            });
+            
+            it(@"should return nil if a non-existing ivar name is specified", ^{
+                VMDIvar *sut = [VMDIvar ivarWithName:@"Idontexist" fromVMDClass:[VMDClass classWithClass:[VMDIvar_Helper class]]];
+                [[sut should] beNil];
+            });
+            
+            it(@"should return nil if a nil parameter is specified", ^{
+                VMDIvar *sut = [VMDIvar ivarWithName:nil fromVMDClass:[VMDClass classWithClass:[VMDIvar_Helper class]]];
+                [[sut should] beNil];
+                
+                sut = [VMDIvar ivarWithName:@"Test" fromClass:nil];
+                [[sut should] beNil];
+            });
         });
     });
     

@@ -25,16 +25,35 @@ SPEC_BEGIN(VMDClass_Tests)
 
 describe(@"VMDClass", ^{
     context(@"when creating a wrapper", ^{
-        it(@"Should not return nil if a class is specified", ^{
-            VMDClass *sut = [VMDClass classWithClass:[self class]];
-            [[sut shouldNot] beNil];
+        context(@"with classWithClass: constructor", ^{
+            it(@"Should not return nil if a class is specified", ^{
+                VMDClass *sut = [VMDClass classWithClass:[self class]];
+                [[sut shouldNot] beNil];
+            });
+            
+            it(@"Should return nil if a class is not specified", ^{
+                VMDClass *sut = [VMDClass classWithClass:nil];
+                [[sut should] beNil];
+                sut = [VMDClass classWithClass:NSClassFromString(@"Nonexisting_Class")];
+                [[sut should] beNil];
+            });
         });
         
-        it(@"Should return nil if a class is not specified", ^{
-            VMDClass *sut = [VMDClass classWithClass:nil];
-            [[sut should] beNil];
-            sut = [VMDClass classWithClass:NSClassFromString(@"Nonexisting_Class")];
-            [[sut should] beNil];
+        context(@"with classFromString: constructor", ^{
+            it(@"should not return nil if a correct class name is specified", ^{
+                VMDClass *sut = [VMDClass classFromString:@"NSURLConnection"];
+                [[sut shouldNot] beNil];
+            });
+            
+            it(@"should return nil if a non-existing class is specified", ^{
+                VMDClass *sut = [VMDClass classFromString:@"IdontExistAnywhere"];
+                [[sut should] beNil];
+            });
+            
+            it(@"Should return nil if a nil parameter is specified", ^{
+                VMDClass *sut = [VMDClass classFromString:nil];
+                [[sut should] beNil];
+            });
         });
     });
     
