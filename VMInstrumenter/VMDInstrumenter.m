@@ -304,10 +304,16 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                     forClass:classToInspect
              withBeforeBlock:^(id instance) {
                  VMDStacktrace *stacktrace = [VMDStacktrace new];
-                 VMDStacktraceFrame *frame = [stacktrace frames][6]; //FIXME: Find a more reliable way to find the specific frame
+                 
+                 NSInteger firstUserFrame = stacktrace.frames.count - [[[[stacktrace frames] reverseObjectEnumerator] allObjects] indexOfObjectPassingTest:^BOOL(VMDStacktraceFrame *frame, NSUInteger idx, BOOL *stop) {
+                     VMDClass *classWrapper = [VMDClass classWithClass:frame.callingClass];
+                     return [classWrapper.name hasPrefix:@"VMD"];
+                 }];
+                 
+                 VMDStacktraceFrame *frame = [stacktrace frames][firstUserFrame]; //FIXME: Find a more reliable way to find the specific frame
                  if(!testBlock || !testBlock(frame,instance))
                      @throw [NSException exceptionWithName:VMDInstrumenterSafetyException
-                                                    reason:[NSString stringWithFormat:@"[%@] - Class %@ is not allowed to call SEL %@",NSStringFromClass([VMDInstrumenter class]), NSStringFromClass([frame callingClass]), NSStringFromSelector(selectorToProtect)]
+                                                    reason:[NSString stringWithFormat:@"[%@] - Object <%p %@> is not allowed to call SEL %@",NSStringFromClass([VMDInstrumenter class]), instance, NSStringFromClass([frame callingClass]), NSStringFromSelector(selectorToProtect)]
                                                   userInfo:nil];
              }
                   afterBlock:nil];
