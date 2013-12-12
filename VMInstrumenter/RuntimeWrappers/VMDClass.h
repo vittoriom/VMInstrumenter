@@ -13,6 +13,7 @@
 
 @interface VMDClass : NSObject
 
+@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSArray *methods;
 @property (nonatomic, readonly) NSArray *ivars;
 @property (nonatomic, readonly) NSArray *properties;

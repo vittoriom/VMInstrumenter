@@ -84,6 +84,11 @@
     return [self getMethodFromClassSelector:selector] != nil;
 }
 
+- (NSString *) name
+{
+    return NSStringFromClass(_classToInspect);
+}
+
 - (NSArray *) methods
 {
     u_int count;
