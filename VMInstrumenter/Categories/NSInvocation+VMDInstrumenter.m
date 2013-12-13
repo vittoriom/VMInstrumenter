@@ -92,8 +92,8 @@
                 break;
             case VMDEncodedTypeSEL:
             {
-                SEL selector = va_arg(args, SEL);
-                [invocationObject setArgument:&selector atIndex:argumentIndex];
+                SEL selectorToReturn = va_arg(args, SEL);
+                [invocationObject setArgument:&selectorToReturn atIndex:argumentIndex];
             }
                 break;
             case VMDEncodedTypeClass:

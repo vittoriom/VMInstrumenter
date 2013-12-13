@@ -7,7 +7,6 @@
 //
 
 #import "VMDHelper.h"
-#import "VMDInstrumenter.h"
 
 @implementation VMDHelper
 

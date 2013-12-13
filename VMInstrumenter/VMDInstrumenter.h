@@ -255,7 +255,17 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 
 /*
  @TODO: These methods could be included in the public API, I'm not yet sure if they are useful though. What could the use cases be?
- 
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock;
+
 - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
 
 - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
@@ -265,6 +275,17 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses;
 
 - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses;
+
+- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock;
+
 */
 
 @end

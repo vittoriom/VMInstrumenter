@@ -56,7 +56,7 @@
     return [VMDMethod methodWithMethod:class_getClassMethod(_classToInspect, selector)];
 }
 
-- (VMDMethod *) getMethodFromSelector:(SEL)selector orThrowExceptionWithReason:(NSString *)reason
+- (VMDMethod *) getMethodFromSelector:(SEL)selector orThrowExceptionWithReason:(const NSString *)reason
 {
     VMDMethod *methodToReturn = [self getMethodFromInstanceSelector:selector];
     if(!methodToReturn)

@@ -8,14 +8,11 @@
 
 #import "VMDInstrumenter.h"
 #import <objc/message.h>
-#import <objc/runtime.h>
 #import "VMDClass.h"
 #import "VMDMethod.h"
-#import <Foundation/NSObjCRuntime.h>
 #import "NSObject+VMDInstrumenter.h"
 #import "VMDHelper.h"
 #import "NSInvocation+VMDInstrumenter.h"
-#import "NSMethodSignature+VMDInstrumenter.h"
 #import "VMDStacktrace.h"
 #import "VMDStacktraceFrame.h"
 
@@ -115,7 +112,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                                                 @"error" : @"selector is not suppressed",
                                                 @"info" : selectorName
                                                 }];
-        return;
     }
     
     VMDMethod *originalMethod = [selfClassWrapper getMethodFromInstanceSelector:NSSelectorFromString(plausibleSuppressedSelectorName)];
@@ -174,7 +170,6 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                                                 @"error" : @"Selector already instrumented",
                                                 @"info" : selectorName
                                                 }];
-        return;
     }
     
     Class classOrMetaclass = classToInspect;
@@ -218,9 +213,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
          forInstancesOfClass:classToInspect
                  passingTest:testBlock
              withBeforeBlock:^(id instance){
-                        VMDExecuteBefore defaultBeforeBlock = [self VMDDefaultBeforeBlockForSelector:selectorToTrace withTracingOptions:options];
-                        if(defaultBeforeBlock)
-                            defaultBeforeBlock(instance);
+                        if(executeBefore)
+                            executeBefore(instance);
                         if(traceTime)
                             before = [NSDate date];
                   }
@@ -231,9 +225,8 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                           NSLog(@"[%@] - Execution time for the selector %@ on %@ : %f",NSStringFromClass([VMDInstrumenter class]), NSStringFromSelector(selectorToTrace), instance, elapsed);
                       }
                       
-                      VMDExecuteAfter defaultAfterBlock = [self VMDDefaultAfterBlockForSelector:selectorToTrace];
-                      if(defaultAfterBlock)
-                          defaultAfterBlock(instance);
+                      if(executeAfter)
+                          executeAfter(instance);
                   }];
 }
 

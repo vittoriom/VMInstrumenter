@@ -354,7 +354,7 @@
 				ORGANIZATIONNAME = "Vittorio Monaco";
 				TargetAttributes = {
 					5265FA771825075700B09838 = {
-						TestTargetID = A439FD6817CE221200FCFB02;
+						TestTargetID = A439FD6817CE221200FCFB02 /* VMInstrumenter_Sample */;
 					};
 				};
 			};

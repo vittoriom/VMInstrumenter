@@ -11,7 +11,6 @@
 #import "VMDHelper.h"
 #import "VMDMethod.h"
 #import "VMDClass.h"
-#import <objc/runtime.h>
 
 @implementation NSMethodSignature (VMDInstrumenter)
 
