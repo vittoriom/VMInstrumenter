@@ -275,7 +275,30 @@ SPEC_BEGIN(TestsVMDInstrumenter)
             });*/
             
             context(@"from being called from sources other than classes passing a specific test block", ^{
+                it(@"should do nothing if the class is nil", ^{
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:nil fromBeingCalledFromSourcesOtherThanClassesPassingTest:^BOOL(__unsafe_unretained Class callingClass) {
+                                                   return YES;
+                                               }];
+                    }) shouldNot] raise];
+                });
                 
+                it(@"should protect the selector if the class is valid", ^{
+                    [_instrumenter protectSelector:@selector(testOnClass2)
+                                           onClass:[ProtectHelper class] fromBeingCalledFromSourcesOtherThanClassesPassingTest:^BOOL(__unsafe_unretained Class callingClass) {
+                                               return [NSStringFromClass(callingClass) hasPrefix:@"Tests"];
+                                           }];
+                    ProtectHelper *helper = [ProtectHelper new];
+                    [[theBlock(^{
+                        [helper testOnClass2];
+                    }) shouldNot] raise];
+                    
+                    ProtectHelperChecker *checker = [ProtectHelperChecker new];
+                    [[theBlock(^{
+                        [checker callSelector:@selector(testOnClass2) onObject:helper];
+                    }) should] raise];
+                });
             });
         });
         

@@ -284,6 +284,9 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:(VMDFrameTestBlock)testBlock
 {
+    if(!classToInspect)
+        return;
+    
     NSString *protectedSelectorName = [VMDHelper generatePlausibleSelectorNameForSelectorToProtect:selectorToProtect ofClass:classToInspect];
     if([self.protectedSelectors containsObject:protectedSelectorName])
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
