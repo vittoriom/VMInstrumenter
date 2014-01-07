@@ -36,6 +36,13 @@
 + (VMDClass *) classFromString:(NSString *)classNameAsString;
 
 /**
+ @param obj the object you want to inspect
+ 
+ @return YES if the object is a Class, NO otherwise
+ */
++ (BOOL) isClass:(id)obj;
+
+/**
  Adds a new selector with specified implementation to the class
  
  @param selector the SEL you want to add to the class

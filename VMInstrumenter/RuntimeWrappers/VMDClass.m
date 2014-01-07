@@ -15,6 +15,11 @@
     Class _classToInspect;
 }
 
++ (BOOL) isClass:(id)obj
+{
+    return (class_isMetaClass(object_getClass(obj)));
+}
+
 + (VMDClass *) classWithClass:(Class)classToInspect
 {
     if(!classToInspect)

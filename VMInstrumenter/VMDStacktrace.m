@@ -19,7 +19,7 @@
     self = [super init];
     if(self)
     {
-        _framesArray = [@[] mutableCopy];
+        _framesArray = [NSMutableArray array];
         NSArray *stacktraceFrames = [[self stacktrace] componentsSeparatedByString:@"\n"];
         for(NSString *frameString in stacktraceFrames)
         {

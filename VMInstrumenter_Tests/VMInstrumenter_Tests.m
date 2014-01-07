@@ -13,7 +13,69 @@
 #import "NSInvocation+VMDInstrumenter.h"
 #import "NSObject+VMDInstrumenter.h"
 
-SPEC_BEGIN(VMDInstrumenterTests)
+@interface ProtectHelperChecker : NSObject
+
+- (void) callSelector:(SEL)selector onObject:(id)object;
+
+@end
+
+@implementation ProtectHelperChecker
+
+- (void) callSelector:(SEL)selector onObject:(id)object
+{
+    objc_msgSend(object, selector);
+}
+
+@end
+
+@interface ProtectHelper : NSObject
+
+- (void) testOnClass1;
+- (void) testOnClass2;
+
+- (void) testOnInstance1;
+- (void) testOnInstance2;
+
+- (void) testOnBlock1;
+- (void) testOnBlock2;
+
+@end
+
+@implementation ProtectHelper
+
+- (void) testOnClass1
+{
+    
+}
+
+- (void) testOnClass2
+{
+    
+}
+
+- (void) testOnInstance1
+{
+    
+}
+
+- (void) testOnInstance2
+{
+    
+}
+
+- (void) testOnBlock1
+{
+    
+}
+
+- (void) testOnBlock2
+{
+    
+}
+
+@end
+
+SPEC_BEGIN(TestsVMDInstrumenter)
     __block VMDInstrumenter *_instrumenter;
 
     describe(@"VMDInstrumenter", ^{
@@ -121,6 +183,99 @@ SPEC_BEGIN(VMDInstrumenterTests)
                 [[helper2 shouldNot] receive:@selector(canSafelyCallMe)];
                 
                 [helper dontCallMe];
+            });
+        });
+        
+        context(@"when protecting selectors for a class", ^{
+            beforeAll(^{
+                _instrumenter = [VMDInstrumenter new];
+            });
+            
+            context(@"from being called from sources other than a set of classes", ^{
+                it(@"should do nothing if the array is nil", ^{
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:[VMTestsHelper class] fromBeingCalledFromSourcesOtherThanClasses:nil];
+                    }) shouldNot] raise];
+                });
+                
+                it(@"should do nothing if the array is empty", ^{
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:[VMTestsHelper class] fromBeingCalledFromSourcesOtherThanClasses:@[]];
+                    }) shouldNot] raise];
+                });
+            });
+            /*
+            context(@"from being called from sources other than a set of instances", ^{
+                it(@"should do nothing if the array is empty or nil", ^{
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:[VMTestsHelper class] fromBeingCalledFromSourcesOtherThanInstances:nil];
+                    }) shouldNot] raise];
+                    
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:[VMTestsHelper class] fromBeingCalledFromSourcesOtherThanInstances:@[]];
+                    }) shouldNot] raise];
+                });
+            });*/
+            
+            context(@"from being called from sources other than a specific class", ^{
+                it(@"should do nothing if the class is nil", ^{
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:nil fromBeingCalledFromSourcesOtherThanClass:[self class]];
+                    }) shouldNot] raise];
+                });
+                
+                it(@"should protect the selector if the class is valid", ^{
+                    [_instrumenter protectSelector:@selector(testOnClass1)
+                                           onClass:[ProtectHelper class] fromBeingCalledFromSourcesOtherThanClass:[TestsVMDInstrumenter class]];
+                    ProtectHelper *helper = [ProtectHelper new];
+                    [[theBlock(^{
+                        [helper testOnClass1];
+                    }) shouldNot] raise];
+                    
+                    ProtectHelperChecker *checker = [ProtectHelperChecker new];
+                    [[theBlock(^{
+                        [checker callSelector:@selector(testOnClass1) onObject:helper];
+                    }) should] raise];
+                });
+            });
+            /*
+            context(@"from being called from sources other than a specific instance", ^{
+                it(@"should do nothing if the instance is nil", ^{
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:nil fromBeingCalledFromSourcesOtherThanInstance:nil];
+                    }) shouldNot] raise];
+                    
+                    [[theBlock(^{
+                        [_instrumenter protectSelector:@selector(dontCallMe)
+                                               onClass:[VMTestsHelper class] fromBeingCalledFromSourcesOtherThanInstance:nil];
+                    }) shouldNot] raise];
+                });
+                
+                it(@"should protect the selector if the instance is valid", ^{
+                    ProtectHelperChecker *checker = [ProtectHelperChecker new];
+                    
+                    [_instrumenter protectSelector:@selector(testOnInstance1)
+                                           onClass:[ProtectHelper class] fromBeingCalledFromSourcesOtherThanInstance:checker];
+                    ProtectHelper *helper = [ProtectHelper new];
+                    [[theBlock(^{
+                        [helper testOnInstance1];
+                    }) should] raise];
+                    
+                    NSLog(@"CHECKER: %@", checker);
+                    [[theBlock(^{
+                        [checker callSelector:@selector(testOnInstance1) onObject:helper];
+                    }) shouldNot] raise];
+                });
+            });*/
+            
+            context(@"from being called from sources other than classes passing a specific test block", ^{
+                
             });
         });
         

@@ -303,7 +303,7 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
                      return [classWrapper.name hasPrefix:@"VMD"];
                  }];
                  
-                 VMDStacktraceFrame *frame = [stacktrace frames][firstUserFrame]; //FIXME: Find a more reliable way to find the specific frame
+                 VMDStacktraceFrame *frame = [stacktrace frames][firstUserFrame];
                  if(!testBlock || !testBlock(frame,instance))
                      @throw [NSException exceptionWithName:VMDInstrumenterSafetyException
                                                     reason:[NSString stringWithFormat:@"[%@] - Object <%p %@> is not allowed to call SEL %@",NSStringFromClass([VMDInstrumenter class]), instance, NSStringFromClass([frame callingClass]), NSStringFromSelector(selectorToProtect)]
@@ -316,15 +316,21 @@ const NSString * VMDInstrumenterDefaultMethodExceptionReason = @"Trying to get s
 
 - (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass
 {
+    if(!classToInspect)
+        return;
+    
     [self protectSelector:selectorToProtect onClass:classToInspect fromBeingCalledFromSourcesOtherThanClasses:@[masterClass]];
 }
 
 - (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses
 {
+    if(!masterClasses || masterClasses.count == 0)
+        return;
+    
     //Safety check
     for(id obj in masterClasses)
     {
-        if(!(class_isMetaClass(object_getClass(obj))))
+        if(![VMDClass isClass:obj])
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                            reason:[NSString stringWithFormat:@"[%@] - Specified allowed class %@ is not a Class", NSStringFromClass([VMDInstrumenter class]), obj]
                                          userInfo:@{
@@ -348,15 +354,21 @@ fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:^BOOL(VMDStacktra
         return testBlock && testBlock([frame callingClass]);
     }];
 }
-
+/*
 - (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance
 {
+    if(!classToInspect || !masterInstance)
+        return;
+    
     [self protectSelector:selectorToProtect onClass:classToInspect fromBeingCalledFromSourcesOtherThanInstances:@[masterInstance]];
 }
 
 - (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances
 {
-    NSMutableArray *masterInstancesAsString = [@[] mutableCopy];
+    if(!masterInstances || masterInstances.count == 0)
+        return;
+    
+    NSMutableArray *masterInstancesAsString = [NSMutableArray array];
     [masterInstances enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [masterInstancesAsString addObject:[NSString stringWithFormat:@"%p",obj]];
     }];
@@ -366,7 +378,7 @@ fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:^BOOL(VMDStacktra
 fromBeingCalledFromSourcesOtherThanStacktraceFramesPassingTest:^BOOL(VMDStacktraceFrame *frame, id instance) {
         return [masterInstancesAsString containsObject:[NSString stringWithFormat:@"%p",instance]];
     }];
-}
+}*/
 
 #pragma mark - Default tracing blocks
 

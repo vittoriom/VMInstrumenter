@@ -24,6 +24,20 @@
 SPEC_BEGIN(VMDClass_Tests)
 
 describe(@"VMDClass", ^{
+    context(@"When checking against a Class", ^{
+        it(@"should return NO if nil is passed", ^{
+            [[theValue([VMDClass isClass:nil]) should] beFalse];
+        });
+        
+        it(@"should return NO if an instance is passed", ^{
+            [[theValue([VMDClass isClass:[VMDHelper new]]) should] beFalse];
+        });
+        
+        it(@"should return YES if a class is passed", ^{
+            [[theValue([VMDClass isClass:[VMDHelper class]]) should] beTrue];
+        });
+    });
+    
     context(@"when creating a wrapper", ^{
         context(@"with classWithClass: constructor", ^{
             it(@"Should not return nil if a class is specified", ^{

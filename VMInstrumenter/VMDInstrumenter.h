@@ -215,34 +215,6 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 
 /**
  This method builds a barrier on the specified selector of the specified class, so that
- if any object other than the masterInstance calls this selector, an exception is thrown for security reasons
- 
- @param selectorToProtect the SEL you want to protect
- @param classToInspect the Class to which the SEL belongs
- @param allowedInstance the only object allowed to call the SEL from now on
- 
- @throws NSInternalInconsistencyException If the SEL is already protected, or if the SEL cannot be found in the specified Class.
- 
- @discussion this method performs an exact pointer comparison, so copies of the instance won't be able to call the SEL
- */
-- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)allowedInstance;
-
-/**
- This method builds a barrier on the specified selector of the specified class, so that
- if any object not contained in the masterInstances array calls this selector, an exception is thrown for security reasons
- 
- @param selectorToProtect the SEL you want to protect
- @param classToInspect the Class to which the SEL belongs
- @param allowedInstances the only objects allowed to call the SEL from now on
- 
- @throws NSInternalInconsistencyException If the SEL is already protected, if the SEL cannot be found in the specified Class, or if the NSArray contains non-object elements.
- 
- @discussion this method performs an exact pointer comparison, so copies of the instance won't be able to call the SEL
- */
-- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)allowedInstances;
-
-/**
- This method builds a barrier on the specified selector of the specified class, so that
  if any class that doesn't pass the testBlock calls this selector, an exception is thrown for security reasons
  
  @param selectorToProtect the SEL you want to protect
@@ -256,19 +228,11 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 /*
  @TODO: These methods could be included in the public API, I'm not yet sure if they are useful though. What could the use cases be?
 
-- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
-
-- (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
-
 - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass;
 
 - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses;
 
 - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock;
-
-- (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
-
-- (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
 
 - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass;
 
@@ -276,16 +240,60 @@ typedef NS_OPTIONS(NSUInteger, VMDInstrumenterTracingOptions)
 
 - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock;
 
-- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
-
-- (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
-
 - (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClass:(Class)masterClass;
 
 - (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClasses:(NSArray *)masterClasses;
 
 - (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanClassesPassingTest:(VMDClassTestBlock)testBlock;
-
 */
+
+/*
+ Probably not going to work: (I have to find a workaround)
+ 
+ - (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+ 
+ - (void) protectSelectors:(NSArray *)selectorsToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+
+ - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+ 
+ - (void) protectSelector:(SEL)selectorToProtect onInstance:(id)instanceToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+ 
+ - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+ 
+ - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+ 
+ 
+ - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)masterInstance;
+ 
+ - (void) protectSelectors:(NSArray *)selectorsToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)masterInstances;
+*/
+/**
+ This method builds a barrier on the specified selector of the specified class, so that
+ if any object other than the masterInstance calls this selector, an exception is thrown for security reasons
+ 
+ @param selectorToProtect the SEL you want to protect
+ @param classToInspect the Class to which the SEL belongs
+ @param allowedInstance the only object allowed to call the SEL from now on
+ 
+ @throws NSInternalInconsistencyException If the SEL is already protected, or if the SEL cannot be found in the specified Class.
+ 
+ @discussion this method performs an exact pointer comparison, so copies of the instance won't be able to call the SEL
+ */
+/*- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstance:(id)allowedInstance;
+*/
+/**
+ This method builds a barrier on the specified selector of the specified class, so that
+ if any object not contained in the masterInstances array calls this selector, an exception is thrown for security reasons
+ 
+ @param selectorToProtect the SEL you want to protect
+ @param classToInspect the Class to which the SEL belongs
+ @param allowedInstances the only objects allowed to call the SEL from now on
+ 
+ @throws NSInternalInconsistencyException If the SEL is already protected, if the SEL cannot be found in the specified Class, or if the NSArray contains non-object elements.
+ 
+ @discussion this method performs an exact pointer comparison, so copies of the instance won't be able to call the SEL
+ */
+/*- (void) protectSelector:(SEL)selectorToProtect onClass:(Class)classToInspect fromBeingCalledFromSourcesOtherThanInstances:(NSArray *)allowedInstances;
+ */
 
 @end
